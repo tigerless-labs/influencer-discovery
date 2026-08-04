@@ -1,0 +1,428 @@
+<title>outreach 流水线设计</title>
+
+<style>
+  :root {
+    --paper:   #EDEDE8;
+    --surface: #F7F7F3;
+    --ink:     #171C1E;
+    --muted:   #5E6B6D;
+    --rule:    #D2D6CE;
+    --machine: #1F6E80;
+    --human:   #A2681F;
+    --guard:   #96382A;
+
+    --display: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+    --body: system-ui, -apple-system, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper:   #0F1416;
+      --surface: #161D20;
+      --ink:     #E4E8E4;
+      --muted:   #8D9C9D;
+      --rule:    #28322F;
+      --machine: #56AEC1;
+      --human:   #D49E4E;
+      --guard:   #CB6551;
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper:   #0F1416;
+    --surface: #161D20;
+    --ink:     #E4E8E4;
+    --muted:   #8D9C9D;
+    --rule:    #28322F;
+    --machine: #56AEC1;
+    --human:   #D49E4E;
+    --guard:   #CB6551;
+  }
+  :root[data-theme="light"] {
+    --paper:   #EDEDE8;
+    --surface: #F7F7F3;
+    --ink:     #171C1E;
+    --muted:   #5E6B6D;
+    --rule:    #D2D6CE;
+    --machine: #1F6E80;
+    --human:   #A2681F;
+    --guard:   #96382A;
+  }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--body);
+    line-height: 1.75;
+    margin: 0;
+    padding: 4rem 1.5rem 6rem;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap { max-width: 78rem; margin: 0 auto; display: flex; flex-direction: column; gap: 3.5rem; }
+  .col  { max-width: 42rem; }
+
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: .72rem;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: var(--machine);
+    margin: 0 0 1rem;
+  }
+
+  h1 {
+    font-family: var(--display);
+    font-weight: 600;
+    font-size: clamp(2rem, 4.5vw, 2.9rem);
+    line-height: 1.15;
+    letter-spacing: -.01em;
+    text-wrap: balance;
+    margin: 0 0 1.25rem;
+  }
+
+  h2 {
+    font-family: var(--display);
+    font-weight: 600;
+    font-size: 1.45rem;
+    letter-spacing: -.005em;
+    text-wrap: balance;
+    margin: 0 0 .35rem;
+  }
+
+  .lede { font-size: 1.08rem; color: var(--muted); margin: 0; text-wrap: pretty; }
+  p { margin: 0 0 1rem; text-wrap: pretty; }
+  p:last-child { margin-bottom: 0; }
+  strong { font-weight: 620; }
+  code { font-family: var(--mono); font-size: .88em; color: var(--machine); }
+
+  section { display: flex; flex-direction: column; gap: 1.25rem; }
+  .section-head { display: flex; flex-direction: column; gap: .1rem; max-width: 42rem; }
+  .section-head p { color: var(--muted); margin: 0; }
+
+  figure { margin: 0; display: flex; flex-direction: column; gap: .9rem; }
+  .scroller { overflow-x: auto; padding-bottom: .5rem; }
+  .scroller svg { display: block; height: auto; }
+  #fig-pipeline { min-width: 62rem; width: 100%; }
+  #fig-state    { min-width: 34rem; width: 100%; max-width: 46rem; }
+  figcaption { font-size: .88rem; color: var(--muted); max-width: 44rem; text-wrap: pretty; }
+
+  /* ---- diagram styling (page-level CSS; the SVG carries no <style>) ---- */
+  .d-box   { fill: var(--surface); stroke: var(--machine); stroke-width: 1.25; }
+  .d-sheet { fill: none; stroke: var(--rule); stroke-width: 1.25; }
+  .d-mach  { fill: var(--surface); stroke: var(--machine); stroke-width: 1.25; }
+  .d-hum   { fill: var(--surface); stroke: var(--human);   stroke-width: 1.25; }
+  .d-drop  { fill: var(--surface); stroke: var(--guard);   stroke-width: 1.25; stroke-dasharray: 4 3; }
+
+  .d-flow  { fill: none; stroke: var(--machine); stroke-width: 1.5; }
+  .d-back  { fill: none; stroke: var(--human);   stroke-width: 1.5; }
+  .d-fail  { fill: none; stroke: var(--guard);   stroke-width: 1.25; stroke-dasharray: 4 3; }
+
+  .d-name  { fill: var(--ink);     font-family: var(--body); font-size: 14px; text-anchor: middle; }
+  .d-num   { fill: var(--machine); font-family: var(--mono); font-size: 10px; letter-spacing: .1em; text-anchor: middle; }
+  .d-num-h { fill: var(--human);   font-family: var(--mono); font-size: 10px; letter-spacing: .1em; text-anchor: middle; }
+  .d-num-g { fill: var(--guard);   font-family: var(--mono); font-size: 10px; letter-spacing: .1em; text-anchor: middle; }
+  .d-arc   { fill: var(--muted);   font-family: var(--mono); font-size: 9.5px; text-anchor: middle; }
+  .d-sub   { fill: var(--muted);   font-family: var(--body); font-size: 9.5px; text-anchor: middle; }
+  .d-tag   { fill: var(--muted);   font-family: var(--mono); font-size: 9.5px; text-anchor: start; }
+  .d-eyeb  { fill: var(--muted);   font-family: var(--mono); font-size: 10px; letter-spacing: .16em; text-anchor: start; }
+  .d-mach-t{ fill: var(--machine); font-family: var(--body); font-size: 13px; text-anchor: middle; }
+  .d-hum-t { fill: var(--human);   font-family: var(--body); font-size: 13px; text-anchor: middle; }
+
+  /* ---- stage table ---- */
+  .table-scroll { overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; min-width: 40rem; font-size: .93rem; }
+  thead th {
+    font-family: var(--mono); font-size: .72rem; letter-spacing: .12em; text-transform: uppercase;
+    color: var(--muted); font-weight: 400; text-align: left;
+    padding: 0 .9rem .55rem 0; border-bottom: 1px solid var(--rule);
+  }
+  tbody td { padding: .7rem .9rem .7rem 0; border-bottom: 1px solid var(--rule); vertical-align: top; }
+  tbody tr:last-child td { border-bottom: none; }
+  td.n { font-family: var(--mono); color: var(--machine); font-variant-numeric: tabular-nums; width: 2.5rem; }
+  td.s { font-weight: 600; white-space: nowrap; width: 6rem; }
+  td.o { color: var(--muted); }
+
+  /* ---- invariants ---- */
+  .inv { list-style: none; margin: 0; padding: 0; display: grid; gap: .1rem; grid-template-columns: repeat(auto-fit, minmax(19rem, 1fr)); }
+  .inv li { border-top: 1px solid var(--rule); padding: 1rem 1.5rem 1.1rem 0; }
+  .inv b { display: block; font-family: var(--mono); font-size: .78rem; letter-spacing: .06em; color: var(--machine); margin-bottom: .3rem; font-weight: 500; }
+  .inv span { color: var(--muted); font-size: .93rem; }
+
+  /* ---- fixes ---- */
+  .fix { display: grid; gap: 0; grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr)); }
+  .fix > div { border-top: 1px solid var(--rule); padding: 1.1rem 1.75rem 1.2rem 0; }
+  .fix h3 { font-family: var(--body); font-size: .95rem; font-weight: 620; margin: 0 0 .45rem; }
+  .fix .now, .fix .then { display: flex; gap: .6rem; font-size: .9rem; margin-bottom: .35rem; }
+  .fix .k { font-family: var(--mono); font-size: .72rem; letter-spacing: .08em; padding-top: .28rem; flex: 0 0 2.6rem; }
+  .fix .now .k { color: var(--guard); }
+  .fix .then .k { color: var(--machine); }
+  .fix .v { color: var(--muted); }
+  .fix .then .v { color: var(--ink); }
+
+  .note {
+    border-left: 2px solid var(--human);
+    padding: .15rem 0 .15rem 1.15rem;
+    color: var(--muted);
+    font-size: .95rem;
+    max-width: 42rem;
+  }
+
+  footer { border-top: 1px solid var(--rule); padding-top: 1.5rem; color: var(--muted); font-size: .85rem; }
+  footer code { color: var(--muted); }
+</style>
+
+<div class="wrap">
+
+  <header class="col">
+    <p class="eyebrow">tigerless-labs / outreach</p>
+    <h1>触达流水线：一条撞上人的产线</h1>
+    <p class="lede">八个阶段把目标从各渠道抓进来、去重、分层、定状态,然后写进一张 Google Sheet——
+      写到那里就停。Sheet 上另有一半列属于人,流水线只读不写;人在那边的每一次编辑被读回来,
+      转成事件,喂回状态阶段。回路因此闭合。</p>
+  </header>
+
+  <section>
+    <div class="section-head">
+      <h2>完整流水线</h2>
+      <p>机器侧是一条直线,真正的结构在右端:Sheet 是一道膜,两侧的列归属不同,谁也不许越界写。</p>
+    </div>
+
+    <figure>
+      <div class="scroller">
+        <svg id="fig-pipeline" viewBox="0 0 1250 420" role="img"
+             aria-label="八阶段触达流水线:发现、规范化、身份、富化、分层、状态六个机器阶段依次流向右侧,第七阶段投影把机算结果写入 Google Sheet 的机算列;第八阶段对账从人填列读回编辑,转成事件后折返回状态阶段,闭合回路。规范化阶段校验不过的记录落入失败表,身份阶段求不出稳定键的记录落入待裁决池。">
+          <defs>
+            <marker id="ah-m" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--machine)" />
+            </marker>
+            <marker id="ah-h" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--human)" />
+            </marker>
+            <marker id="ah-g" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--guard)" />
+            </marker>
+          </defs>
+
+          <text class="d-eyeb" x="30" y="24">机器侧 · 可重跑 · 同输入同产出</text>
+
+          <!-- stages 1-6 -->
+          <rect class="d-box" x="30"  y="100" width="110" height="62" rx="3" />
+          <text class="d-num"  x="85"  y="122">01</text>
+          <text class="d-name" x="85"  y="143">发现</text>
+
+          <rect class="d-box" x="180" y="100" width="110" height="62" rx="3" />
+          <text class="d-num"  x="235" y="122">02</text>
+          <text class="d-name" x="235" y="143">规范化</text>
+
+          <rect class="d-box" x="330" y="100" width="110" height="62" rx="3" />
+          <text class="d-num"  x="385" y="122">03</text>
+          <text class="d-name" x="385" y="143">身份</text>
+
+          <rect class="d-box" x="480" y="100" width="110" height="62" rx="3" />
+          <text class="d-num"  x="535" y="122">04</text>
+          <text class="d-name" x="535" y="143">富化</text>
+
+          <rect class="d-box" x="630" y="100" width="110" height="62" rx="3" />
+          <text class="d-num"  x="685" y="122">05</text>
+          <text class="d-name" x="685" y="143">分层</text>
+
+          <rect class="d-box" x="780" y="100" width="110" height="62" rx="3" />
+          <text class="d-num"  x="835" y="122">06</text>
+          <text class="d-name" x="835" y="143">状态</text>
+
+          <rect class="d-mach" x="930" y="100" width="110" height="62" rx="3" />
+          <text class="d-num"  x="985" y="122">07</text>
+          <text class="d-name" x="985" y="143">投影</text>
+
+          <!-- forward flow -->
+          <line class="d-flow" x1="140"  y1="131" x2="174"  y2="131" marker-end="url(#ah-m)" />
+          <line class="d-flow" x1="290"  y1="131" x2="324"  y2="131" marker-end="url(#ah-m)" />
+          <line class="d-flow" x1="440"  y1="131" x2="474"  y2="131" marker-end="url(#ah-m)" />
+          <line class="d-flow" x1="590"  y1="131" x2="624"  y2="131" marker-end="url(#ah-m)" />
+          <line class="d-flow" x1="740"  y1="131" x2="774"  y2="131" marker-end="url(#ah-m)" />
+          <line class="d-flow" x1="890"  y1="131" x2="924"  y2="131" marker-end="url(#ah-m)" />
+          <line class="d-flow" x1="1040" y1="131" x2="1086" y2="131" marker-end="url(#ah-m)" />
+
+          <text class="d-arc" x="157"  y="123">原始候选</text>
+          <text class="d-arc" x="307"  y="123">统一实体</text>
+          <text class="d-arc" x="457"  y="123">去重后</text>
+          <text class="d-arc" x="607"  y="123">带观测</text>
+          <text class="d-arc" x="757"  y="123">带层级</text>
+          <text class="d-arc" x="907"  y="123">状态</text>
+          <text class="d-arc" x="1063" y="123">只写机算列</text>
+
+          <!-- the sheet: a membrane -->
+          <rect class="d-sheet" x="1080" y="40" width="140" height="360" rx="3" />
+          <text class="d-sub"  x="1150" y="62">Google Sheet</text>
+
+          <rect class="d-mach" x="1092" y="76"  width="116" height="140" rx="2" />
+          <text class="d-mach-t" x="1150" y="136">机算列</text>
+          <text class="d-sub"    x="1150" y="155">流水线写 · 人只读</text>
+
+          <rect class="d-hum" x="1092" y="232" width="116" height="152" rx="2" />
+          <text class="d-hum-t" x="1150" y="288">人填列</text>
+          <text class="d-sub"   x="1150" y="307">人写 · 流水线只读</text>
+
+          <!-- return path: 08 -->
+          <rect class="d-hum" x="900" y="318" width="110" height="44" rx="3" />
+          <text class="d-num-h" x="955" y="336">08</text>
+          <text class="d-name"  x="955" y="353">对账</text>
+
+          <path class="d-back" d="M 1080 340 L 1016 340" marker-end="url(#ah-h)" />
+          <path class="d-back" d="M 900 340 L 835 340 L 835 168" marker-end="url(#ah-h)" />
+          <text class="d-arc" x="955" y="381">人填列的编辑 → 事件</text>
+
+          <!-- fail-safe sinks -->
+          <line class="d-fail" x1="235" y1="162" x2="235" y2="224" marker-end="url(#ah-g)" />
+          <line class="d-fail" x1="385" y1="162" x2="385" y2="224" marker-end="url(#ah-g)" />
+          <text class="d-tag" x="243" y="198">校验不过</text>
+          <text class="d-tag" x="393" y="198">无稳定键</text>
+
+          <rect class="d-drop" x="180" y="230" width="110" height="44" rx="3" />
+          <text class="d-num-g" x="235" y="248">SINK</text>
+          <text class="d-name"  x="235" y="265">失败表</text>
+
+          <rect class="d-drop" x="330" y="230" width="110" height="44" rx="3" />
+          <text class="d-num-g" x="385" y="248">SINK</text>
+          <text class="d-name"  x="385" y="265">待裁决池</text>
+        </svg>
+      </div>
+      <figcaption>青色是机器的推进方向,赭色是人的编辑折返回来的路径,锈红虚线是失败安全的两个去处——
+        校验不过与求不出稳定键的记录都不进主表。注意 07 与 08 的对称:一个只写机算列,一个只读人填列;
+        Sheet 中间那条分界就是「绝不双写」这条不变量的物理形态。</figcaption>
+    </figure>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <h2>八个阶段</h2>
+      <p>每阶段的产出是下阶段的唯一输入,任何阶段可单独重跑。</p>
+    </div>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr><th>#</th><th>阶段</th><th>做什么</th><th>产出</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="n">01</td><td class="s">发现</td><td>渠道 adapter 按配置抓取候选;渠道差异只住 adapter,注册表决定启用哪些</td><td class="o">带来源与抓取时点的原始记录,不做清洗</td></tr>
+          <tr><td class="n">02</td><td class="s">规范化</td><td>把异构渠道字段映射到统一的目标实体;映射在配置里,不在代码里</td><td class="o">统一实体;校验不过的落入失败表</td></tr>
+          <tr><td class="n">03</td><td class="s">身份</td><td>求稳定键并跨渠道合并同一人,只在有可验证连接证据时合并</td><td class="o">去重后的目标;无键者落入待裁决池</td></tr>
+          <tr><td class="n">04</td><td class="s">富化</td><td>补受众规模、主题域、可达联系方式;不同字段可来自不同渠道与时点,不强行拉平</td><td class="o">每字段独立携带来源与观测时点</td></tr>
+          <tr><td class="n">05</td><td class="s">分层</td><td>按配置化规则给出层级与优先级;排序、筛选、报表共用同一份实现</td><td class="o">层级与优先级</td></tr>
+          <tr><td class="n">06</td><td class="s">状态</td><td>由事件推导每个目标当前所处的阶段</td><td class="o">派生状态(可从事件重算)</td></tr>
+          <tr><td class="n">07</td><td class="s">投影</td><td>把机算结果写进 Sheet 的机算列;写前比对表头与行锚,对不上即中止</td><td class="o">Sheet 机算列更新</td></tr>
+          <tr><td class="n">08</td><td class="s">对账</td><td>读回人填列的变化,转成事件喂回状态阶段</td><td class="o">新事件,回路闭合</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <h2>状态由事件推导</h2>
+      <p>七条不变量里最反直觉的一条,单独画出来。</p>
+    </div>
+    <figure>
+      <div class="scroller">
+        <svg id="fig-state" viewBox="0 0 680 215" role="img"
+             aria-label="人在 Sheet 人填列的编辑经对账阶段转成追加的事件,状态由重放事件推导得出;从人填列直接赋值给状态的路径被禁止。">
+          <defs>
+            <marker id="ah-m2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--machine)" />
+            </marker>
+            <marker id="ah-h2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--human)" />
+            </marker>
+          </defs>
+
+          <rect class="d-hum"  x="20"  y="62" width="150" height="46" rx="3" />
+          <text class="d-name" x="95"  y="90">人填列编辑</text>
+
+          <rect class="d-mach" x="255" y="62" width="150" height="46" rx="3" />
+          <text class="d-name" x="330" y="84">事件</text>
+          <text class="d-sub"  x="330" y="99">只追加 · 不可改</text>
+
+          <rect class="d-mach" x="490" y="62" width="160" height="46" rx="3" />
+          <text class="d-name" x="570" y="84">状态</text>
+          <text class="d-sub"  x="570" y="99">派生 · 可重算</text>
+
+          <line class="d-back" x1="170" y1="85" x2="249" y2="85" marker-end="url(#ah-h2)" />
+          <text class="d-arc"  x="210" y="77">对账</text>
+
+          <line class="d-flow" x1="405" y1="85" x2="484" y2="85" marker-end="url(#ah-m2)" />
+          <text class="d-arc"  x="445" y="77">重放</text>
+
+          <path class="d-fail" d="M 95 108 L 95 168 L 570 168 L 570 114" />
+          <line class="d-fail" x1="324" y1="160" x2="340" y2="176" />
+          <line class="d-fail" x1="340" y1="160" x2="324" y2="176" />
+          <text class="d-arc" x="332" y="195">禁止:直接把状态改成某个值</text>
+        </svg>
+      </div>
+      <figcaption>事件是权威,状态是缓存。人在 Sheet 上的一次编辑等价于一次<strong>事实上报</strong>,
+        不等价于一次状态覆盖——所以人和流水线可以同时工作而不互相覆盖,状态也永远能从事件重算出来。</figcaption>
+    </figure>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <h2>设计不变量</h2>
+      <p>违反其中任何一条的改动都是 bug,不是配置疏漏。</p>
+    </div>
+    <ul class="inv">
+      <li><b>人填与机算分区</b><span>每一列的所有权唯一:要么流水线写,要么人写,绝不双写。越界即中止。</span></li>
+      <li><b>显示名永不作键</b><span>人会改名换头像,平台原生标识符不会。</span></li>
+      <li><b>状态由事件推导</b><span>不存在「把状态改成 X」,只有「记录发生了 Y」。状态能从事件重算,反之不行。</span></li>
+      <li><b>每个观测带来源与时点</b><span>取不到来源的值不是观测,是猜测,不进流水线。</span></li>
+      <li><b>写 Sheet 只进不覆</b><span>写入前校验表头与行锚,对不上即中止;绝不整表覆盖。</span></li>
+      <li><b>联系人数据不落 repo</b><span>真人信息只住 Sheet,中间态留在本地不入库。</span></li>
+      <li><b>失败安全</b><span>宁可少一个目标,不可混入一个错的人。</span></li>
+    </ul>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <h2>它修掉了今天的什么</h2>
+      <p>下面四条都是从当前 Sheet 实测出来的,不是假想的问题。</p>
+    </div>
+    <div class="fix">
+      <div>
+        <h3>身份靠显示名</h3>
+        <div class="now"><span class="k">现在</span><span class="v">Name / Handle 事实上充当键,重复行与状态对不上由此而来。</span></div>
+        <div class="then"><span class="k">设计</span><span class="v">键 = 平台 + 平台内原生标识符;求不出键的进待裁决池,永不进主表。</span></div>
+      </div>
+      <div>
+        <h3>三份状态互不校验</h3>
+        <div class="now"><span class="k">现在</span><span class="v">Target List、Contact Log、Outcome &amp; Feedback 各维护一份状态列。</span></div>
+        <div class="then"><span class="k">设计</span><span class="v">单一状态机,由事件推导;三张表上的状态列都成为同一状态的投影。</span></div>
+      </div>
+      <div>
+        <h3>整列默认值刷满</h3>
+        <div class="now"><span class="k">现在</span><span class="v">表面行数远大于真实行数,行数不能作为任何判断的依据。</span></div>
+        <div class="then"><span class="k">设计</span><span class="v">机算列由流水线独占,真实行由行锚界定,不靠「非空」猜测。</span></div>
+      </div>
+      <div>
+        <h3>人机互相覆盖</h3>
+        <div class="now"><span class="k">现在</span><span class="v">没有列所有权约定,谁都可以改任何格。</span></div>
+        <div class="then"><span class="k">设计</span><span class="v">列所有权写进配置;流水线越界写入即中止并报告。</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <h2>范围之外</h2>
+    </div>
+    <p class="note">点击跟踪、投放结算与付款记录属于<strong>谈成之后</strong>的下游,不在本流水线内。
+      外部参考件 <code>build-partnership-tracker</code> 正是做那一段的——它从「已确认合作」开始,
+      装不下候选到回复这整段漏斗,所以不整包引入。值得移植的是它 manifest → 校验 → 物化 的三段式
+      与校验严格度。</p>
+  </section>
+
+  <footer class="col">
+    <p>设计文档权威源在 <code>tigerless-labs/outreach</code> 的 <code>docs/design/</code>:
+      pipeline · identity · tiering · sheet-contract。本页是它们的图示,不是它们的替代——
+      有出入以 repo 为准。</p>
+  </footer>
+
+</div>
