@@ -86,6 +86,7 @@
   .d-flow  { fill: none; stroke: var(--machine); stroke-width: 1.5; }
   .d-read  { fill: none; stroke: var(--muted);   stroke-width: 1.25; stroke-dasharray: 5 4; }
   .d-fail  { fill: none; stroke: var(--guard);   stroke-width: 1.25; stroke-dasharray: 4 3; }
+  .d-stop  { fill: none; stroke: var(--guard);   stroke-width: 2.25; stroke-linecap: round; }
 
   .d-name  { fill: var(--ink);     font-family: var(--body); font-size: 14px; text-anchor: middle; }
   .d-num   { fill: var(--machine); font-family: var(--mono); font-size: 10px; letter-spacing: .1em; text-anchor: middle; }
@@ -154,7 +155,7 @@
     <figure>
       <div class="scroller">
         <svg id="fig-pipeline" viewBox="0 0 1160 430" role="img"
-             aria-label="五阶段流水线:发现、求键、去重、抓联系方式、追加,依次流向右侧写入目标表。去重阶段读取目标表全表建索引。求键失败的记录落入运行报告;键命中或联系方式命中已有行的被丢弃。底部的取数层为发现与抓取两个阶段供数,内含本地路径日志,将来由 auto-gtm 的带认证取数层替换。">
+             aria-label="五阶段流水线:发现、求键、去重、抓联系方式、追加,依次流向右侧写入目标表。去重阶段读取目标表全表建索引。求键失败的记录落入运行报告这一实体文件;键命中或地址命中已有行的则直接丢弃,不留存任何内容,只把键计入报告。底部的取数层为发现与抓取两个阶段供数,内含本地路径日志,将来由 auto-gtm 的带认证取数层替换。">
           <defs>
             <marker id="p-m" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
               <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--machine)" />
@@ -226,8 +227,9 @@
 
           <!-- sinks -->
           <line class="d-fail" x1="270" y1="172" x2="270" y2="244" marker-end="url(#p-g)" />
-          <path class="d-fail" d="M 450 172 L 500 240" marker-end="url(#p-g)" />
-          <path class="d-fail" d="M 635 172 L 557 240" marker-end="url(#p-g)" />
+          <path class="d-fail" d="M 450 172 L 500 246" />
+          <path class="d-fail" d="M 635 172 L 560 246" />
+          <line class="d-stop" x1="470" y1="250" x2="590" y2="250" />
 
           <text class="d-arc" x="292" y="212">无键</text>
           <text class="d-arc" x="520" y="212">键命中</text>
@@ -237,9 +239,8 @@
           <text class="d-num-g" x="270" y="268">REPORT</text>
           <text class="d-name"  x="270" y="285">运行报告</text>
 
-          <rect class="d-drop" x="450" y="250" width="140" height="44" rx="3" />
-          <text class="d-num-g" x="520" y="268">DROP</text>
-          <text class="d-name"  x="520" y="285">丢弃 · 已知</text>
+          <text class="d-name" x="530" y="272">丢弃 · 不留存</text>
+          <text class="d-arc"  x="530" y="290">仅键计入报告</text>
 
           <!-- fetch layer -->
           <line class="d-flow" x1="90"  y1="355" x2="90"  y2="178" marker-end="url(#p-m)" />
@@ -260,9 +261,13 @@
           <line class="d-read" x1="740" y1="380" x2="706" y2="380" marker-end="url(#p-r)" />
         </svg>
       </div>
-      <figcaption>目标表右侧那道分区不是列所有权配置——流水线只<strong>创建</strong>新行，
-        从不修改任何已存在的格，所以人爱改哪列改哪列，永不冲突。底部取数层是可替换件：
-        它与其余四个阶段解耦，将来换成 auto-gtm 那套带认证的取数层时，流水线一行不动。</figcaption>
+      <figcaption>两种「不入表」性质不同，画法也不同：<strong>运行报告是实体</strong>（本地文件，
+        是给人的待办），所以是方框；<strong>丢弃什么都不存</strong>，是行为的终点，所以是一道终止线。
+        只有被丢弃记录的键会计入报告——共享域名清单若把两个人算成同一个键，第二个人会被静默丢掉，
+        有那份键的列表，误杀才是可查的。<br><br>
+        目标表右侧那道分区不是列所有权配置——流水线只<strong>创建</strong>新行，从不修改任何已存在的格，
+        所以人爱改哪列改哪列，永不冲突。底部取数层是可替换件：它与其余四个阶段解耦，
+        将来换成 auto-gtm 那套带认证的取数层时，流水线一行不动。</figcaption>
     </figure>
   </section>
 
@@ -328,8 +333,8 @@
         <tbody>
           <tr><td class="n">01</td><td class="s">发现</td><td>渠道 adapter 按配置抓候选，经取数层出去</td><td class="o">—</td></tr>
           <tr><td class="n">02</td><td class="s">求键</td><td>从主页链接解析稳定键，归一化后比对</td><td class="o">无键 → 运行报告</td></tr>
-          <tr><td class="n">03</td><td class="s">去重</td><td>第一道：键命中目标表现有行即丢弃</td><td class="o">已知 → 丢弃</td></tr>
-          <tr><td class="n">04</td><td class="s">抓联系方式</td><td>两跳：平台页 → 本人站点。第二道：地址命中即丢弃</td><td class="o">重复 → 丢弃</td></tr>
+          <tr><td class="n">03</td><td class="s">去重</td><td>第一道：键命中目标表现有行即丢弃</td><td class="o">已知 → 丢弃（不留存）</td></tr>
+          <tr><td class="n">04</td><td class="s">抓联系方式</td><td>两跳：平台页 → 本人站点。第二道：地址命中即丢弃</td><td class="o">重复 → 丢弃（不留存）</td></tr>
           <tr><td class="n">05</td><td class="s">追加</td><td>只往目标表追加新行，抓不到地址的留空写入</td><td class="o">—</td></tr>
         </tbody>
       </table>
