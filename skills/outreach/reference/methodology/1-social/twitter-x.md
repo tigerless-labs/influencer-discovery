@@ -1,16 +1,16 @@
 # X / Twitter
 
-**做。** 能力边界见 [../../../../datalayer/twitter-x.md](../../../../datalayer/twitter-x.md) ——
+**做。** 能力边界见 [datalayer/twitter-x.md](../../datalayer/twitter-x.md) ——
 匿名只给显示名与 bio,**发现和外链都要登录态**。
 
-它和 [linkedin.md](linkedin.md) 的根本区别就在这里:**这里有发现能力** ——
+它和 [linkedin.md](../_not-run/linkedin.md) 的根本区别就在这里:**这里有发现能力** ——
 搜索能从话题找到人。那边打通了也没有这一步。
 
 ## 这里没有邮箱字段
 
 能拿到的是 bio 文本和一个外链。联系方式要么是创作者自己写在 bio 里的,
 要么在外链的落点 —— **这个平台是第二跳的又一个起点**,
-见 [landing-page-two-hop.md](landing-page-two-hop.md)。
+见 [landing-page-two-hop.md](../_shared/landing-page-two-hop.md)。
 
 ## 入口
 
@@ -27,7 +27,7 @@
 
 **bio 外链是单条,不是链接区** —— 和 YouTube 那种一次给三四条不同,这里只有一个位置,
 所以那一条是不是自有域名格外要紧。**先过排除名单**(聚合页、打赏页、课程社群),
-清单见 [landing-page-two-hop.md](landing-page-two-hop.md)。
+清单见 [landing-page-two-hop.md](../_shared/landing-page-two-hop.md)。
 
 **粉丝数是公开的**,客户端筛不额外花请求 —— 这一点和 Mastodon、YouTube 一样,
 优于 Blog / Newsletter / Podcast 那三档。

@@ -32,7 +32,8 @@ substack.com/api/v1/category/public/<id>/all?page=N  每页 25 个刊物,带 mor
 
 ### 赞助位市场这条入口是死的
 
-见 [passionfroot.md](passionfroot.md)、[paved.md](paved.md)。
+验过二十家,**「有公开目录」与「给联系方式」从不同时出现**。
+Passionfroot 的目录要账号,handle 只有历史链接一个来源,而那批六成已 404。
 
 ## 拿联系方式
 
@@ -65,9 +66,9 @@ Ghost 的 Content API key 明文写在首页源码里,**这是给前端用的公
 
 WordPress、Buttondown、静态站生成器在 feed 里一个都不填。这些退回到站点本身:
 和 Blog 相反,**newsletter 的邮箱更多在子页而不是首页**。`/advertise` 这类招商入口
-只有零星几个站有,拿到之后还要过 [seller-vs-buyer.md](seller-vs-buyer.md)。
+只有零星几个站有,拿到之后还要过 [seller-vs-buyer.md](../_shared/seller-vs-buyer.md)。
 
-再拿不到就退回第二跳,见 [landing-page-two-hop.md](landing-page-two-hop.md)。
+再拿不到就退回第二跳,见 [landing-page-two-hop.md](../_shared/landing-page-two-hop.md)。
 **第二跳的发射台优先用结构化字段**:Substack 作者 profile 的外链数组、
 Ghost 作者的 `website` —— 都比解析页面便宜。
 
@@ -81,7 +82,7 @@ Ghost 作者的 `website` —— 都比解析页面便宜。
 - **个人 newsletter** —— 作者本人的地址,算数。
 - **媒体化 newsletter**(有编辑部、有 rate card)—— 拿到的是面向职能的地址。
   **对赞助投放有用,对个人 outreach 不算数**,见
-  [landing-page-two-hop.md](landing-page-two-hop.md) 的「不算数的东西」。
+  [landing-page-two-hop.md](../_shared/landing-page-two-hop.md) 的「不算数的东西」。
 
 ## 停止语义
 

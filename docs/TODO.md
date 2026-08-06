@@ -17,14 +17,11 @@
 ## skill(`skills/outreach/`)
 
 - [ ] 本地接上:仓库根的 `skills/` 不被 Claude Code 自动发现,要做软链或 marketplace 配置。
-- [ ] 数据层逐个探索并回填 `datalayer/`(已移出 skill,将独立成 repo)。已确定边界:
-      Instagram、TikTok(均走 ScrapeCreators)、Reddit(`rdt` CLI)、LinkedIn、X。
+- [ ] 数据层逐个探索并回填 `reference/datalayer/`。已确定边界:Instagram、TikTok
+      (均走 ScrapeCreators)、Reddit(`rdt` CLI)、LinkedIn、X。
       **免认证那一档只写了结论,各渠道的具体入口未跑通。**
-- [ ] `reference/methodology/` 12 份是骨架,正文里混着未验证的经验断言(页面结构、字段名、
-      路径名)。用之前先核实。最虚的是 `passionfroot.md` 与 `paved.md`——那两个页面从没抓过,
-      却是设计文档里「已验证的两条路」之一。
-- [ ] `datalayer/` 独立成 repo:在它自己的目录里 `git init`,并决定本 repo 是引用还是子模块。
-      现在跨目录用的是相对路径,拆开会断。
+- [ ] `reference/methodology/` 里除已实测的几份外仍是骨架,正文混着未验证的经验断言
+      (页面结构、字段名、路径名)。用之前先核实。
 
 ## 渠道分类收窄的余项
 
@@ -33,8 +30,14 @@
 - [ ] 目标表现有 62 行 Website 有多少符合收窄后的「分发站」定义。历史行不清洗,但要知道比例;
       比例太低说明这一档的历史产出大部分是产品站。
 - [ ] `media.md` 的域名清单实现后移进 `config/` 的共享域名清单,那份 md 只留判据。
-- [ ] 发布社区(DEV.to、Hashnode、freeCodeCamp News)三个都未跑通。优先级低于个人站目录 ——
-      社区上的人多数在别处有主场,从那边发现更便宜。
+- [ ] **DEV.to 的卖买比例没测** —— 这一档最关键的缺口。已抓到的标题与 tag 分布够判,
+      不需要新请求。测出来才知道「大 blog 平台并列第一」这个优先级站不站得住。
+- [ ] DEV.to 剔掉 GitHub 那一跳后,只走 `website_url` 的最终邮箱命中率。现有可触达数字
+      含 GitHub,不能直接用。
+- [ ] Hashnode 未跑通。官方赞助通道可能推翻赞助位市场那一类的整类裁决,要先验。
+- [ ] `cost-ranking.md` 只有一个轴(抓取 `credit/人`),缺**合作成本/人**那一轴。
+      数据只能从实际谈过的人身上来,属发信侧产出。在有数之前用代理信号:
+      有没有 rate card / 招商页。
 - [ ] 媒体的作者页当发现源值不值得跑:作者页是高纯度人名列表,但要三跳且中途断掉过半,
       而产出的人还得再去别的平台找他的主场。**未承诺**,现在按不做处理。
 - [ ] 公司站挖个人的做法(`/team` 三跳、名单页分流、按站分流的命中率)随目标收窄一起退役,

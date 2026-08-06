@@ -1,12 +1,12 @@
 # LinkedIn
 
 **不做。** 能力边界见
-[../../../../datalayer/linkedin.md](../../../../datalayer/linkedin.md) —— 那三条边界任一条
+[datalayer/linkedin.md](../../datalayer/linkedin.md) —— 那三条边界任一条
 单独就足以否掉它;这里是裁决本身,以及不做之后这条链长什么样。
 
 ## 打通认证也不会变高产
 
-这是它和 [twitter-x.md](twitter-x.md) 的根本区别,值得单独说清:
+这是它和 [twitter-x.md](../1-social/twitter-x.md) 的根本区别,值得单独说清:
 
 - **没有发现这一步。** X 打通后搜索能从话题找到人;这里没有对应的东西。
 - **「联系信息」只对一度人脉可见。** 认证解决的是能不能看到资料页,

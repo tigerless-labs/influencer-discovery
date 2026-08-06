@@ -5,7 +5,7 @@
 
 **目标必须自带受众。** 有粉丝、有读者、有订阅者的人才算——我们要的是他的分发能力。
 做自己产品的人**不是目标**:他要的是流量,不会给我们分发。这条是准入门槛,不是偏好,
-判别与处置见 `skills/outreach/reference/methodology/seller-vs-buyer.md`。
+判别与处置见 `skills/outreach/reference/methodology/_shared/seller-vs-buyer.md`。
 
 难点不在抓,在**不重复抓**。判重的键是 `(人, 平台)`,查本地 log,不解析链接——实测按 URL
 去重会把同站的不同人误合并(见 `docs/design/dedup.md`)。流水线只追加新行、从不修改任何
@@ -13,10 +13,13 @@
 
 ## Layout
 
-- `datalayer/` —— 每个平台的**能力边界**:能取到什么、要什么凭据、代价多少。**与用途无关,
-  会独立成 repo**,因此不引用本 repo 任何文件。写法见其自带的 `CLAUDE.md`。
-- `skills/outreach/` —— 流水线的操作面。`SKILL.md` 是入口,`reference/methodology/`
-  一个渠道一份,写做不做、联系方式从哪进、怎么拿。**运维手册,豁免设计文档文风规则。**
+- `skills/outreach/` —— 流水线的操作面,`SKILL.md` 是入口。**运维手册,豁免设计文档文风规则。**
+  - `reference/datalayer/` —— 每个平台的**能力边界**:能取到什么、要什么凭据、代价多少。
+    **与用途无关**,写法见其自带的 `CLAUDE.md`。
+  - `reference/methodology/` —— 一个渠道一份,写联系方式从哪进、怎么拿。
+    **目录名即合作优先级**(`1-social/` 与 `1-blog-platform/` 并列第一,
+    然后 `3-personal-site/`、`4-distribution/`;`_shared/` 是共享件,`_not-run/` 不跑),
+    正文里不另写排序。
 - `src/outreach/` —— 流水线实现:五阶段、渠道 adapter 注册表、Sheet 客户端。
 - `config/` —— 全部旋钮:渠道清单与抓取参数、共享域名清单、Sheet 与列映射。
 - `data/` —— 本地中间态:抓取证据、运行报告、路径日志。**不入库**(见下方安全规则)。

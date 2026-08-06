@@ -39,7 +39,7 @@ Apple 的收录规范要求 feed 带 owner 邮箱用于验证归属,所以**七�
 - **同一个地址挂多档节目** —— 厂牌、代理、播客公司。**这是最可靠的判据**:
   邮箱前缀伪装得了,重复次数伪装不了。整批里少数几个地址就能覆盖几十档节目。
 - **托管平台的转发地址** —— 域名是 anchor / acast / substack 之类。属于平台不属于人。
-- **职能前缀** —— 通则见 [landing-page-two-hop.md](landing-page-two-hop.md)。
+- **职能前缀** —— 通则见 [landing-page-two-hop.md](../_shared/landing-page-two-hop.md)。
 
 邮箱域名与节目主页域名对得上的只有四分之一,**所以域名对不上不是排除理由** ——
 个人用免费邮箱是常态。

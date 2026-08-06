@@ -7,15 +7,20 @@
 
 ## 与数据层的分界
 
-**[datalayer/](../../datalayer/index.md) 不在这个 skill 里,而且会独立成 repo。**
-它只写每个平台的**能力边界** —— 能取到什么、取不到什么、要什么凭据、代价多少。
-边界是平台自己的属性,不随谁来用而改变。写法归它自己的 CLAUDE.md,这里管不着。
+**[reference/datalayer/](reference/datalayer/index.md) 只写每个平台的能力边界** —— 能取到什么、
+取不到什么、要什么凭据、代价多少。边界是平台自己的属性,不随谁来用而改变。
+写法归它自己的 CLAUDE.md,这里管不着。
 
-**[methodology/](reference/methodology/index.md) —— 本项目要的那件事:拿到联系方式。**
+**[reference/methodology/](reference/methodology/index.md) —— 本项目要的那件事:拿到联系方式。**
 邮箱在哪一页、怎么抠、命中率多少、每个联系方式花多少钱、多条路怎么选。
 
+**目录名即合作优先级**,正文里不另写排序 —— 排序会随每轮意图变,目录不会。
+新渠道按它属于哪一档放进对应目录,不在 index 里维护第二份顺序。
+
 **一个平台做不做,在 methodology 裁决。** 数据层给出边界,裁决基于边界,
-但「不做」是本项目的选择,不是平台的属性。裁决为不做的那份不删——降级为备查,写法照旧。
+但「不做」是本项目的选择,不是平台的属性。裁决分两种:**仍需防止别人误跑的**降级到
+`_not-run/`,写法照旧;**对目标完全没有产出的直接删**,只在 index 的「删掉的」里留一句
+理由,原文交给 git 历史。
 
 归属靠一问:**这句话在换了用途之后还成立吗?** 成立的是边界,不归这里;
 只有找邮箱才用得上的才归这里。
@@ -29,11 +34,11 @@
 ## methodology 引用数据层的规则
 
 1. **不复述取数事实。** 认证怎么过、key 在哪、credit 剩多少、cookie 从哪读——
-   一个字都不写,链到 [datalayer/](../../datalayer/index.md) 对应那份。
+   一个字都不写,链到 [reference/datalayer/](reference/datalayer/index.md) 对应那份。
 2. **不复述能力边界。** 「没有邮箱字段」「搜索能从话题找到人」是那边的事实;
    这里只写基于它的裁决与做法。
 3. **引用是链接,不是摘要。** 摘要会随数据层变化而腐坏,而没人会回头改它。
-4. 共同的第二跳只写一次,在 [landing-page-two-hop.md](reference/methodology/landing-page-two-hop.md);
+4. 共同的第二跳只写一次,在 [landing-page-two-hop.md](reference/methodology/_shared/landing-page-two-hop.md);
    各渠道链过去,不各写一遍。
 
 ## 渠道那份只写「怎么拿到邮箱」
@@ -48,7 +53,7 @@
 - **不写供应商比较。** 「换供应商解决不了」「两家验过」「A 有 B 没有」属于数据层的
   `providers.md`,不属于渠道文档。渠道文档连供应商名字都不该出现。
 - **不写成本论证。** 单价、`credit/人`、效率对比、门槛与开销的关系,全部归
-  [cost-ranking.md](reference/methodology/cost-ranking.md) 那一份。
+  [cost-ranking.md](reference/methodology/_shared/cost-ranking.md) 那一份。
   渠道文档里只允许出现一处成本信息:**某一步要不要花钱**,写在链路那几行里,不展开。
 - **不写「为什么这么设计」。** 理由归 `docs/design/`,实验过程归 `data/experiments/`。
 

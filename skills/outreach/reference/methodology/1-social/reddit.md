@@ -2,7 +2,7 @@
 
 **Reddit 上没有联系方式。** 用户对象没有邮箱字段,简介里也从没出现过邮箱(实测七十来个作者,
 零命中)。这个渠道的产出是**人 + 他自己的域名**,邮箱在
-[landing-page-two-hop.md](landing-page-two-hop.md) 那一跳拿。
+[landing-page-two-hop.md](../_shared/landing-page-two-hop.md) 那一跳拿。
 
 ## 第一跳有四个来源,优先级差别很大
 
@@ -12,7 +12,7 @@
 而且正文里一条外链都没有的作者,仍有一成多能从这里拿到域名。
 
 代价是它不在用户资源里,要单独取一次资料页,而且**必须带登录态**(见
-[../../../../datalayer/reddit.md](../../../../datalayer/reddit.md))。**多一次请求换掉一整套统计推断,值得。**
+[datalayer/reddit.md](../../datalayer/reddit.md))。**多一次请求换掉一整套统计推断,值得。**
 
 **② 帖子正文里的外链** —— 主力来源,但要按下面那条规则筛。
 
@@ -56,7 +56,7 @@
 
 **首选档有个卖买偏差要留神:** 独立开发者版块产出的是**产品站**,
 newsletter / 博客 / 播客版块产出的才是**内容站**。产出率最高的那几个版块,
-在 [seller-vs-buyer.md](seller-vs-buyer.md) 口径下大部分会被判成买方。
+在 [seller-vs-buyer.md](../_shared/seller-vs-buyer.md) 口径下大部分会被判成买方。
 **产出率高不等于这一档好用。**
 
 ## 三条筛选口径
@@ -65,7 +65,7 @@ newsletter / 博客 / 播客版块产出的才是**内容站**。产出率最高
 
 **karma 不代表接单意愿。** 它衡量的是在 Reddit 上受欢迎的程度,不是有没有可变现的受众。
 真正的判别式是有没有自己反复推的域名,以及那个域名是内容站还是产品站——见
-[seller-vs-buyer.md](seller-vs-buyer.md)。
+[seller-vs-buyer.md](../_shared/seller-vs-buyer.md)。
 
 **别按「求合作」筛。** 版块里公开求赞助的人大多不留链接、只收私信;能抓到邮箱的恰恰是
 不吆喝、只是自己有站点的人。意愿与可达性在这个平台上是反相关的。

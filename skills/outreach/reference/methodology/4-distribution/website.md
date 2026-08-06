@@ -4,7 +4,7 @@
 **它的产出是把别人的东西推给读者**。
 
 **公司站与产品站不归这里,也不进表。** 他们要的是流量,不会替我们分发,
-见 [seller-vs-buyer.md](seller-vs-buyer.md)。这一档从「有地址的站」收窄为
+见 [seller-vs-buyer.md](../_shared/seller-vs-buyer.md)。这一档从「有地址的站」收窄为
 「有分发能力的站」——收窄的是准入,不是抓法。
 
 目标表里这一档大量是 `Contact Method = Contact Form`,不是 `Email`——这不是抓取失败,
@@ -24,12 +24,12 @@
 「suggest a tool」页。
 
 **面向职能的地址在这里算数。** `info@` / `submit@` / `contact@` 通则上不算数
-(见 [landing-page-two-hop.md](landing-page-two-hop.md)),**本渠道是唯一的例外** ——
+(见 [landing-page-two-hop.md](../_shared/landing-page-two-hop.md)),**本渠道是唯一的例外** ——
 目标本身就是这个站,那本来就是它的对外入口。
 
 **contact 表单** —— 记下表单 URL 作为联系方式,**不填**。填表单是写操作,不在范围内。
 
-**awesome 清单归 [github.md](github.md)**,不归这里:它的投递入口是 PR,不是邮箱。
+**awesome 清单不归这里** —— 它的投递入口是 PR,不是邮箱。
 
 ## 停止语义
 
@@ -40,7 +40,7 @@
 `(站点名, Website)`。
 
 **一个站一行。** 这一档的行不是人,投递入口只有一个,不存在「同站住着不同人」——
-这正是它和 [blog.md](blog.md) 的分界:博客的键是作者,这里的键是站。
+这正是它和 [blog.md](../3-personal-site/blog.md) 的分界:博客的键是作者,这里的键是站。
 
 ## 边界
 
@@ -48,7 +48,7 @@
 - 反爬邮箱(图片、JS 拼接)不破。
 - **付费收录要标出来。**「投得进去」和「免费投得进去」是两件事,别在表上混成一格。
 - **名录页要防串味**:一页列出五个以上不同注册域的地址就不是这个站自己的,
-  见 [landing-page-two-hop.md](landing-page-two-hop.md)。
+  见 [landing-page-two-hop.md](../_shared/landing-page-two-hop.md)。
 
 ## 待验证
 

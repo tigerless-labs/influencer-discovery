@@ -1,65 +1,81 @@
 # 渠道方法论
 
 拿到数据之后,**联系方式在哪一页、从哪个入口进**。取数方式在
-[../../../../datalayer/](../../../../datalayer/index.md),两件事分开:那边只写平台的**能力边界**,
+[datalayer/](../datalayer/index.md),两件事分开:那边只写平台的**能力边界**,
 **做不做在这边裁决**,怎么拿也在这边。
 
 **谁算目标不在这边** —— 三级准入(有受众的人 / 做分发的站 / 做自己产品的不进表)是设计,
-见 [index.md](../../../../docs/design/index.md)。这里只写各渠道据此怎么落。
+见 [docs/design/index.md](../../../../docs/design/index.md)。这里只写各渠道据此怎么落。
 
-## 共享件(不是渠道)
+## 目录即优先级
 
-- [landing-page-two-hop.md](landing-page-two-hop.md) —— 平台页 → 本人站点 → 联系页,
+合作优先级由目录名承载,**正文里不另写一份排序**。两档 `1-` 并列第一。
+
+| 目录 | 是什么 | 渠道 |
+|---|---|---|
+| `_shared/` | 共享件,不是渠道 | 第二跳 · 卖买判别 · 成本排序 |
+| `1-social/` | 大 social media | X · TikTok · Instagram · Threads · YouTube · Reddit · Mastodon |
+| `1-blog-platform/` | 大 blog 平台 | DEV.to · Hashnode |
+| `3-personal-site/` | 个人主场,站是他自己的 | Blog · Newsletter · Podcast |
+| `4-distribution/` | 做分发的站,产出是投递入口不是人 | Website |
+| `_not-run/` | 不跑 | Media(单独预算)· LinkedIn |
+
+## 共享件
+
+- [landing-page-two-hop.md](_shared/landing-page-two-hop.md) —— 平台页 → 本人站点 → 联系页,
   各渠道的共同后半段。**噪声与「不算数的地址」的通则住这里,渠道只写自己的例外。**
-- [seller-vs-buyer.md](seller-vs-buyer.md) —— 落点站是内容站还是产品站,
+- [seller-vs-buyer.md](_shared/seller-vs-buyer.md) —— 落点站是内容站还是产品站,
   **决定这一行进不进表**。写进表之前的最后一道闸门。
-- [cost-ranking.md](cost-ranking.md) —— 多条路之间怎么选:免费的排在付费的前面,
+- [cost-ranking.md](_shared/cost-ranking.md) —— 多条路之间怎么选:免费的排在付费的前面,
   付费的之间效率压过单价。
 
 ## 已跑通
 
-**每条口径都有实测支撑。** 2026-08-06 在 AI 垂类跑了两轮:一轮走付费取数层,
-一轮把免费渠道逐个验了一遍。
+**每条口径都有实测支撑。**
 
 免费、不烧 credit 的:
 
-- [podcast.md](podcast.md) —— **产量最高**:一次免 key 的搜索 → feed → 邮箱,不解析页面
-- [website.md](website.md) —— **只做分发站**(工具推荐、目录、榜单),要的是投递入口不是人
-- [blog.md](blog.md) —— 四个免 key 的发现源;首页拿不到就走 GitHub 一跳
-- [newsletter.md](newsletter.md) —— Substack 的公开接口给发现,feed 给地址
-- [github.md](github.md) —— 四条路并集过半,搜仓库取作者那条最好
-- [youtube.md](youtube.md) —— 简介直接给邮箱的不到一成,产量靠链接区
+- [podcast.md](3-personal-site/podcast.md) —— **产量最高**:一次免 key 的搜索 → feed → 邮箱,
+  不解析页面
+- [newsletter.md](3-personal-site/newsletter.md) —— 类目接口**目录型可穷尽**,feed 给地址
+- [blog.md](3-personal-site/blog.md) —— 四个免 key 的发现源,偏性互补要交叉用
+- [dev-to.md](1-blog-platform/dev-to.md) —— 公开 API 免 key,作者字段随文章一次拿到
+- [youtube.md](1-social/youtube.md) —— 简介直接给邮箱的不到一成,产量靠链接区
+- [website.md](4-distribution/website.md) —— 要投递入口,不要人
 
 走付费取数层的:
 
-- [instagram.md](instagram.md) —— 一步到位:搜索结果直接带 bio、外链、粉丝数
-- [tiktok.md](tiktok.md) —— 两步,bio 里直接有邮箱的比例最高
-- [reddit.md](reddit.md) —— 平台上没有联系方式,产出是人 + 他的域名
-- [threads.md](threads.md) —— 两步,筛选只能在查完资料页之后做
+- [instagram.md](1-social/instagram.md) —— 一步到位:搜索结果直接带 bio、外链、粉丝数
+- [tiktok.md](1-social/tiktok.md) —— 两步,bio 里直接有邮箱的比例最高
+- [reddit.md](1-social/reddit.md) —— 平台上没有联系方式,产出是人 + 他的域名
+- [threads.md](1-social/threads.md) —— 两步,筛选只能在查完资料页之后做
 
 ## 已决定要做,数字未测
 
 方法照着已跑通的渠道的形状写好了,**正文里的做法可用,命中率一个都还没测** ——
 用之前先跑一轮,各自的「待验证」列了要先测哪几个数。
 
-- [mastodon.md](mastodon.md) —— **自有域名不用推断**,平台自己做了归属校验;免 key 免登录
-- [twitter-x.md](twitter-x.md) —— 话题搜索能找到人,取数走用户本人账号
+- [mastodon.md](1-social/mastodon.md) —— **自有域名不用推断**,平台自己做了归属校验;免 key 免登录
+- [twitter-x.md](1-social/twitter-x.md) —— 话题搜索能找到人,取数走用户本人账号
+- [hashnode.md](1-blog-platform/hashnode.md) —— 官方有赞助通道,
+  **可能推翻赞助位市场那一类的整类裁决**
 
-## 裁决为不做
+## 不跑
 
-- [media.md](media.md) —— **多作者刊物整类的裁决**:一个域名几百个作者,
-  站上只给投稿信箱。这份是清单,防止把媒体当博主渠道跑
-- [paved.md](paved.md) —— **整个赞助位市场这一类的裁决**:验过二十家,
-  「有公开目录」与「给联系方式」从不同时出现
-- [medium.md](medium.md) —— 平台上没有联系方式,资料页对 CLI 关着门
-- [linkedin.md](linkedin.md) —— **没有发现这一步**,认证也换不来;
-  连带写做了之后怎么拿、不做会怎样影响这条链的形状
-- [mastodon.md](mastodon.md) —— **自有域名不用推断**,平台自己做了归属校验;免 key 免登录
+- [media.md](_not-run/media.md) —— **多作者刊物整类的裁决**:一个域名几百个作者,
+  站上只给投稿信箱。这份是清单,防止把媒体当博主渠道跑。
+  **投放走单独预算,不走这条流水线。**
+- [linkedin.md](_not-run/linkedin.md) —— **没有发现这一步**,认证也换不来;
+  连带写做了之后怎么拿、不做会怎样影响这条链的形状。
 
-[passionfroot.md](passionfroot.md) 是半个:**没有发现能力**,只能已知 handle 解析页面,
-留作顺手解析。
+## 删掉的
 
-**发布社区**(DEV.to、Hashnode 等)归 [blog.md](blog.md) 的清单,均未跑通。
-Hacker News 与 Lobsters 不是发布社区,是 blog.md 的发现源,已跑通。
+对「找能做分发的博主」这个目标没有产出,原文在 git 历史里:
+
+- **赞助位市场**(Passionfroot / Paved)—— 目录要账号,handle 只有历史链接一个来源,
+  且六成已 404,会自然归零。
+- **Medium** —— 平台上没有联系方式,资料页对 CLI 关着门。
+- **GitHub** —— 那里的人多是 founder 与自建者,不是做分发的。
+  作为**第二跳落点**仍然有用,做法留在 [blog.md](3-personal-site/blog.md) 的链路里。
 
 未写的:Product Hunt。空着。

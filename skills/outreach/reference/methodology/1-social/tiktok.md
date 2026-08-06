@@ -1,7 +1,7 @@
 # TikTok
 
-取数见 [../../../../datalayer/tiktok.md](../../../../datalayer/tiktok.md),选不选这条路见
-[cost-ranking.md](cost-ranking.md)。
+取数见 [datalayer/tiktok.md](../../datalayer/tiktok.md),选不选这条路见
+[cost-ranking.md](../_shared/cost-ranking.md)。
 
 搜索端点不返回 bio,联系方式在 bio 里 —— 必须两步:先拿 handle,再逐个查 profile。
 
@@ -23,7 +23,7 @@
 GET /v1/scrape/tiktok/search/keyword?query=<关键词>&sort_by=most-liked
 ```
 
-端点契约(参数名、header)见 [../../../../datalayer/tiktok.md](../../../../datalayer/tiktok.md)。
+端点契约(参数名、header)见 [datalayer/tiktok.md](../../datalayer/tiktok.md)。
 
 从 `data.search_item_list` 取三个字段:
 
@@ -57,7 +57,7 @@ data.user.bioLink.link     外链;bioLink 是 {link, risk} 对象,不是字符�
 ### ④⑤ 抠邮箱与第二跳
 
 正则从 `signature` 抠。抠不到就顺 `bioLink.link` 走
-[landing-page-two-hop.md](landing-page-two-hop.md)。
+[landing-page-two-hop.md](../_shared/landing-page-two-hop.md)。
 
 bio 里的联系方式不一定是邮箱 —— WhatsApp 号、Instagram handle **都算可触达**。
 

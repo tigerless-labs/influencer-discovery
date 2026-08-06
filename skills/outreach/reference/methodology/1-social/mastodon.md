@@ -1,7 +1,7 @@
 # Mastodon
 
 **唯一一个「自有域名」不用推断的渠道** —— 平台自己做了归属校验。
-能力边界见 [../../../../datalayer/mastodon.md](../../../../datalayer/mastodon.md)。
+能力边界见 [datalayer/mastodon.md](../../datalayer/mastodon.md)。
 
 别处认自有域名靠统计(Reddit 的「只被一人贴过」)或靠排除名单(YouTube 的打赏页),
 这里靠 `rel="me"` 双向确认:**只有站点链回账号,平台才盖验证戳**。
@@ -26,7 +26,7 @@
 ```
 
 **bio 里直接写邮箱的极少**,别指望这一步 —— 这个渠道的价值在第二跳的起点质量,
-不在直接命中。落点处理见 [landing-page-two-hop.md](landing-page-two-hop.md)。
+不在直接命中。落点处理见 [landing-page-two-hop.md](../_shared/landing-page-two-hop.md)。
 
 **没有验证戳的链接不要当自有域名**,退回通用排除名单再判。
 
@@ -51,7 +51,7 @@
 
 - **账号可以自己关掉曝光**,目录不是全量 —— 翻到底不等于翻完了所有人。
 - bio 是 HTML 片段,抠邮箱前先解码,理由见
-  [landing-page-two-hop.md](landing-page-two-hop.md)。
+  [landing-page-two-hop.md](../_shared/landing-page-two-hop.md)。
 - 不关注、不转发、不私信。
 
 ## 待验证

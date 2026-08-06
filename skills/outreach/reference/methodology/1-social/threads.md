@@ -1,7 +1,7 @@
 # Threads
 
-取数见 [../../../../datalayer/threads.md](../../../../datalayer/threads.md),选不选这条路见
-[cost-ranking.md](cost-ranking.md)。
+取数见 [datalayer/threads.md](../../datalayer/threads.md),选不选这条路见
+[cost-ranking.md](../_shared/cost-ranking.md)。
 
 搜索端点不返回粉丝数也不返回 bio —— 必须两步:先拿 handle,再逐个查资料页。
 
@@ -39,7 +39,7 @@
 ### ④⑤ 抠邮箱与第二跳
 
 正则从 `biography` 抠。抠不到就顺 `bio_links[].url` 走
-[landing-page-two-hop.md](landing-page-two-hop.md)。
+[landing-page-two-hop.md](../_shared/landing-page-two-hop.md)。
 
 **外链取 `url` 那个字段,不要取平台包装过的跳转版本。**
 
@@ -54,7 +54,7 @@ bio 有邮箱         接近 0     ← 和 TikTok 的 53% 差得极远
 
 **这个渠道几乎不靠 bio 直接给邮箱,产量全在第二跳。** 外链落点里既有个人域名,
 也有社群与视频平台 —— 后者不是自有站,要先过排除名单,清单见
-[landing-page-two-hop.md](landing-page-two-hop.md)。
+[landing-page-two-hop.md](../_shared/landing-page-two-hop.md)。
 
 样本只有十个人,**比例还很粗**,但「bio 里没有邮箱」和「小号占压倒多数」两条足够明确。
 
@@ -71,7 +71,7 @@ bio 有邮箱         接近 0     ← 和 TikTok 的 53% 差得极远
 
 **② 落空了再取资料页。** 普通 HTTP,要的东西全在 Open Graph 标签里。
 **粉丝数和 bio 是拼在一句描述文本里的**,要自己切开;切之前先解 HTML 实体,
-通则见 [landing-page-two-hop.md](landing-page-two-hop.md)。
+通则见 [landing-page-two-hop.md](../_shared/landing-page-two-hop.md)。
 
 ## 与 Instagram 的重叠
 

@@ -1,7 +1,7 @@
 # YouTube
 
 目标表里最大的一个渠道,也是设计文档说的「已验证的两条路」之一。
-取数见 [../../../../datalayer/public.md](../../../../datalayer/public.md)。
+取数见 [datalayer/public.md](../../datalayer/public.md)。
 
 ## 入口
 
@@ -26,9 +26,9 @@
    但**只有不到一成的频道这么写**。
 2. **频道的链接区** —— **本渠道产量的主要来源**,超过八成的频道有,平均三四条。
    但过半指向别的社交平台,**只有指向自有域名的那些才是第二跳的起点**,
-   见 [landing-page-two-hop.md](landing-page-two-hop.md)。约七成的频道至少有一个。
+   见 [landing-page-two-hop.md](../_shared/landing-page-two-hop.md)。约七成的频道至少有一个。
 3. ~~About 页的「查看电子邮件地址」按钮~~ —— **这条路不存在**,
-   理由见 [../../../../datalayer/public.md](../../../../datalayer/public.md)。
+   理由见 [datalayer/public.md](../../datalayer/public.md)。
 
 所以 YouTube 这条链的实际形状是:**能从简介文本直接读到的就要,读不到的顺自有域名出去,
 拿不到就放弃这个人。** 自有域名那一跳的命中约四成。
@@ -51,7 +51,7 @@
 
 - 简介文本会被列表页截断,拿全文要进频道页。
 - 两条被取数层封死的路(商务邮箱按钮、官方 API 的邮箱字段)见
-  [../../../../datalayer/public.md](../../../../datalayer/public.md)。**这里唯一的产出是简介文本与链接区。**
+  [datalayer/public.md](../../datalayer/public.md)。**这里唯一的产出是简介文本与链接区。**
 - 链接区里混着支付/打赏、课程社群、日程预约这类第三方托管地址。
   **它们不是自有域名**,当成第二跳起点会抓到平台而不是人。
 

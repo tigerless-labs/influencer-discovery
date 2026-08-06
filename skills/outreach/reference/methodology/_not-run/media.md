@@ -8,9 +8,9 @@
 媒体不是一个能替我们分发的人:
 
 - **署名不等于可触达。** 站上给的是 `editors@` 或投稿信箱 —— 那是版面的入口,不是人的地址,
-  按通则不算数(见 [landing-page-two-hop.md](landing-page-two-hop.md))。
+  按通则不算数(见 [landing-page-two-hop.md](../_shared/landing-page-two-hop.md))。
 - **一个域名,几百个作者。** 按站建行会把他们塌成一行,正是
-  [dedup.md](../../../../docs/design/dedup.md) 说的误合并。
+  [dedup.md](../../../../../docs/design/dedup.md) 说的误合并。
 - **版面可以买。** 要曝光,买位比找人确定 —— 但那是发信侧的事,不在本项目范围内。
 
 ## 判据
@@ -33,4 +33,4 @@ Towards Data Science
 ## 待验证
 
 - 媒体的作者页当发现源能出多少人。现在不跑,跟进项在
-  [docs/TODO.md](../../../../docs/TODO.md)。
+  [docs/TODO.md](../../../../../docs/TODO.md)。

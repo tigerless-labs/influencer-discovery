@@ -31,7 +31,7 @@ Lobsters 的 story JSON 里有一个字段直接标注「投稿人就是作者�
 - **ooh.directory** —— 分类目录,首页只挂当日更新,要按分类翻;以非技术博客为主。
 - **垂类榜单站**(某某领域 Top 100 博客那种)—— 一页给上百个域名,
   但它们是**名录页**,要按名录源单独跑,不能当第二跳落点,
-  理由见 [landing-page-two-hop.md](landing-page-two-hop.md)。
+  理由见 [landing-page-two-hop.md](../_shared/landing-page-two-hop.md)。
 
 ## 拿联系方式
 
@@ -84,10 +84,10 @@ contact 页要点击才显示邮箱,或者用了 Cloudflare 那类邮箱混淆 �
 
 | 平台 | 归属 |
 |---|---|
-| Medium | [medium.md](medium.md) —— 裁决为不做 |
+| Medium | 不做 —— 平台上没有联系方式,资料页对 CLI 关着门 |
 | Substack | [newsletter.md](newsletter.md) —— 那一档有赞助入口这条捷径 |
-| DEV.to | 未跑通 |
-| Hashnode | 未跑通 |
+| DEV.to | [1-blog-platform/dev-to.md](../1-blog-platform/dev-to.md) —— 已跑通 |
+| Hashnode | [1-blog-platform/hashnode.md](../1-blog-platform/hashnode.md) —— 未跑通 |
 | freeCodeCamp News | 未跑通;有编辑审,介于社区与媒体之间 |
 | HackerNoon | 未跑通;有编辑审,AI 垂类密度高,同上介于社区与媒体 |
 | WordPress.com | 未跑通;体量最大的一个,自带公开的标签与阅读器入口 |
@@ -100,8 +100,10 @@ contact 页要点击才显示邮箱,或者用了 Cloudflare 那类邮箱混淆 �
 
 **Hacker News 与 Lobsters 不在这张表里** —— 它们不承载文章,是上面「入口」那一节的发现源。
 
-这一档整体优先级低于个人站目录:**社区上的人几乎都在别处有主场**,
-从个人博客或 newsletter 发现同一个人更便宜([medium.md](medium.md) 已记过这条)。
+**体量最大的两个已单列**,归 `1-blog-platform/`。这张表剩下的都未跑通。
+
+社区上的人几乎都在别处有主场 —— **从个人博客或 newsletter 发现同一个人更便宜**,
+所以在这张表里出现不等于要从这里进。
 
 ## 停止语义
 
@@ -115,7 +117,7 @@ contact 页要点击才显示邮箱,或者用了 Cloudflare 那类邮箱混淆 �
 JSON-LD 的 `Person`,最后用 GitHub 账号的真名兜底。要从页面抓,不是从域名猜。
 
 **同一个域名下可能有多个作者**(团队博客、公司工程博客),按域名判重会把他们塌成一个 ——
-这正是设计文档说的按 URL 去重的误杀。**多作者站不归这里**:媒体见 [media.md](media.md),
+这正是设计文档说的按 URL 去重的误杀。**多作者站不归这里**:媒体见 [media.md](../_not-run/media.md),
 公司工程博客属于产品站,不进表。
 
 ## 边界

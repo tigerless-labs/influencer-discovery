@@ -4,7 +4,7 @@
 **渠道那几份不写成本,成本推理全部住这里。**
 
 各家的能力与收费方式住
-[../../../../datalayer/providers.md](../../../../datalayer/providers.md),那份不换算、不排序。
+[datalayer/providers.md](../../datalayer/providers.md),那份不换算、不排序。
 
 ## 结论
 

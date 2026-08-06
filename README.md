@@ -6,7 +6,7 @@
 **目标必须自带受众** —— 有粉丝、有读者、有订阅者。做自己产品的人不是目标。
 
 **当前状态:脚手架。** 流水线尚未实现。操作面在 [skills/outreach/](skills/outreach/SKILL.md),
-取数方式在 [datalayer/](datalayer/index.md)——逐个平台探索中,
+取数方式在 [datalayer/](skills/outreach/reference/datalayer/index.md)——逐个平台探索中,
 只记已确定的。待办见 [docs/TODO.md](docs/TODO.md)。
 
 ## Sheet 访问
