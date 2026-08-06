@@ -3,8 +3,8 @@
 纯 HTTP 或官方免费接口就能取到,不需要登录态、不烧 credit。
 
 覆盖 YouTube、Newsletter(Substack / Ghost)、Blog、Website、Podcast、DEV.to、WordPress.com、
-Micro.blog、Gravatar、GitHub、Medium、Passionfroot、Paved、Hacker News、Product Hunt,
-以及任意站外页面。
+Micro.blog、Gravatar、Hashnode、freeCodeCamp News、HackerNoon、GitHub、Medium、
+Passionfroot、Paved、Hacker News、Product Hunt,以及任意站外页面。
 
 **这里列的平台与调用方做不做无关。** 边界是平台的属性;某个平台在调用方那边被裁决
 不跑,它的边界仍然住在这里。
@@ -56,6 +56,19 @@ Micro.blog、Gravatar、GitHub、Medium、Passionfroot、Paved、Hacker News、P
 
 **Tumblr** —— 标签接口要 API key,匿名 401。
 
+**Hashnode** —— **GraphQL 端点已撤**:任何请求都 301 到一份公告页,
+**带不带 token 都一样**;旧的 `api.hashnode.com` 主机 404。平台自述读写都要刊物开 Pro。
+剩下的免认证面是 HTML:标签页服务端渲染,一页约 20 个作者 handle;
+资料页也服务端渲染,给社交外链与自有域名,**没有本人邮箱**。
+
+**freeCodeCamp News** —— 站点跑在 Ghost 上但**不暴露 Content API 的只读 key**。
+免认证面是标准 sitemap:作者子图**一次返回全部作者页地址、不翻页**(当前 559 条)。
+作者页服务端渲染,给自有域名与社交外链,**没有邮箱字段**。
+RSS 一次只有 10 条且 `dc:creator` 为空。
+
+**HackerNoon** —— RSS 免 key,一次 20 条,`dc:creator` 带作者名,文章链接里含作者 handle。
+**资料页与任何 `/api/` 路径对声明身份的爬虫返回质询页(403)**;sitemap 可读。
+
 **Ghost** —— Content API 公开可读,**只读 key 以 `data-key` 明文写在站点首页源码里**。
 `settings` 端点给站点的几个对外地址,`authors` 端点给作者的名字、简介与网址,
 **其中的邮箱字段恒为空**。
@@ -84,7 +97,7 @@ Micro.blog、Gravatar、GitHub、Medium、Passionfroot、Paved、Hacker News、P
   从而只在发现阶段抓页面。
 - **播客 feed 之外的目录**(Podcast Index 之类)能否直接查到 feed 地址。
 - **赞助位市场之外的同类站点**有没有公开可翻的目录。
-- **Hacker News、Product Hunt、Hashnode** 的公开接口形态,尚未探。
+- **Hacker News 与 Product Hunt** 的公开接口形态,尚未探。
 - **WordPress.com 有没有非时间序的排序**,以及 **Micro.blog 的翻页与话题取法**。
 - **Substack 类目端点的翻页上限**与各类目总量。
 - **Ghost 那条路的站点覆盖面** —— 只在极少数站上验过。

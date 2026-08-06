@@ -19,7 +19,7 @@
 |---|---|---|
 | `_shared/` | 共享件,不是渠道 | 第二跳 · 卖买判别 · 成本排序 |
 | `1-social/` | 大 social media | X · TikTok · Instagram · Threads · YouTube · Reddit · Mastodon |
-| `2-blog-platform/` | **零门槛**:注册就能发,站不是他的 | [清单在它自己的 index](2-blog-platform/index.md) |
+| `2-blog-platform/` | 文章发在平台上,站不是他的 | [清单在它自己的 index](2-blog-platform/index.md) |
 | `3-personal-site/` | **有门槛**:自己的域名、自己养的受众 | 自建博客 · Newsletter · Podcast |
 | `4-distribution/` | 做分发的站,产出是投递入口不是人 | Website |
 | `_not-run/` | 不跑 | Media(单独预算)· LinkedIn |
@@ -43,8 +43,8 @@
   不解析页面
 - [newsletter.md](3-personal-site/newsletter.md) —— 类目接口**目录型可穷尽**,feed 给地址
 - [self-hosted.md](3-personal-site/self-hosted.md) —— 四个免 key 的发现源,偏性互补要交叉用
-- [2-blog-platform/](2-blog-platform/index.md) —— DEV.to 与 WordPress.com 都是免 key 的公开接口,
-  作者字段随文章一次拿到
+- [2-blog-platform/](2-blog-platform/index.md) —— 整档五个平台跑得通,全部免 key。
+  **freeCodeCamp News 是其中唯一目录型可穷尽的**,而且作者自有域名的比例最高
 - [youtube.md](1-social/youtube.md) —— 简介直接给邮箱的不到一成,产量靠链接区
 - [website.md](4-distribution/website.md) —— 要投递入口,不要人
 
@@ -64,8 +64,6 @@
 - [twitter-x.md](1-social/twitter-x.md) —— 话题搜索能找到人,取数走用户本人账号
 - [micro-blog.md](2-blog-platform/micro-blog.md) —— 发现页背后的 JSON Feed 免 key,
   `author.url` 直接是他自己的站
-- [hashnode.md](2-blog-platform/hashnode.md) —— 官方有赞助通道,
-  **可能推翻赞助位市场那一类的整类裁决**
 
 ## 不跑
 
