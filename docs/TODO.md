@@ -14,6 +14,18 @@
 - [ ] Sheet 读写模块,先对副本跑通再碰正式表。
 - [ ] 补 `docs/testing.md` 与测试映射;需要时再建 `docs/bugs/`、`dev_skills/`、`workflows/`。
 
+## skill(`skills/outreach/`)
+
+- [ ] 本地接上:仓库根的 `skills/` 不被 Claude Code 自动发现,要做软链或 marketplace 配置。
+- [ ] 数据层逐个探索并回填 `reference/datalayer/`。已确定:Instagram、TikTok(均走
+      ScrapeCreators)、Reddit(`rdt` CLI)、LinkedIn(不做)、X(随 auto-gtm 合并)。
+      **免认证那一档只写了结论,各渠道的具体入口未跑通。**
+- [ ] `reference/methodology/` 12 份是骨架,正文里混着未验证的经验断言(页面结构、字段名、
+      路径名)。用之前先核实。最虚的是 `passionfroot.md` 与 `paved.md`——那两个页面从没抓过,
+      却是设计文档里「已验证的两条路」之一。
+- [ ] `linkedin.md` 与 `twitter-x.md` 在 datalayer 与 methodology 下各一份,内容有重叠。
+      数据层那份是定论,方法论那份是备查——若始终不做,方法论那两份可删。
+
 ## 将来的选项
 
 - **与 auto-gtm 合并**(已定方向)。它的取数层已解决认证:复用浏览器登录态、单一入口、分档降级、

@@ -3,8 +3,9 @@
 对外触达的目标清单与流水线。交付面是一张 Google Sheet(`outreach targets target list`),
 本 repo 管产生和维护它的代码、配置与设计文档。
 
-**当前状态:脚手架。** 只有 CLAUDE.md 与配置骨架,流水线尚未实现。待办见
-[docs/TODO.md](docs/TODO.md)。
+**当前状态:脚手架。** 流水线尚未实现。操作面在 [skills/outreach/](skills/outreach/SKILL.md),
+取数方式在 [reference/datalayer/](skills/outreach/reference/datalayer/index.md)——逐个平台探索中,
+只记已确定的。待办见 [docs/TODO.md](docs/TODO.md)。
 
 ## Sheet 访问
 
