@@ -36,7 +36,7 @@ Passionfroot、Paved、Hacker News、Product Hunt,以及任意站外页面。
 类目端点返回全部类目与 id,类目下的刊物列表**每页固定条数、带翻页标志**,
 记录里含刊物名、子域、自定义域、作者真名与 handle。
 另有按刊物 id 取推荐刊物的端点,返回被推荐刊物的**完整对象**。
-**这些 JSON 端点一个邮箱字段都没有**;刊物的回信地址在它 RSS 的 `<webMaster>` 里。
+**这些 JSON 端点一个邮箱字段都没有**,**它的 RSS 里也没有 `<webMaster>`** —— 整个平台不给邮箱。
 **并发一高就限流**,失败返回长得不像 404。
 
 **WordPress.com** —— `public-api.wordpress.com` 的阅读器接口免 key、免登录。

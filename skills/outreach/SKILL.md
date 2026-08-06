@@ -122,9 +122,34 @@ Podcast 24 · Twitter 7 · Medium 4 · Reddit 3 · 其余各 1
 - **联系人数据只住 Sheet 与本地 log。** 不进 repo、不进 reference、不进提交。
 - **依赖不预装。** 缺件报出所缺与安装命令,交由人决定。
 
+## 存储在哪 —— 用户级,不在 repo 里
+
+skill 从哪个目录触发都要读到同一份判重库,所以状态是 per-user 的。分层判据见
+[storage.md](../../docs/design/storage.md)。
+
+```
+~/.config/outreach/.env              凭据 + OUTREACH_SPREADSHEET_ID(chmod 600)
+~/.local/share/outreach/seen/*.jsonl  判重库,一渠道一文件
+~/.local/share/outreach/sites.jsonl   第二跳走过的地址
+~/.local/share/outreach/raw/<run>/    抓取原文,只有解析器读它
+~/Documents/outreach/<run>.md         运行报告
+```
+
+三个路径都可以用 `OUTREACH_CONFIG_DIR` / `OUTREACH_STATE_DIR` / `OUTREACH_MEMORY_DIR` 覆盖。
+**cron 或绕过包装层的调用必须显式设**,否则落盘会静默走到默认位置。
+
+## 怎么跑
+
+```bash
+python3 -m outreach.run --channels podcast,newsletter,devto,mastodon,blog,wordpress,microblog,reddit --per-channel 10
+python3 -m outreach.run --summarise          # 汇总视图:按渠道分的可联系列表
+python3 -m outreach.run --append-sheet       # 只追加合格行;表头对不上即中止
+```
+
 ## 现状
 
-取数层、Sheet 读写、log 落地都还没实现,见 [docs/TODO.md](../../docs/TODO.md)。
-本 skill 现在提供的是渠道说明与运行纪律;实现到位后,循环里的每一步都落到代码上。
+五阶段、渠道 adapter、判重库、第二跳、闸门、报告都已实现并跑通;
+**Sheet 写入卡在 token scope**(要一次交互式 `gcloud auth login`),合格行 stage 在
+`~/.local/share/outreach/pending-sheet-rows.jsonl`。逐项见 [docs/TODO.md](../../docs/TODO.md)。
 
 各 reference 末尾的「待验证」是**未经实测的经验断言**,用之前先核实,别当事实引用。

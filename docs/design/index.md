@@ -5,6 +5,7 @@
 - [platforms.md](platforms.md) —— 打通:每个平台从哪进、怎么走、什么时候停。
 - [records.md](records.md) —— 记录规范:log 记什么、表里写什么、报告记什么。
 - [dedup.md](dedup.md) —— 防重复:一条规则,一个前提。
+- [storage.md](storage.md) —— 这些记录住在哪、长什么形状。
 
 ## 这里不写渠道做法
 

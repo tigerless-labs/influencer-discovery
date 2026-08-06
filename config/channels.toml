@@ -1,0 +1,34 @@
+# 渠道清单与抓取参数。随代码走。
+# 随安装走的值(目标表标识、凭据)住 ~/.config/outreach/,不在这里。
+
+[podcast]
+terms = ["indie hacker", "developer tools", "ai coding", "software engineering daily", "product builders"]
+
+[newsletter]
+categories = ["Technology", "Business"]
+max_pages = 2
+
+[blog]
+
+[devto]
+tags = ["ai", "productivity", "devtools", "programming", "opensource", "webdev"]
+
+[wordpress]
+tags = ["technology", "productivity", "software", "writing"]
+
+[microblog]
+
+[mastodon]
+hosts = ["mastodon.social", "fosstodon.org", "hachyderm.io", "indieweb.social"]
+max_offset = 240
+
+[reddit]
+subreddits = ["SideProject", "IndieBiz", "selfhosted", "webdev"]
+
+[instagram]
+terms = ["notion tips", "productivity coach", "ai tools"]
+credit_budget = 11
+
+[tiktok]
+terms = ["ai tools", "productivity tips", "coding tips"]
+credit_budget = 11

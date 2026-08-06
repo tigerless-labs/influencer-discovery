@@ -1,15 +1,14 @@
-spreadsheet_id = "1lPz5ezFpMplLNw5aR9eeHeSd28ol4usyaQvR-rrlByU"
-service_account = "sheets-writer@github-market.iam.gserviceaccount.com"
+# 逻辑字段 → 表头文字。随代码走。
+# 目标表标识与凭据随安装走,住 ~/.config/outreach/.env:
+#   OUTREACH_SPREADSHEET_ID
+# tab 的 gid 运行时向 API 查,不在这里存 —— 存了会随改名与挪位静默指错表。
 
-[tabs]
-"总目标" = 1481081195
-"任务记录表" = 2136089693
-"合作进度监督" = 20260702
-"market待办" = 789544704
-"Eng Track" = 1544187430
-"Outcome & Feedback" = 1273614036
-"Contact Log" = 413432175
-"Target List" = 1819105253
-"market每周目标清单" = 249558180
-"message version" = 967864425
-"Dropdowns" = 1111722353
+tab = "Target List"
+
+[columns]
+display_name = "Name"
+channel = "Platform"
+profile_url = "Link"
+contact = "Contact"
+contact_kind = "Contact Type"
+status = "Status"

@@ -1,0 +1,84 @@
+from .buyer import looks_like_a_product_site
+from .domains import is_a_persons_own_site, looks_like_a_multi_author_publication
+from .hop import (
+    emails_in,
+    internal_links,
+    is_directory_page,
+    looks_contactish,
+    looks_like_sponsor_page,
+    mailto_addresses,
+    mentions_sponsorship,
+    registrable_domain,
+)
+from .record import Contact
+
+MAX_SUBPAGES = 5
+
+
+class SecondHop:
+    """Platform page -> the person's own site -> their contact page."""
+
+    def __init__(self, fetcher, store=None, run_id=None):
+        self.fetcher = fetcher
+        self.store = store
+        self.run_id = run_id
+
+    def walk(self, candidate):
+        site = candidate.own_site
+        candidate.mark_checked("own_site")
+        if not site:
+            return candidate
+        if not is_a_persons_own_site(site):
+            candidate.signals["own_site_is_a_platform"] = True
+            return candidate
+        domain = registrable_domain(site)
+        if not domain:
+            return candidate
+
+        root = self.fetcher.try_get(site)
+        candidate.mark_checked("site_root")
+        if root is None:
+            return candidate
+
+        if looks_like_a_product_site(root):
+            candidate.signals["is_buyer"] = True
+            candidate.signals["buyer_reason"] = "landing page sells a product, no audience surface"
+        if looks_like_a_multi_author_publication(root):
+            candidate.signals["is_buyer"] = True
+            candidate.signals["buyer_reason"] = "multi-author publication, not a reachable person"
+
+        self._harvest(candidate, root, "site_root")
+        links = internal_links(root, site)
+        sponsor_links = [u for u in links if looks_like_sponsor_page(u)]
+        candidate.signals["sponsor_page"] = bool(sponsor_links) or mentions_sponsorship(root)
+
+        targets = sponsor_links[:2] + [u for u in links if looks_contactish(u)]
+        seen = set()
+        for url in targets:
+            if len(seen) >= MAX_SUBPAGES:
+                break
+            if url in seen:
+                continue
+            seen.add(url)
+            page = self.fetcher.try_get(url)
+            if page is None:
+                continue
+            source = "sponsor_page" if looks_like_sponsor_page(url) else "site_contact"
+            self._harvest(candidate, page, source)
+
+        candidate.mark_checked("site_contact")
+        if self.store:
+            self.store.record_site(
+                domain,
+                "found" if candidate.email else "no_contact",
+                run_id=self.run_id,
+            )
+        return candidate
+
+    def _harvest(self, candidate, html, source):
+        addresses = mailto_addresses(html) or emails_in(html)
+        if not addresses or is_directory_page(addresses):
+            return
+        site_domain = registrable_domain(candidate.own_site)
+        addresses.sort(key=lambda a: a.rpartition("@")[2] != site_domain)
+        candidate.add_contact(Contact(addresses[0], "email", source))

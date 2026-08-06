@@ -1,0 +1,32 @@
+# 共享域名清单。落在这些域名上的地址不属于某一个人。
+
+# 平台托管:看着像自有站,其实是平台的地址
+platform_hosts = [
+  "podcasters.spotify.com", "anchor.fm", "buzzsprout.com", "libsyn.com", "podbean.com",
+  "transistor.fm", "captivate.fm", "simplecast.com", "megaphone.fm", "spreaker.com",
+  "ximalaya.com", "himalaya.com", "audioboom.com", "redcircle.com", "fireside.fm",
+  "substack.com", "beehiiv.com", "ghost.io", "medium.com", "wordpress.com", "blogspot.com",
+  "wixsite.com", "squarespace.com", "notion.site", "github.io", "gitlab.io", "netlify.app",
+  "vercel.app", "pages.dev", "bit.ly", "linktr.ee", "beacons.ai", "carrd.co", "micro.blog",
+  "mastodon.social", "codeberg.org", "sourcehut.org",
+]
+
+# 大站与机构:发现阶段就不该当成某个人的主场
+institutions = [
+  "github.com", "youtube.com", "twitter.com", "x.com", "reddit.com", "wikipedia.org",
+  "arxiv.org", "stackoverflow.com", "gitlab.com", "google.com", "microsoft.com",
+  "apple.com", "amazon.com", "aws.amazon.com", "cloudflare.com", "openai.com",
+  "anthropic.com", "meta.com", "nvidia.com", "ibm.com", "oracle.com", "modernatx.com",
+  "nytimes.com", "wsj.com", "washingtonpost.com", "bloomberg.com", "ft.com", "reuters.com",
+  "theguardian.com", "bbc.co.uk", "bbc.com", "npr.org", "economist.com", "newyorker.com",
+  "sfchronicle.com", "latimes.com", "theatlantic.com", "wired.com", "arstechnica.com",
+  "theverge.com", "techcrunch.com", "engadget.com", "cnet.com", "zdnet.com", "vice.com",
+  "quantamagazine.org", "ieee.org", "nature.com", "science.org", "sciencedirect.com",
+  "forbes.com", "businessinsider.com", "cnbc.com", "time.com", "vox.com", "axios.com",
+  "politico.com", "theinformation.com", "404media.co", "restofworld.org", "githubstatus.com", "thenextweb.com",
+  "atlasobscura.com", "twincities.com", "pioneerpress.com", "mashable.com",
+  "gizmodo.com", "slashdot.org", "hackernoon.com", "freecodecamp.org", "smithsonianmag.com",
+]
+
+# 多作者刊物的判据:根页上不同作者链接达到这个数,就按刊物处理
+multi_author_threshold = 3
