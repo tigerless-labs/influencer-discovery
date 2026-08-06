@@ -3,7 +3,7 @@
 纯 HTTP 或官方免费接口就能取到,不需要登录态、不烧 credit。
 
 覆盖 YouTube、Newsletter(Substack / Ghost)、Blog、Website、Podcast、DEV.to、WordPress.com、
-Micro.blog、Gravatar、Hashnode、freeCodeCamp News、HackerNoon、GitHub、Medium、
+Micro.blog、Gravatar、Hashnode、freeCodeCamp News、HackerNoon、Paragraph、GitHub、Medium、
 Passionfroot、Paved、Hacker News、Product Hunt,以及任意站外页面。
 
 **这里列的平台与调用方做不做无关。** 边界是平台的属性;某个平台在调用方那边被裁决
@@ -58,6 +58,18 @@ Passionfroot、Paved、Hacker News、Product Hunt,以及任意站外页面。
 **时间游标参数无效**,返回逐字节相同;每个博客的旧版 JSON 端点仍免 key,
 只有七个字段,其中自定义域名与 feed 两项在 10 个抽样上**全空**;每博客 RSS 无任何作者或邮箱标签。
 页面里嵌着一个匿名 bearer token,拿它可以翻页 —— **那是绕开 key 闸,不是免认证面。**
+
+**Paragraph** —— 公开 REST API **读端点全部免鉴权**,另有 OpenAPI 规格可查。
+刊物搜索(硬上限 20 条、无翻页参数)、按游标翻页的全站流(单页上限 60)、
+按 tag / slug / 域名 / 钱包地址取,以及**按刊物 id 取订阅数**。
+sitemap 索引下十个分片,单片 25000 个刊物地址。
+**整份规格里没有任何邮箱、社交或个人网址字段**;社交只在资料页 HTML 的 JSON-LD `sameAs` 里,
+资料页服务端渲染、无 hydration 壳。RSS 路径 `/@<slug>/rss` 通用,
+`<author>` 是平台合成的转发地址、不是本人。用户对象带钱包地址与 Farcaster 用户名。
+**两个宿主的限流天差地别**:API 宿主 3 秒间隔约二十次未被限;
+网页宿主 3 秒间隔六次即 429,惩罚持续数分钟。
+
+**Mirror** —— 已并入 Paragraph。`mirror.xyz` 除 `robots.txt` 301 外,全路径对诚实 UA 返回质询页。
 
 **write.as** —— 阅读站的 feed 免 key,一次 88 条 / 49 个博客,`author` 恒为博客标题而非人。
 翻页在阅读站自己的路径下,**整个公开面约 150 篇的滚动窗口**,标签页几乎是空的,没有公开目录。
