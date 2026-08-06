@@ -1,4 +1,4 @@
-<title>outreach 流水线设计</title>
+<title>outreach 抓取设计</title>
 
 <style>
   :root {
@@ -11,11 +11,9 @@
     --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
   }
   @media (prefers-color-scheme: dark) {
-    :root {
-      --paper: #0F1416; --surface: #161D20; --ink: #E4E8E4;
-      --muted: #8D9C9D; --rule: #28322F;
-      --machine: #56AEC1; --human: #D49E4E; --guard: #CB6551;
-    }
+    :root { --paper: #0F1416; --surface: #161D20; --ink: #E4E8E4;
+            --muted: #8D9C9D; --rule: #28322F;
+            --machine: #56AEC1; --human: #D49E4E; --guard: #CB6551; }
   }
   :root[data-theme="dark"] {
     --paper: #0F1416; --surface: #161D20; --ink: #E4E8E4;
@@ -28,12 +26,9 @@
     --machine: #1F6E80; --human: #A2681F; --guard: #96382A;
   }
 
-  body {
-    background: var(--paper); color: var(--ink);
-    font-family: var(--body); line-height: 1.75;
-    margin: 0; padding: 4rem 1.5rem 6rem; -webkit-font-smoothing: antialiased;
-  }
-  .wrap { max-width: 76rem; margin: 0 auto; display: flex; flex-direction: column; gap: 3.5rem; }
+  body { background: var(--paper); color: var(--ink); font-family: var(--body);
+         line-height: 1.75; margin: 0; padding: 4rem 1.5rem 6rem; -webkit-font-smoothing: antialiased; }
+  .wrap { max-width: 74rem; margin: 0 auto; display: flex; flex-direction: column; gap: 3.5rem; }
   .col  { max-width: 42rem; }
 
   .eyebrow { font-family: var(--mono); font-size: .72rem; letter-spacing: .18em;
@@ -55,45 +50,50 @@
   figure { margin: 0; display: flex; flex-direction: column; gap: .9rem; }
   .scroller { overflow-x: auto; padding-bottom: .5rem; }
   .scroller svg { display: block; height: auto; }
-  #fig-pipeline { min-width: 60rem; width: 100%; }
-  #fig-key { min-width: 36rem; width: 100%; max-width: 48rem; }
+  #fig-loop { min-width: 56rem; width: 100%; }
+  #fig-why  { min-width: 34rem; width: 100%; max-width: 44rem; }
   figcaption { font-size: .88rem; color: var(--muted); max-width: 44rem; text-wrap: pretty; }
 
   .d-box   { fill: var(--surface); stroke: var(--machine); stroke-width: 1.25; }
   .d-plain { fill: none;           stroke: var(--rule);    stroke-width: 1.25; }
   .d-hum   { fill: var(--surface); stroke: var(--human);   stroke-width: 1.25; }
+  .d-store { fill: var(--surface); stroke: var(--human);   stroke-width: 1.5; }
   .d-drop  { fill: var(--surface); stroke: var(--guard);   stroke-width: 1.25; stroke-dasharray: 4 3; }
   .d-ghost { fill: none;           stroke: var(--muted);   stroke-width: 1.25; stroke-dasharray: 5 4; }
 
   .d-flow  { fill: none; stroke: var(--machine); stroke-width: 1.5; }
-  .d-read  { fill: none; stroke: var(--muted);   stroke-width: 1.25; stroke-dasharray: 5 4; }
+  .d-loop  { fill: none; stroke: var(--machine); stroke-width: 1.5; stroke-dasharray: 7 4; }
+  .d-read  { fill: none; stroke: var(--human);   stroke-width: 1.25; stroke-dasharray: 5 4; }
   .d-fail  { fill: none; stroke: var(--guard);   stroke-width: 1.25; stroke-dasharray: 4 3; }
   .d-stop  { fill: none; stroke: var(--guard);   stroke-width: 2.25; stroke-linecap: round; }
 
   .d-name  { fill: var(--ink);     font-family: var(--body); font-size: 14px; text-anchor: middle; }
   .d-num   { fill: var(--machine); font-family: var(--mono); font-size: 10px; letter-spacing: .1em; text-anchor: middle; }
-  .d-num-g { fill: var(--guard);   font-family: var(--mono); font-size: 10px; letter-spacing: .1em; text-anchor: middle; }
   .d-arc   { fill: var(--muted);   font-family: var(--mono); font-size: 9.5px; text-anchor: middle; }
   .d-arcs  { fill: var(--muted);   font-family: var(--mono); font-size: 9.5px; text-anchor: start; }
   .d-sub   { fill: var(--muted);   font-family: var(--body); font-size: 10px;  text-anchor: middle; }
   .d-list  { fill: var(--ink);     font-family: var(--body); font-size: 10.5px; text-anchor: middle; }
-  .d-mono  { fill: var(--ink);     font-family: var(--mono); font-size: 11.5px; text-anchor: middle; }
-  .d-monom { fill: var(--muted);   font-family: var(--mono); font-size: 11.5px; text-anchor: middle; }
+  .d-mono  { fill: var(--ink);     font-family: var(--mono); font-size: 12.5px; text-anchor: middle; }
   .d-hd    { fill: var(--machine); font-family: var(--body); font-size: 11px; text-anchor: middle; }
   .d-hdh   { fill: var(--human);   font-family: var(--body); font-size: 11px; text-anchor: middle; }
+  .d-ok    { fill: var(--machine); font-family: var(--body); font-size: 13px; text-anchor: middle; }
+  .d-bad   { fill: var(--guard);   font-family: var(--body); font-size: 13px; text-anchor: middle; }
   .d-stopt { fill: var(--guard);   font-family: var(--body); font-size: 12px; text-anchor: middle; }
   .d-eyeb  { fill: var(--muted);   font-family: var(--mono); font-size: 10px; letter-spacing: .16em; text-anchor: start; }
 
   .table-scroll { overflow-x: auto; }
-  table { border-collapse: collapse; width: 100%; min-width: 40rem; font-size: .93rem; }
+  table { border-collapse: collapse; width: 100%; min-width: 38rem; font-size: .93rem; }
   thead th { font-family: var(--mono); font-size: .72rem; letter-spacing: .12em; text-transform: uppercase;
              color: var(--muted); font-weight: 400; text-align: left;
              padding: 0 .9rem .55rem 0; border-bottom: 1px solid var(--rule); }
   tbody td { padding: .7rem .9rem .7rem 0; border-bottom: 1px solid var(--rule); vertical-align: top; }
   tbody tr:last-child td { border-bottom: none; }
   td.n { font-family: var(--mono); color: var(--machine); font-variant-numeric: tabular-nums; width: 2.5rem; }
-  td.s { font-weight: 600; white-space: nowrap; width: 7rem; }
+  td.s { font-weight: 600; white-space: nowrap; width: 6rem; }
   td.o { color: var(--muted); }
+  td.num { font-family: var(--mono); font-variant-numeric: tabular-nums; text-align: right; width: 5rem; }
+  .bad { color: var(--guard); font-weight: 620; }
+  .ok  { color: var(--machine); font-weight: 620; }
 
   .inv { list-style: none; margin: 0; padding: 0; display: grid; gap: 0;
          grid-template-columns: repeat(auto-fit, minmax(19rem, 1fr)); }
@@ -123,269 +123,218 @@
 
   <header class="col">
     <p class="eyebrow">tigerless-labs / outreach</p>
-    <h1>找到人，拿到联系方式，到此为止</h1>
-    <p class="lede">这个 skill 只负责三件事：<strong>打通数据层、记录规范、防重复</strong>。
-      其余都是读写操作。难的从来不是抓，是<strong>不重复抓</strong>——同一个人换个平台、换个页面、
-      换个写法就会被当成新人。所以身份有两个来源的键：主页链接解析出的，和联系方式本身。
-      一个精确但不总有，一个总有但不总精确。</p>
+    <h1>爬过的都记下来，够得着的才进表</h1>
+    <p class="lede">这个 skill 只负责三件事：<strong>打通数据层、记录规范、防重复</strong>，
+      其余都是读写操作。去重不靠解析链接，只靠一条规则——
+      <strong>这个「人 + 平台」在 log 里出现过就跳过</strong>。
+      简单的那个，在真实数据上比复杂的那个准。</p>
   </header>
 
   <section>
     <div class="section-head">
-      <h2>完整流水线</h2>
-      <p>去重发生在两个时点，因为两个键不在同一时刻拿到。第三阶段只为省抓取成本，
-        正确性由第五阶段独自保证。</p>
+      <h2>一个循环</h2>
+      <p>使用者给的数是<strong>最终进表的合格行数</strong>，不是爬多少个。所以它是累积循环——
+        但没有反馈，没有任何东西流回上游。</p>
     </div>
 
     <figure>
       <div class="scroller">
-        <svg id="fig-pipeline" viewBox="0 0 1160 430" role="img"
-             aria-label="五阶段流水线:发现、求键、预筛、抓联系方式、落表,依次流向右侧写入目标表。预筛与落表都读取目标表建索引。预筛丢弃已有链接键且命中的记录以节省抓取成本;落表阶段用全部可用的键做终筛,命中的丢弃,两个键都没有的落入运行报告。底部取数层为发现与抓取供数,内含本地路径日志,将来由 auto-gtm 的带认证取数层替换。">
+        <svg id="fig-loop" viewBox="0 0 1100 420" role="img"
+             aria-label="循环流程:发现候选、查 log 跳过见过的、抓联系方式、记 log、筛选合格的进目标表,然后回到发现继续,直到凑够、翻到底或连续无新。log 是一个本地存储,查 log 时读它,记 log 时写它,记录全部爬过的人与地址。不合格的不进表,但已经在 log 里。">
           <defs>
-            <marker id="p-m" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <marker id="a-m" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
               <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--machine)" />
             </marker>
-            <marker id="p-g" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-              <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--guard)" />
+            <marker id="a-h" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--human)" />
             </marker>
-            <marker id="p-r" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <marker id="a-r" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
               <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--muted)" />
             </marker>
           </defs>
 
-          <text class="d-eyeb" x="30" y="26">止于联系方式 · 不发信 · 不分层</text>
+          <text class="d-eyeb" x="40" y="30">止于联系方式 · 不发信 · 不分层</text>
 
-          <!-- read-back into both dedup points -->
-          <path class="d-read" d="M 980 70 L 450 70 L 450 104" marker-end="url(#p-r)" />
-          <line class="d-read" x1="820" y1="70" x2="820" y2="104" marker-end="url(#p-r)" />
-          <text class="d-arc" x="640" y="62">读全表建索引 · 预筛与终筛共用</text>
+          <!-- steps -->
+          <rect class="d-box" x="40"  y="100" width="130" height="60" rx="3" />
+          <text class="d-num"  x="105" y="122">01</text>
+          <text class="d-name" x="105" y="143">发现</text>
 
-          <!-- stages -->
-          <rect class="d-box" x="30"  y="110" width="120" height="62" rx="3" />
-          <text class="d-num"  x="90"  y="132">01</text>
-          <text class="d-name" x="90"  y="153">发现</text>
+          <rect class="d-box" x="210" y="100" width="130" height="60" rx="3" />
+          <text class="d-num"  x="275" y="122">02</text>
+          <text class="d-name" x="275" y="143">查 log</text>
 
-          <rect class="d-box" x="210" y="110" width="120" height="62" rx="3" />
-          <text class="d-num"  x="270" y="132">02</text>
-          <text class="d-name" x="270" y="153">求键</text>
+          <rect class="d-box" x="380" y="100" width="130" height="60" rx="3" />
+          <text class="d-num"  x="445" y="122">03</text>
+          <text class="d-name" x="445" y="143">抓</text>
 
-          <rect class="d-box" x="390" y="110" width="120" height="62" rx="3" />
-          <text class="d-num"  x="450" y="132">03</text>
-          <text class="d-name" x="450" y="153">预筛</text>
+          <rect class="d-box" x="550" y="100" width="130" height="60" rx="3" />
+          <text class="d-num"  x="615" y="122">04</text>
+          <text class="d-name" x="615" y="143">记 log</text>
 
-          <rect class="d-box" x="570" y="110" width="130" height="62" rx="3" />
-          <text class="d-num"  x="635" y="132">04</text>
-          <text class="d-name" x="635" y="153">抓联系方式</text>
+          <rect class="d-box" x="720" y="100" width="130" height="60" rx="3" />
+          <text class="d-num"  x="785" y="122">05</text>
+          <text class="d-name" x="785" y="143">筛</text>
 
-          <rect class="d-box" x="760" y="110" width="120" height="62" rx="3" />
-          <text class="d-num"  x="820" y="132">05</text>
-          <text class="d-name" x="820" y="153">落表</text>
+          <line class="d-flow" x1="170" y1="130" x2="204" y2="130" marker-end="url(#a-m)" />
+          <line class="d-flow" x1="340" y1="130" x2="374" y2="130" marker-end="url(#a-m)" />
+          <line class="d-flow" x1="510" y1="130" x2="544" y2="130" marker-end="url(#a-m)" />
+          <line class="d-flow" x1="680" y1="130" x2="714" y2="130" marker-end="url(#a-m)" />
+          <line class="d-flow" x1="850" y1="130" x2="904" y2="130" marker-end="url(#a-m)" />
 
-          <!-- forward -->
-          <line class="d-flow" x1="150" y1="141" x2="204" y2="141" marker-end="url(#p-m)" />
-          <line class="d-flow" x1="330" y1="141" x2="384" y2="141" marker-end="url(#p-m)" />
-          <line class="d-flow" x1="510" y1="141" x2="564" y2="141" marker-end="url(#p-m)" />
-          <line class="d-flow" x1="700" y1="141" x2="754" y2="141" marker-end="url(#p-m)" />
-          <line class="d-flow" x1="880" y1="141" x2="974" y2="141" marker-end="url(#p-m)" />
+          <text class="d-arc" x="187" y="122">候选</text>
+          <text class="d-arc" x="357" y="122">未见过</text>
+          <text class="d-arc" x="527" y="122">结果</text>
+          <text class="d-arc" x="697" y="122">全部</text>
+          <text class="d-arc" x="877" y="122">合格</text>
 
-          <text class="d-arc" x="177" y="133">候选</text>
-          <text class="d-arc" x="357" y="133">键或待定</text>
-          <text class="d-arc" x="537" y="133">未见过</text>
-          <text class="d-arc" x="727" y="133">带地址</text>
-          <text class="d-arc" x="927" y="133">新行</text>
+          <!-- log store -->
+          <rect class="d-store" x="210" y="300" width="470" height="56" rx="4" />
+          <text class="d-hdh" x="445" y="324">log · 爬过的人与地址</text>
+          <text class="d-sub" x="445" y="342">全部，不管抓没抓到 · 本地 · 失败不记</text>
+
+          <line class="d-read" x1="275" y1="300" x2="275" y2="166" marker-end="url(#a-h)" />
+          <line class="d-read" x1="615" y1="166" x2="615" y2="294" marker-end="url(#a-h)" />
+          <text class="d-arcs" x="286" y="240">读</text>
+          <text class="d-arcs" x="626" y="240">写</text>
+
+          <!-- not qualified -->
+          <path class="d-fail" d="M 745 160 L 700 212" />
+          <line class="d-stop" x1="655" y1="216" x2="735" y2="216" />
+          <text class="d-stopt" x="695" y="238">不进表</text>
+          <text class="d-arc"   x="695" y="254">已在 log 里</text>
 
           <!-- target sheet -->
-          <rect class="d-plain" x="980" y="60" width="150" height="260" rx="3" />
-          <text class="d-sub" x="1055" y="82">目标表 · 一行一个人</text>
+          <rect class="d-plain" x="910" y="60" width="150" height="200" rx="3" />
+          <text class="d-sub" x="985" y="80">目标表 · 一行一个人</text>
 
-          <rect class="d-box" x="992" y="94" width="126" height="108" rx="2" />
-          <text class="d-hd"   x="1055" y="114">流水线写</text>
-          <text class="d-list" x="1055" y="136">名字 · 平台</text>
-          <text class="d-list" x="1055" y="156">主页链接</text>
-          <text class="d-list" x="1055" y="176">联系方式</text>
-          <text class="d-list" x="1055" y="196">状态(初值)</text>
+          <rect class="d-box" x="922" y="92" width="126" height="96" rx="2" />
+          <text class="d-hd"   x="985" y="112">流水线写</text>
+          <text class="d-list" x="985" y="134">名字 · 平台</text>
+          <text class="d-list" x="985" y="153">主页链接</text>
+          <text class="d-list" x="985" y="172">联系方式</text>
 
-          <rect class="d-hum" x="992" y="212" width="126" height="100" rx="2" />
-          <text class="d-hdh"  x="1055" y="232">留空 · 人填</text>
-          <text class="d-list" x="1055" y="254">类型 · 主题</text>
-          <text class="d-list" x="1055" y="274">受众 · 理由</text>
-          <text class="d-list" x="1055" y="294">优先级 · 备注</text>
+          <rect class="d-hum" x="922" y="196" width="126" height="56" rx="2" />
+          <text class="d-hdh"  x="985" y="216">留空 · 人填</text>
+          <text class="d-list" x="985" y="236">其余各列</text>
 
-          <!-- discard at pre-filter: saves cost -->
-          <line class="d-fail" x1="450" y1="172" x2="450" y2="244" />
-          <line class="d-stop" x1="405" y1="248" x2="495" y2="248" />
-          <text class="d-arcs"  x="460" y="208">链接键命中</text>
-          <text class="d-stopt" x="450" y="272">丢弃 · 省成本</text>
+          <!-- loop back -->
+          <path class="d-loop" d="M 830 160 L 830 390 L 105 390 L 105 166" marker-end="url(#a-m)" />
+          <text class="d-arc" x="440" y="382">继续，直到停止</text>
 
-          <!-- discard at final filter: guarantees correctness -->
-          <line class="d-fail" x1="780" y1="172" x2="780" y2="244" />
-          <line class="d-stop" x1="740" y1="248" x2="820" y2="248" />
-          <text class="d-arcs"  x="700" y="208">任一键命中</text>
-          <text class="d-stopt" x="780" y="272">丢弃 · 保正确</text>
-
-          <!-- report -->
-          <path class="d-fail" d="M 850 172 L 893 244" marker-end="url(#p-g)" />
-          <rect class="d-drop" x="845" y="250" width="115" height="56" rx="3" />
-          <text class="d-num-g" x="902" y="268">REPORT</text>
-          <text class="d-name"  x="902" y="285">运行报告</text>
-          <text class="d-arc"   x="902" y="300">两个键都没有</text>
-
-          <!-- fetch layer -->
-          <line class="d-flow" x1="90"  y1="355" x2="90"  y2="178" marker-end="url(#p-m)" />
-          <line class="d-flow" x1="685" y1="355" x2="685" y2="178" marker-end="url(#p-m)" />
-          <text class="d-arc" x="110" y="332">取数</text>
-          <text class="d-arc" x="706" y="332">取数</text>
-
-          <rect class="d-box" x="30" y="355" width="670" height="50" rx="3" />
-          <text class="d-name" x="180" y="378">取数层</text>
-          <text class="d-sub"  x="180" y="394">只读 · 单一入口 · 公开页</text>
-
-          <rect class="d-plain" x="500" y="364" width="188" height="32" rx="2" />
-          <text class="d-sub" x="594" y="384">路径日志 · 本地缓存</text>
-
-          <rect class="d-ghost" x="740" y="355" width="180" height="50" rx="3" />
-          <text class="d-sub" x="830" y="376">auto-gtm 取数层</text>
-          <text class="d-arc" x="830" y="393">合并后替换 · 带认证</text>
-          <line class="d-read" x1="740" y1="380" x2="706" y2="380" marker-end="url(#p-r)" />
+          <rect class="d-ghost" x="880" y="306" width="180" height="88" rx="3" />
+          <text class="d-sub"  x="970" y="326">停止原因</text>
+          <text class="d-arc"  x="970" y="346">凑够 · 正常收工</text>
+          <text class="d-arc"  x="970" y="364">翻到底 · 渠道枯了</text>
+          <text class="d-arc"  x="970" y="382">连续无新 · 收益递减</text>
+          <line class="d-ghost" x1="880" y1="350" x2="836" y2="350" />
         </svg>
       </div>
-      <figcaption>两条终止线不是重复：<strong>预筛那条只为省抓取成本</strong>，去掉它系统依然正确，
-        只是要多抓一遍已知的人；<strong>终筛那条才是正确性保证</strong>。丢弃什么都不存——它是行为的终点，
-        所以画成终止线；只有被丢弃记录的键会计入报告，否则清单把两个人算成同一个键时，
-        误杀不可查。运行报告是实体（本地文件），所以是方框。</figcaption>
+      <figcaption>后两种停止原因都是「没凑够」，含义却相反：<strong>翻到底</strong>是这个渠道真没了，
+        <strong>连续无新</strong>是还能换个角度再来。混成一句「本轮结束」，就再看不出哪个渠道值得继续投。
+        不另设数值上限——「连续无新」已经是实际边界，再加配额只是多一个旋钮。<br><br>
+        log 丢了是安全的：不合格的人重抓一次还是不合格，进不了表；合格的人在表里，
+        可以反过来给 log 播种。所以它是缓存，不是权威。</figcaption>
     </figure>
   </section>
 
   <section>
     <div class="section-head">
-      <h2>键的两个来源</h2>
-      <p>先看链接怎么解析——判断只有一个问题：这个域名是不是这个人独占的？</p>
+      <h2>为什么不解析链接</h2>
+      <p>看起来更聪明的那个方案，在真实数据上会删掉真人。</p>
     </div>
     <figure>
       <div class="scroller">
-        <svg id="fig-key" viewBox="0 0 720 215" role="img"
-             aria-label="三种链接形态对应三种结果:独占域名以域名本身为键;共享域名取域名加路径段为键;共享域名而没有路径段则得不到链接键,转而等待抓取阶段的地址键。">
+        <svg id="fig-why" viewBox="0 0 680 200" role="img"
+             aria-label="同一个站点 latent.space 下住着两位主持人。按人加平台去重,两行都保留,正确;按 URL 键去重,两行合并成一行,丢掉一位。">
           <defs>
-            <marker id="k-m" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <marker id="w-m" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
               <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--machine)" />
             </marker>
-            <marker id="k-r" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-              <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--muted)" />
+            <marker id="w-g" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--guard)" />
             </marker>
           </defs>
 
-          <rect class="d-plain" x="14" y="34" width="236" height="36" rx="2" />
-          <text class="d-mono" x="132" y="57">simonwillison.net/</text>
-          <text class="d-arc"  x="375" y="47">独占域名</text>
-          <text class="d-sub"  x="375" y="63">不在共享清单上</text>
-          <line class="d-flow" x1="250" y1="52" x2="284" y2="52" marker-end="url(#k-m)" />
-          <line class="d-flow" x1="466" y1="52" x2="500" y2="52" marker-end="url(#k-m)" />
-          <rect class="d-box" x="506" y="34" width="200" height="36" rx="2" />
-          <text class="d-mono" x="606" y="57">simonwillison.net</text>
+          <rect class="d-plain" x="16" y="72" width="214" height="56" rx="3" />
+          <text class="d-mono" x="123" y="96">latent.space/about</text>
+          <text class="d-sub"  x="123" y="115">同一个站点，两位主持人</text>
 
-          <rect class="d-plain" x="14" y="94" width="236" height="36" rx="2" />
-          <text class="d-mono" x="132" y="117">youtube.com/@Appychip</text>
-          <text class="d-arc"  x="375" y="107">共享域名</text>
-          <text class="d-sub"  x="375" y="123">加上唯一路径段</text>
-          <line class="d-flow" x1="250" y1="112" x2="284" y2="112" marker-end="url(#k-m)" />
-          <line class="d-flow" x1="466" y1="112" x2="500" y2="112" marker-end="url(#k-m)" />
-          <rect class="d-box" x="506" y="94" width="200" height="36" rx="2" />
-          <text class="d-mono" x="606" y="117">youtube:appychip</text>
+          <path class="d-flow" d="M 230 90 L 332 62" marker-end="url(#w-m)" />
+          <path class="d-fail" d="M 230 110 L 332 138" marker-end="url(#w-g)" />
 
-          <rect class="d-plain" x="14" y="154" width="236" height="36" rx="2" />
-          <text class="d-mono" x="132" y="177">medium.com/</text>
-          <text class="d-arc"  x="375" y="167">共享域名</text>
-          <text class="d-sub"  x="375" y="183">但没有路径段</text>
-          <line class="d-read" x1="250" y1="172" x2="284" y2="172" marker-end="url(#k-r)" />
-          <line class="d-read" x1="466" y1="172" x2="500" y2="172" marker-end="url(#k-r)" />
-          <rect class="d-ghost" x="506" y="154" width="200" height="36" rx="2" />
-          <text class="d-monom" x="606" y="177">待地址键</text>
+          <rect class="d-box" x="340" y="30" width="324" height="56" rx="3" />
+          <text class="d-ok"   x="502" y="54">按（人 · 平台）</text>
+          <text class="d-sub"  x="502" y="73">Alessio Fanelli 与 Shawn Wang 都保留</text>
+
+          <rect class="d-drop" x="340" y="114" width="324" height="56" rx="3" />
+          <text class="d-bad" x="502" y="138">按 URL 键</text>
+          <text class="d-sub" x="502" y="157">合并成一行 · 丢掉一位</text>
         </svg>
       </div>
-      <figcaption>第三行不再是丢弃——<strong>得不到链接键，不等于这个人没价值</strong>。
-        赞助位市场那条路上，目录页直接列了名字和联系方式，链接指向的只是中介页；
-        按旧设计这批人会在第二阶段就被扔掉。所以它继续往下走，等抓取阶段拿到地址键。<br><br>
-        两类键的误判方向相反：链接键误判是「同一人算成两个」，多一行，人看得见；
-        地址键误判是「不同人算成一个」，少一个人，<strong>永远看不见</strong>。
-        所以面向团队的通用地址不作键——那是第二份配置清单。</figcaption>
+      <figcaption>同一个站点下常常住着不同的人——播客的两位主持人、公司官方账号与创始人个人、
+        同一平台下的不同板块（<code>reddit.com/r/LangChain</code> 与 <code>/r/LocalLLaMA</code>
+        会被算成同一个键）。联系方式也一样：面向职能的团队地址会把一家公司的多个人塌成一个。</figcaption>
     </figure>
-  </section>
 
-  <section>
-    <div class="section-head">
-      <h2>五个阶段</h2>
-    </div>
     <div class="table-scroll">
       <table>
-        <thead><tr><th>#</th><th>阶段</th><th>做什么</th><th>不入表的去处</th></tr></thead>
+        <thead><tr><th>在 407 行上实测</th><th class="num">去掉真重复</th><th class="num">误杀真人</th></tr></thead>
         <tbody>
-          <tr><td class="n">01</td><td class="s">发现</td><td>从种子出发，按渠道形态决定怎么走、何时停</td><td class="o">—</td></tr>
-          <tr><td class="n">02</td><td class="s">求键</td><td>从主页链接解析。<strong>解析不出不丢弃</strong>，继续往下走</td><td class="o">—</td></tr>
-          <tr><td class="n">03</td><td class="s">预筛</td><td>已有链接键的先查一道，命中即丢</td><td class="o">丢弃（不留存）</td></tr>
-          <tr><td class="n">04</td><td class="s">抓联系方式</td><td>两跳：平台页 → 本人站点</td><td class="o">—</td></tr>
-          <tr><td class="n">05</td><td class="s">落表</td><td>用全部可用的键做终筛，追加新行；抓不到地址的留空写入</td><td class="o">丢弃；两键皆无 → 报告</td></tr>
+          <tr><td><strong>按（人 · 平台）</strong></td><td class="num ok">4</td><td class="num ok">0</td></tr>
+          <tr><td>按 URL 键</td><td class="num">3</td><td class="num bad">21</td></tr>
         </tbody>
       </table>
     </div>
+    <p class="note">前提：log 里的「人」是<strong>机器从平台页抓的显示名</strong>，不是人手打的——
+      这是它误合并为零的原因。哪天某个平台的显示名不稳定，这条假设就破，那个平台得单独处理。</p>
   </section>
 
   <section>
     <div class="section-head">
-      <h2>顺序：定脉络，不定细节</h2>
-      <p>使用者给一个总数。怎么花掉它，由 agent 多角度权衡后自己规划——权衡什么，
-        使用时才定。</p>
+      <h2>四条不变量</h2>
+    </div>
+    <ul class="inv">
+      <li><b>只追加，不修改</b><span>目标表创建新行，永不改动任何已存在的格。人爱改哪列改哪列，不会冲突。</span></li>
+      <li><b>log 记全部，表只记合格的</b><span>抓不到联系方式的人只进 log，表保持干净。</span></li>
+      <li><b>失败不记 log</b><span>超时、限流、网络错不算「爬过」——记了，一次抖动就永久丢掉一个目标。它们进运行报告。</span></li>
+      <li><b>宁可不进表，不可编造</b><span>联系方式抓不到就不进表，不猜一个。</span></li>
+    </ul>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <h2>定脉络，不定细节</h2>
+      <p>设计只框住必须成立的，其余留到使用时——每轮意图不同，焊死等于让上一轮绑架下一轮。</p>
     </div>
     <div class="split">
       <div class="k-fix">
         <h3>设计定死</h3>
         <ul>
-          <li>每轮有边界——总数由使用者给，没有边界不许上线</li>
-          <li>停止原因可区分：翻到底 / 取够 / 连续无新</li>
+          <li>三种停止原因可区分</li>
           <li>召回顺序跟随平台，不重排它给的结果</li>
+          <li>产出率按渠道记录</li>
           <li>不做图遍历扩散</li>
         </ul>
       </div>
       <div class="k-free">
         <h3>使用时才定</h3>
         <ul>
-          <li>要规模，还是要主题贴合</li>
-          <li>要成功率，还是要平台多样性</li>
-          <li>总数怎么在各平台间分配</li>
-          <li>先跑哪个、低产时换不换</li>
+          <li>要多少（合格行数）</li>
+          <li>「符合要求」的门槛</li>
+          <li>优先规模、贴合、成功率还是平台多样性</li>
+          <li>先跑哪个平台、低产时换不换</li>
         </ul>
       </div>
       <div class="k-out">
-        <h3>为什么不焊死</h3>
+        <h3>怎么兜住</h3>
         <ul>
-          <li>每轮的意图不同——把某个特征写进配置，等于让上一轮的意图绑架下一轮</li>
-          <li>代价是不可预测，所以<strong>约束靠记录，不靠预先规定</strong></li>
-          <li>计划、实际、偏离、停止原因，全部进运行报告</li>
+          <li>agent 的计划、实际、偏离、停止原因全进运行报告</li>
+          <li>产出率是下轮估算的唯一依据——门槛变了数字就不可比</li>
+          <li><strong>约束靠记录，不靠预先规定</strong></li>
         </ul>
       </div>
     </div>
-  </section>
-
-  <section>
-    <div class="section-head">
-      <h2>三条不变量</h2>
-      <p>最早有七条，其中三条是在给「列所有权」打补丁。改成只追加之后，它们塌成了一条。</p>
-    </div>
-    <ul class="inv">
-      <li><b>只追加，不修改</b><span>流水线创建新行，永不改动任何已存在的格。人爱改哪列改哪列——不会冲突，因为它从不回头。</span></li>
-      <li><b>显示名永不作键</b><span>人会改名换头像，链接与地址里的标识符不会。</span></li>
-      <li><b>宁可留空，不可编造</b><span>身份能定就写；地址取不到就留空——留空的含义是「试过、没找到」，比猜一个安全得多。</span></li>
-    </ul>
-  </section>
-
-  <section>
-    <div class="section-head">
-      <h2>为什么写目标表而不是联系记录表</h2>
-    </div>
-    <p class="note">这条流水线<strong>从不联系任何人</strong>。目标表是实体表，一行一个人，回答
-      「这是谁、怎么够得着」——正是它的产出。联系记录表是事件表，一行一次联系；往那里追加几百行，
-      等于凭空创造几百次没发生过的联系。<br><br>
-      目标表之所以看起来「没在用」，是因为没有东西持续往里填，人只好直接在联系记录表上干活。
-      流水线正是那个持续填充的东西——它是复活目标表的理由，不是绕开它的理由。</p>
   </section>
 
   <footer class="col">
