@@ -6,7 +6,7 @@
 ## 发现:两个端点,差一个量级
 
 **`/v1/tiktok/search/users`** —— 参数只有 `query` / `cursor` / `trim`。
-1 credit → 30 个 handle。实测:
+1 credit → 30 个 handle:
 
 ```
 signature(bio)   30/30 全空
@@ -30,34 +30,12 @@ search_user_desc  只是昵称("Nancy | Fitness Coach"),不是 bio
 
 没有 `business_email`,邮箱只能顺 `bioLink` 出去抓落地页。
 
-## 实测
+## 消耗
 
-AI 垂类,内容搜索 → 逐个 profile(2026-08-06,SociaVault):
+**约 1.14 credit / 可触达联系方式** —— 是 Instagram 的 7.6 倍。
 
-```
-15 人 / 16 credits          ≈ 1.07 credit/人
-bio 非空         15/15  100%
-bio 直接有邮箱    8/15   53%
-带 bioLink       14/15   93%
-可触达           14/15   93%
-```
+贵不是因为 bio 少 —— **bio 里直接给邮箱的比例反而是 Instagram 的两倍多**。
+贵在搜索不带 bio,逼出了每人一次的第二步调用。
 
-**bio 里直接给邮箱的比例是 Instagram 的两倍多(53% vs 22%)。** 80 字符的限制反而
-逼创作者只留最要紧的一条,而那条常常就是邮箱。样本只有 15,比 Instagram 那轮的 79 小得多,
-数量级可信、精确值待更大样本。
-
-个别账号 bio 里给的是 WhatsApp 号或 Instagram handle,不是邮箱 —— 也算可触达。
-
-早前一次用 `/v1/tiktok/profile` 试 `@zasai26`(348 万粉)拿到空 `signature` 和
-`bioLink: None`,曾被误读为「TikTok profile 也不给 bio」。那是**个别账号真没填**,
-不是端点限制。
-
-## 单价
-
-```
-Instagram   0.15 credit/可触达,搜索一步到位
-TikTok      1.14 credit/可触达,必须两步
-```
-
-**TikTok 贵 7.6 倍,但不是因为 bio 少,是因为搜索不带 bio 逼出了第二步调用。**
-排序与选择见 [../methodology/cost-ranking.md](../methodology/cost-ranking.md)。
+命中结构与做法见 [../methodology/tiktok.md](../methodology/tiktok.md),
+选路见 [../methodology/cost-ranking.md](../methodology/cost-ranking.md)。

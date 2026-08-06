@@ -30,16 +30,8 @@ query 直接吃 bio 文本,等于可以自定义筛选条件:`"business inquirie
 
 同一次调用还带 `edge_related_profiles`(32 个同类账号)和近 12 条帖的互动数据。
 
-## 实测
+## 消耗
 
-AI 垂类跑了一轮(2026-08-06):
+**约 0.15 credit / 可触达联系方式** —— 全部路径里最低。
 
-```
-79 人 / 11 credits          ≈ 0.14 credit/人
-bio 直接有邮箱   18/79  22%
-带外链           70/79  88%
-外链域名         linktr.ee 30 · youtube.com 14 · stan.store 5 · bit.ly 4
-```
-
-**AI 创作者不把邮箱写 bio,他们挂 Linktree。** 顺外链抓落地页后总命中率约 48%,
-去掉模板占位符和建站平台公共邮箱,净约 38-40%。
+命中结构与做法见 [../methodology/instagram.md](../methodology/instagram.md)。

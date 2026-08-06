@@ -57,6 +57,6 @@ key 本身有效,但要先在控制台建 zone(Web Scraper API 或 Web Unlocker)
 
 ScrapeCreators 与 SociaVault 的搜索响应结构完全相同 —— `challenge_list` / `cursor` /
 `global_doodle_config` / `log_pb` / `rid` / `status_code`,这是 TikTok 自己内部搜索接口的
-原始响应,两家都只是转发。两家实测 `signature` 都是 30/30 全空。
+原始响应,两家都只是转发,`signature` 一律为空。
 
 任何包装 TikTok 官方搜索接口的服务都会是同一个结果。**这是平台限制,不是选型问题。**
