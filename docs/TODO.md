@@ -44,8 +44,8 @@
       决定这个入口能不能真用 —— DEV.to 上这一条是决定性的。
 - [ ] WordPress.com → Gravatar 那两成邮箱只在一个标签的三十个名字上测过,换垂类会不会掉。
 - [ ] Micro.blog 的翻页与话题取法未探,只取过首屏 50 条。
-- [ ] **freeCodeCamp News 与 HackerNoon 归哪一档未定** —— 有编辑审,不满足
-      `2-blog-platform/` 的「无门槛」定义,但作者自带受众,也不是 `media.md` 那种多作者刊物。
+- [x] freeCodeCamp News 与 HackerNoon 归哪一档 —— 都归 `2-blog-platform/`。
+      那一档的判据改成「站不是他的」,门槛高低是各平台自己的属性。
 - [ ] `cost-ranking.md` 只有一个轴(抓取 `credit/人`),缺**合作成本/人**那一轴。
       数据只能从实际谈过的人身上来,属发信侧产出。在有数之前用代理信号:
       有没有 rate card / 招商页。
