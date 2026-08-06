@@ -54,7 +54,15 @@ Passionfroot、Paved、Hacker News、Product Hunt,以及任意站外页面。
 
 **Bear Blog** —— 发现页对声明身份的爬虫返回质询页(403),没有免浏览器的路。
 
-**Tumblr** —— 标签接口要 API key,匿名 401。
+**Tumblr** —— 官方标签接口要 API key,匿名 401。免认证面:标签页 HTML 一次 7 个博客,
+**时间游标参数无效**,返回逐字节相同;每个博客的旧版 JSON 端点仍免 key,
+只有七个字段,其中自定义域名与 feed 两项在 10 个抽样上**全空**;每博客 RSS 无任何作者或邮箱标签。
+页面里嵌着一个匿名 bearer token,拿它可以翻页 —— **那是绕开 key 闸,不是免认证面。**
+
+**write.as** —— 阅读站的 feed 免 key,一次 88 条 / 49 个博客,`author` 恒为博客标题而非人。
+翻页在阅读站自己的路径下,**整个公开面约 150 篇的滚动窗口**,标签页几乎是空的,没有公开目录。
+每个博客有免 key 的 JSON(含终身浏览量)与 ActivityPub actor(**无 attachment,故无联系字段**)。
+**限流很紧**:2 秒间隔下三次之后即 429。
 
 **Hashnode** —— **GraphQL 端点已撤**:任何请求都 301 到一份公告页,
 **带不带 token 都一样**;旧的 `api.hashnode.com` 主机 404。平台自述读写都要刊物开 Pro。

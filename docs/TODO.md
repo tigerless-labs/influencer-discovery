@@ -46,6 +46,8 @@
 - [ ] Micro.blog 的翻页与话题取法未探,只取过首屏 50 条。
 - [x] freeCodeCamp News 与 HackerNoon 归哪一档 —— 都归 `2-blog-platform/`。
       那一档的判据改成「站不是他的」,门槛高低是各平台自己的属性。
+- [ ] Tumblr 的匿名 bearer token 那条路**已否决**(绕 key 闸)。若将来接入带登录态的取数层,
+      走正规 API key 重评,别再走那条。
 - [ ] `cost-ranking.md` 只有一个轴(抓取 `credit/人`),缺**合作成本/人**那一轴。
       数据只能从实际谈过的人身上来,属发信侧产出。在有数之前用代理信号:
       有没有 rate card / 招商页。
