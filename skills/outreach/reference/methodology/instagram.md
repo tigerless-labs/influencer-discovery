@@ -1,6 +1,6 @@
 # Instagram
 
-取数见 [../datalayer/instagram.md](../datalayer/instagram.md),选不选这条路见
+取数见 [../../../../datalayer/instagram.md](../../../../datalayer/instagram.md),选不选这条路见
 [cost-ranking.md](cost-ranking.md)。
 
 搜索结果自带 bio、外链、粉丝数 —— 一步到位,不需要逐个查 profile。
@@ -68,6 +68,9 @@ bio 有邮箱          约 22%
 
 落地页挖出的含噪声(模板占位符、建站平台公共邮箱),去噪后总净命中约 38–40%。
 噪声类型见 [landing-page-two-hop.md](landing-page-two-hop.md)。
+
+**邮箱和外链都落空的那部分**,拿同一个 handle 去 Threads 换一份 bio 再试,
+见 [threads.md](threads.md)。
 
 ## 解析上的坑
 

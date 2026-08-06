@@ -1,7 +1,8 @@
 # LinkedIn
 
-做不做、怎么取,见 [../datalayer/linkedin.md](../datalayer/linkedin.md)。
-这里只写取到之后怎么拿联系方式。
+**不做。** 能力边界见
+[../../../../datalayer/linkedin.md](../../../../datalayer/linkedin.md) —— 那三条边界任一条
+单独就足以否掉它;这里是裁决本身,以及不做之后这条链长什么样。
 
 ## 打通认证也不会变高产
 

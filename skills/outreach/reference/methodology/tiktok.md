@@ -1,6 +1,6 @@
 # TikTok
 
-取数见 [../datalayer/tiktok.md](../datalayer/tiktok.md),选不选这条路见
+取数见 [../../../../datalayer/tiktok.md](../../../../datalayer/tiktok.md),选不选这条路见
 [cost-ranking.md](cost-ranking.md)。
 
 搜索端点不返回 bio,联系方式在 bio 里 —— 必须两步:先拿 handle,再逐个查 profile。
@@ -15,7 +15,7 @@
 ⑤ 无邮箱者走第二跳   0 credit
 ```
 
-**筛必须在 ③ 之前。** 每放过一个人就是 1 credit,总开销由 ② 决定。
+**筛必须在 ③ 之前** —— 搜索结果自带粉丝数与播放量,足够筛。
 
 ### ① 内容搜索
 
@@ -23,7 +23,7 @@
 GET /v1/scrape/tiktok/search/keyword?query=<关键词>&sort_by=most-liked
 ```
 
-端点契约(参数名、header)见 [../datalayer/tiktok.md](../datalayer/tiktok.md)。
+端点契约(参数名、header)见 [../../../../datalayer/tiktok.md](../../../../datalayer/tiktok.md)。
 
 从 `data.search_item_list` 取三个字段:
 
@@ -78,7 +78,3 @@ bio 有邮箱      约 53%      ← 高于 Instagram 一倍多
 - **空 bio 是真的空。** 百万粉账号也可能 `signature` 为空、`bioLink` 为 `None`,
   那是本人没填,不是端点坏了。
 
-## 换供应商
-
-ScrapeCreators 同链路端点等价,路径去掉 `/scrape`:
-`/v1/tiktok/search/keyword`、`/v1/tiktok/profile`,参数名与字段路径一致。

@@ -1,10 +1,11 @@
 ---
 name: outreach
 description: >
-  把博主/创作者找出来、把联系方式抓到手,追加进 Google Sheet 的目标表。用于
-  「找一批做 X 的博主」「补目标表」「给这些人挖联系方式」「这个平台怎么拿到邮箱」
-  这类请求。覆盖 YouTube、Newsletter、Blog、Website、Podcast、GitHub、LinkedIn、
-  X/Twitter、Medium、Reddit、DEV.to、Hacker News、Product Hunt、TikTok、Instagram,
+  把能帮 Tigerless Labs 推广作品的博主/创作者找出来、把联系方式抓到手,追加进
+  Google Sheet 的目标表。目标必须自带受众——有粉丝、有读者、有订阅者;做自己产品的人
+  不是目标。用于「找一批做 X 的博主」「补目标表」「给这些人挖联系方式」「这个平台
+  怎么拿到邮箱」这类请求。覆盖 YouTube、Newsletter、Blog、Podcast、GitHub、LinkedIn、
+  X/Twitter、Medium、Reddit、TikTok、Instagram,做分发的 Website(工具推荐站、目录站),
   以及 Passionfroot / Paved 两个赞助位市场。
 
   止于拿到联系方式。发信、分层、成交跟踪、点击结算都不在内——那些请求不要用这个 skill。
@@ -13,6 +14,18 @@ description: >
 # outreach
 
 一句话:**凑够使用者要的合格行数,每一行都有联系方式,一行都不重复。**
+
+## 找谁
+
+**能帮我们推广作品的人。** 判据是**自带受众**:有粉丝、有读者、有订阅者,
+他发一次东西有人看得见。
+
+**做自己产品的人不是目标。** 他要的是流量,不会给我们分发——抓到他的邮箱是误报,
+不是产出。这是这套方法最大的误报源,判别见
+[seller-vs-buyer.md](reference/methodology/seller-vs-buyer.md)。
+
+**媒体也不是目标。** 多作者刊物有编辑、有版面、卖广告位,不是某个可触达的人。
+清单与理由见 [media.md](reference/methodology/media.md),存在只为防止误当博主渠道跑。
 
 ## 先读这些
 
@@ -52,24 +65,29 @@ description: >
 
 没问清就开跑,报告里的产出率没有意义。
 
-## reference 两档
+## 两档
 
 两件事分开,不要混:
 
-**[datalayer/](reference/datalayer/index.md) —— 怎么把数据取出来。**
-一份免认证的,其余每个平台一份。方式是纯 HTTP、cookie、CLI 还是第三方 API。
+**[datalayer/](../../datalayer/index.md) —— 每个平台的能力边界。**
+**不在这个 skill 里,会独立成 repo。** 一份免认证的,其余每个平台一份:
+方式是纯 HTTP、cookie、CLI 还是第三方 API,能取到什么、代价多少。
 **只记已确定的,未跑通的空着。**
 
 **[methodology/](reference/methodology/index.md) —— 拿到数据后联系方式在哪。**
 逐渠道的入口、停止语义、去重的键、已知边界。**通则只写一次**(第二跳、卖方买方判别、
-成本排序三个共享件),渠道只写自己的例外。**Instagram / TikTok / Reddit 已实测跑通,
-其余是骨架,含未验证断言,用前先核实。**
+成本排序三个共享件),渠道只写自己的例外。
 
-数据层决定**能不能做**,方法论决定**做了怎么拿**。一个平台在数据层是「不做」,
-方法论那份就只是备查。写法规约见 [CLAUDE.md](CLAUDE.md)。
+**每份渠道文档只回答一个问题:这个平台上博主的邮箱怎么拿到手。**
+选型推理、成本论证、供应商比较都不写在渠道那份 —— 成本归
+[cost-ranking.md](reference/methodology/cost-ranking.md),供应商归数据层。
+写法细则见 [CLAUDE.md](CLAUDE.md)。
+
+数据层给出**边界**,方法论**据此裁决做不做**、并写怎么拿。裁决为不做的那份降级为备查。
+写法规约见 [CLAUDE.md](CLAUDE.md);数据层有它自己的一份。
 
 **凭据在 `~/.config/outreach/.env`(`chmod 600`),变量名见
-[datalayer/index.md](reference/datalayer/index.md#凭据)。** 不在 repo 里,也不要去
+[datalayer/index.md](../../datalayer/index.md#凭据)。** 不在 repo 里,也不要去
 `~/.config/last30days/.env` 借。缺 key 就报出所缺的变量名,不猜、不回退到别的项目的凭据。
 
 **目标表当前的平台分布**(2026-08-06,409 行,用来判断投入优先级,会随表增长而变):

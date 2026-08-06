@@ -1,8 +1,7 @@
 # 数据层
 
-**怎么把数据取出来 —— 与用途无关。** 渠道、API、端点与字段、单价与配额。
-换个人拿它去做别的事,这一档照样能用;「拿到之后怎么找邮箱、每个邮箱多少钱」
-归 [../methodology/](../methodology/index.md)。
+**每个平台的能力边界 —— 与用途无关。** 能取到什么、取不到什么、要什么凭据、代价多少。
+换个人拿它去做选品、做舆情、做招聘,这一档照样能用。写法见 [CLAUDE.md](CLAUDE.md)。
 
 一份公开可访问的,其余每个平台一份;供应商是另一个轴,单独一份。
 
@@ -10,8 +9,10 @@
 - [providers.md](providers.md) —— 第三方供应商名录:能力、网址、收费方式、实验记录
 - [instagram.md](instagram.md) —— 第三方 API,**已跑通**
 - [tiktok.md](tiktok.md) —— 第三方 API,**已跑通**
-- [linkedin.md](linkedin.md) —— cookie,不做
-- [twitter-x.md](twitter-x.md) —— cookie,随 auto-gtm 合并获得
+- [mastodon.md](mastodon.md) —— **无认证**,发现与取数都免 key
+- [threads.md](threads.md) —— 匿名到资料页;发现要过审的官方 API 或第三方
+- [linkedin.md](linkedin.md) —— cookie,发现这一步不存在
+- [twitter-x.md](twitter-x.md) —— cookie,匿名只到 bio
 - [reddit.md](reddit.md) —— cookie,`rdt` CLI,已验证
 
 ## 凭据
@@ -37,8 +38,9 @@ key 轮换静默打断另一方。
 **cookie 不落盘** —— 要用时现从浏览器 cookie DB 读,值只在进程内存里活。
 落盘就得自己管过期、加密、同步、泄漏面。本机 Chrome 可直接解密,无 keyring 阻塞。
 
-**browser-use 当前不可用** —— Claude 的 Chrome 扩展只装在 Default profile,
-且从未配对过(`list_connected_browsers` 返回 `[]`)。
+**浏览器可用,但取数不靠它。** 本机 Chrome 扩展已配对,能开标签页、读页面文本。
+实测它的用途是**分清「爬虫看不到」和「真的没有」** —— 对被拒的站点,
+它买回的是访问权,不是页面上原本就没有的东西。按域名逐个授权,只能串行。
 
 **服务端 filter 普遍不存在** —— 粉丝数、地区、垂类都没有服务端筛选。但搜索结果自带
 `follower_count`,**客户端筛不额外花钱**。唯一的例外是 Instagram:

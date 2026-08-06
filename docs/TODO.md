@@ -17,14 +17,28 @@
 ## skill(`skills/outreach/`)
 
 - [ ] 本地接上:仓库根的 `skills/` 不被 Claude Code 自动发现,要做软链或 marketplace 配置。
-- [ ] 数据层逐个探索并回填 `reference/datalayer/`。已确定:Instagram、TikTok(均走
-      ScrapeCreators)、Reddit(`rdt` CLI)、LinkedIn(不做)、X(随 auto-gtm 合并)。
+- [ ] 数据层逐个探索并回填 `datalayer/`(已移出 skill,将独立成 repo)。已确定边界:
+      Instagram、TikTok(均走 ScrapeCreators)、Reddit(`rdt` CLI)、LinkedIn、X。
       **免认证那一档只写了结论,各渠道的具体入口未跑通。**
 - [ ] `reference/methodology/` 12 份是骨架,正文里混着未验证的经验断言(页面结构、字段名、
       路径名)。用之前先核实。最虚的是 `passionfroot.md` 与 `paved.md`——那两个页面从没抓过,
       却是设计文档里「已验证的两条路」之一。
-- [ ] `linkedin.md` 与 `twitter-x.md` 在 datalayer 与 methodology 下各一份,内容有重叠。
-      数据层那份是定论,方法论那份是备查——若始终不做,方法论那两份可删。
+- [ ] `datalayer/` 独立成 repo:在它自己的目录里 `git init`,并决定本 repo 是引用还是子模块。
+      现在跨目录用的是相对路径,拆开会断。
+
+## 渠道分类收窄的余项
+
+计划见 [plans/2026-08-06-channel-taxonomy.md](plans/2026-08-06-channel-taxonomy.md)。
+
+- [ ] 目标表现有 62 行 Website 有多少符合收窄后的「分发站」定义。历史行不清洗,但要知道比例;
+      比例太低说明这一档的历史产出大部分是产品站。
+- [ ] `media.md` 的域名清单实现后移进 `config/` 的共享域名清单,那份 md 只留判据。
+- [ ] 发布社区(DEV.to、Hashnode、freeCodeCamp News)三个都未跑通。优先级低于个人站目录 ——
+      社区上的人多数在别处有主场,从那边发现更便宜。
+- [ ] 媒体的作者页当发现源值不值得跑:作者页是高纯度人名列表,但要三跳且中途断掉过半,
+      而产出的人还得再去别的平台找他的主场。**未承诺**,现在按不做处理。
+- [ ] 公司站挖个人的做法(`/team` 三跳、名单页分流、按站分流的命中率)随目标收窄一起退役,
+      原文在 `website.md` 的 git 历史里。若将来要做同行/合作方名单,从那里取回。
 
 ## 将来的选项
 
@@ -36,7 +50,7 @@
 
 ## 待确认
 
-- Sheet 共享设置是「任何人有链接即可编辑」,任何拿到链接的人都能改。表属 removed@example.invalid,
+- Sheet 共享设置是「任何人有链接即可编辑」,任何拿到链接的人都能改。表属另一位同事,
   需与其确认是否收紧。
 - 目标表的平台列现在混着两种含义(人所在平台 / 打算用的联系渠道)。新行按前者写,历史行是否
   清洗待定。

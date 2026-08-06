@@ -2,7 +2,7 @@
 
 第三方 API:ScrapeCreators 或 SociaVault,两家端点等价(见 [providers.md](providers.md))。
 **bio 在 profile 里,不在搜索结果里** —— 每个人都要单独再查一次,换供应商消不掉这一次。
-**profile 也不含任何结构化联系方式字段**,邮箱只能从 `signature` 文本里抠。
+**profile 不含任何结构化联系字段**,对外线索只有 `signature` 文本与 `bioLink`。
 
 ## 发现:两个端点,差一个量级
 
@@ -28,12 +28,9 @@ follower_count     有值
 **1 credit 一个人**,给 `signature`(bio,80 字符上限)和
 `bioLink`(`{link, risk}`,risk 是 TikTok 自己的风险评分)。
 
-**没有 Instagram 那组商务联系字段** —— 这个平台的资料里,对外线索只有 `bioLink` 一个。
+**没有 Instagram 那组商务字段** —— 资料里的对外线索只有 `bioLink` 一个。
 
 ## 单次消耗
 
 搜索、profile 各 1 credit。**搜索不带 bio,所以每个候选都要多付一次 profile** ——
-这是它和 Instagram 唯一的成本差异来源。
-
-单价见 [providers.md](providers.md);折算到每个联系方式多少钱是用途的事,见
-[../methodology/cost-ranking.md](../methodology/cost-ranking.md)。
+这是它和 Instagram 唯一的成本差异来源。单价见 [providers.md](providers.md)。

@@ -31,5 +31,4 @@ query 吃 bio 文本本身,所以筛选条件可以写进检索词,不必事后�
 
 ## 单次消耗
 
-搜索、富化各 1 credit。单价见 [providers.md](providers.md);折算到每个联系方式多少钱
-是用途的事,见 [../methodology/cost-ranking.md](../methodology/cost-ranking.md)。
+搜索、富化各 1 credit。单价见 [providers.md](providers.md)。

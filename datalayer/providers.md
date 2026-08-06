@@ -2,9 +2,7 @@
 
 名录。只记**能力、网址、收费方式、实验记录**。
 
-**不比价、不排序、不推荐** —— 那要看用途,归
-[../methodology/cost-ranking.md](../methodology/cost-ranking.md)。这里连单位换算都不做:
-原样记收费方式,谁划算由用途去算。
+**不比价、不排序、不推荐,连单位换算都不做** —— 原样记收费方式,谁划算由用途去算。
 
 全部按量付费。有月费的一律不用,见 [index.md](index.md)。
 
@@ -12,9 +10,9 @@
 
 | 供应商 | 覆盖 | 收费方式 | 实验记录 |
 |---|---|---|---|
-| ScrapeCreators | 20+ 平台 | $47 / 25,000 credits;$497 / 500,000 credits。**缓存命中免费** | ✅ Instagram、TikTok |
-| SociaVault | 25+ 平台,credits 永不过期 | $29 / 6,000 credits;$79 / 20,000 credits | ✅ TikTok |
-| LamaTok | TikTok 专属 | $0.001 / 请求,$50 / $100 / $300 有阶梯折扣 | ⬜ 账户无额度,待充值或后台领取 |
+| ScrapeCreators | 20+ 平台 | $47 / 25,000 credits;$497 / 500,000 credits。**缓存命中免费** | ✅ Instagram、TikTok、Threads |
+| SociaVault | 25+ 平台,credits 永不过期 | $29 / 6,000 credits;$79 / 20,000 credits | ✅ TikTok、Threads |
+| LamaTok | TikTok 专属,**无 Threads** | $0.001 / 请求,$50 / $100 / $300 有阶梯折扣 | ⬜ 账户无额度,待充值或后台领取 |
 | Bright Data | 通用抓取 | $0.0015 / 条,每月免费 5,000 条 | ⬜ 待在控制台建 zone |
 | TikHub | 16 平台,**含小红书 / B站 / 微博 / 知乎 / 快手 / 微信** | $0.001–0.01 / 请求 | ⬜ 未注册 |
 
@@ -36,12 +34,23 @@
 - **SociaVault `/tiktok/demographics`** —— 受众国家分布。按量提供受众画像的只此一家,
   别家这类数据都在月费产品里。
 - **ScrapeCreators 缓存命中免费** —— 重复取同一批对象不再扣费。
+- **ScrapeCreators 的 Threads 用户搜索** —— 按用户名搜账号,一次十个。
+  SociaVault 没有这个端点(同名路径 404),它的 Threads 只有内容搜索、资料页、
+  用户发帖、单帖四个。
 
 ## 探测不扣费
 
 SociaVault 的余额端点 `/v1/credits` 与参数错误的请求都不扣 credit,可以放心探。
 
-## 一条跨供应商的事实
+## 两条跨供应商的事实
+
+**Threads 的搜索不给粉丝数,换供应商也拿不到。**
+
+两家的 Threads 搜索响应里,作者对象**只有** `username` / `full_name` / `is_verified`
+这一类身份字段,**没有 `follower_count`、没有 bio**。两家返回的是同一条底层数据
+(同一个帖子 id),说明它们转发的是同一个上游 —— **这是平台响应结构决定的,不是选型问题。**
+
+后果是筛选只能发生在资料页那一步之后,而资料页按人计费。
 
 **TikTok 拿 bio 要多付一次调用,换供应商消不掉这一次。**
 
