@@ -40,7 +40,7 @@
 `(站点名, Website)`。
 
 **一个站一行。** 这一档的行不是人,投递入口只有一个,不存在「同站住着不同人」——
-这正是它和 [blog.md](../3-personal-site/blog.md) 的分界:博客的键是作者,这里的键是站。
+这正是它和 [self-hosted.md](../3-personal-site/self-hosted.md) 的分界:博客的键是作者,这里的键是站。
 
 ## 边界
 

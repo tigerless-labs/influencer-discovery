@@ -27,12 +27,17 @@ username · name · website_url · github_username · twitter_username
 ```
 
 从文章取 `public_reactions_count`(受众信号)与 `canonical_url`
-(指向站外 = 他有自己的博客,是自有域名的硬信号)。
+(**指向站外 = 他自己养着一个站**,是这一档最硬的门槛信号)。
 
 铺量靠换 tag,不是翻页。**去重按 `username` 在累积时做** —— 跨 tag 重复出现的约两成,
 那是垂类相关度的信号。
 
 ### ② 客户端筛
+
+**先按 `canonical_url` 指向站外分档,再看 `reactions`。**
+
+零门槛平台上多数人不是博主。`canonical` 指向站外说明**这篇的原本住在他自己的域名上**,
+DEV.to 只是转载 —— 那道自建站的门槛他已经付过了。**这一档优先。**
 
 `reactions` 是这个平台唯一的公开受众指标,没有粉丝数字段。
 

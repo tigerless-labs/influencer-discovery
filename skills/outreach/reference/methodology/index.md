@@ -11,12 +11,16 @@
 
 合作优先级由目录名的序号承载,**正文里不另写一份排序**。
 
+**两档 blog 的分界是门槛,不是形态。** 自己买域名、自己建站、自己维护要花钱花力气,
+**肯付这个成本的人才是把写作当事业的人** —— 那也正是会接商单的人。
+注册就能发的平台没有这道筛子,上面多数人只是发过几篇文章,不是博主。
+
 | 目录 | 是什么 | 渠道 |
 |---|---|---|
 | `_shared/` | 共享件,不是渠道 | 第二跳 · 卖买判别 · 成本排序 |
 | `1-social/` | 大 social media | X · TikTok · Instagram · Threads · YouTube · Reddit · Mastodon |
-| `2-blog-platform/` | 大 blog 平台 | [整档的清单在它自己的 index](2-blog-platform/index.md) —— 已跑通的只有 DEV.to |
-| `3-personal-site/` | 个人主场,站是他自己的 | Blog · Newsletter · Podcast |
+| `2-blog-platform/` | **零门槛**:注册就能发,站不是他的 | [清单在它自己的 index](2-blog-platform/index.md) |
+| `3-personal-site/` | **有门槛**:自己的域名、自己养的受众 | 自建博客 · Newsletter · Podcast |
 | `4-distribution/` | 做分发的站,产出是投递入口不是人 | Website |
 | `_not-run/` | 不跑 | Media(单独预算)· LinkedIn |
 
@@ -38,8 +42,9 @@
 - [podcast.md](3-personal-site/podcast.md) —— **产量最高**:一次免 key 的搜索 → feed → 邮箱,
   不解析页面
 - [newsletter.md](3-personal-site/newsletter.md) —— 类目接口**目录型可穷尽**,feed 给地址
-- [blog.md](3-personal-site/blog.md) —— 四个免 key 的发现源,偏性互补要交叉用
-- [dev-to.md](2-blog-platform/dev-to.md) —— 公开 API 免 key,作者字段随文章一次拿到
+- [self-hosted.md](3-personal-site/self-hosted.md) —— 四个免 key 的发现源,偏性互补要交叉用
+- [2-blog-platform/](2-blog-platform/index.md) —— DEV.to 与 WordPress.com 都是免 key 的公开接口,
+  作者字段随文章一次拿到
 - [youtube.md](1-social/youtube.md) —— 简介直接给邮箱的不到一成,产量靠链接区
 - [website.md](4-distribution/website.md) —— 要投递入口,不要人
 
@@ -57,6 +62,8 @@
 
 - [mastodon.md](1-social/mastodon.md) —— **自有域名不用推断**,平台自己做了归属校验;免 key 免登录
 - [twitter-x.md](1-social/twitter-x.md) —— 话题搜索能找到人,取数走用户本人账号
+- [micro-blog.md](2-blog-platform/micro-blog.md) —— 发现页背后的 JSON Feed 免 key,
+  `author.url` 直接是他自己的站
 - [hashnode.md](2-blog-platform/hashnode.md) —— 官方有赞助通道,
   **可能推翻赞助位市场那一类的整类裁决**
 
@@ -76,6 +83,6 @@
   且六成已 404,会自然归零。
 - **Medium** —— 平台上没有联系方式,资料页对 CLI 关着门。
 - **GitHub** —— 那里的人多是 founder 与自建者,不是做分发的。
-  作为**第二跳落点**仍然有用,做法留在 [blog.md](3-personal-site/blog.md) 的链路里。
+  作为**第二跳落点**仍然有用,做法留在 [landing-page-two-hop.md](_shared/landing-page-two-hop.md) 的第 ④ 档。
 
 未写的:Product Hunt。空着。
