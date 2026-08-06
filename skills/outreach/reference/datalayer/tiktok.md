@@ -1,7 +1,8 @@
 # TikTok
 
 第三方 API:ScrapeCreators 或 SociaVault,两家端点等价(见 [providers.md](providers.md))。
-**没有邮箱字段,且搜索结果不带 bio —— 后者是平台限制,换供应商无解。**
+**bio 在 profile 里,不在搜索结果里** —— 每个人都要单独再查一次,换供应商消不掉这一次。
+**profile 也不含任何结构化联系方式字段**,邮箱只能从 `signature` 文本里抠。
 
 ## 发现:两个端点,差一个量级
 
@@ -9,17 +10,16 @@
 1 credit → 30 个 handle:
 
 ```
-signature(bio)   30/30 全空
-整个响应的邮箱    0 个
-search_user_desc  只是昵称("Nancy | Fitness Coach"),不是 bio
+signature(bio)     一律为空
+search_user_desc   只是昵称,不是 bio
+follower_count     有值
 ```
 
-匹配的是**用户名/昵称**,不是 bio 内容。搜 `"business inquiries" fitness coach`
-命中的是 `@thefitnessbusinesscoach` 这类账号。可用的只有 `follower_count`。
+**匹配的是用户名/昵称,不是资料内容** —— 检索词只会命中名字里带那些字的账号。
+这一档能用的字段只有 `follower_count`。
 
-**`/v1/tiktok/search/keyword`** —— 同样 1 credit → 30 条视频,从视频反推作者。
-同一批关键词下质量高得多:粉丝 >5 万的 7 个 vs 搜用户的 4 个,且带播放/点赞/评论数。
-**同一个作者重复出现本身就是垂类相关度的信号。**
+**`/v1/tiktok/search/keyword`** —— 同样 1 credit → 30 条视频,**按内容匹配**,
+从视频反推作者。带播放/点赞/评论数,同一个作者可重复出现。
 
 作者的 `signature` 在这里同样是空的。
 
@@ -28,14 +28,12 @@ search_user_desc  只是昵称("Nancy | Fitness Coach"),不是 bio
 **1 credit 一个人**,给 `signature`(bio,80 字符上限)和
 `bioLink`(`{link, risk}`,risk 是 TikTok 自己的风险评分)。
 
-没有 `business_email`,邮箱只能顺 `bioLink` 出去抓落地页。
+**没有 Instagram 那组商务联系字段** —— 这个平台的资料里,对外线索只有 `bioLink` 一个。
 
-## 消耗
+## 单次消耗
 
-**约 1.14 credit / 可触达联系方式** —— 是 Instagram 的 7.6 倍。
+搜索、profile 各 1 credit。**搜索不带 bio,所以每个候选都要多付一次 profile** ——
+这是它和 Instagram 唯一的成本差异来源。
 
-贵不是因为 bio 少 —— **bio 里直接给邮箱的比例反而是 Instagram 的两倍多**。
-贵在搜索不带 bio,逼出了每人一次的第二步调用。
-
-命中结构与做法见 [../methodology/tiktok.md](../methodology/tiktok.md),
-选路见 [../methodology/cost-ranking.md](../methodology/cost-ranking.md)。
+单价见 [providers.md](providers.md);折算到每个联系方式多少钱是用途的事,见
+[../methodology/cost-ranking.md](../methodology/cost-ranking.md)。

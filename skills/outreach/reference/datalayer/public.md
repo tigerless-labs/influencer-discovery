@@ -1,18 +1,19 @@
 # 免认证
 
-纯 HTTP 或官方免费接口就能取到,不需要登录态、不烧 credit。
+纯 HTTP 或官方免费接口就能取到,不需要登录态、不烧 credit。**本项目的主路。**
 
 覆盖 YouTube、Newsletter、Blog、Website、Podcast、Passionfroot、Paved、GitHub、
 Hacker News、DEV.to、Product Hunt、Medium,以及所有第二跳的落地页。
 
 ## 已确定的
 
-- **这是本项目的主路。** 设计文档已定:只做公开页,不做认证墙后
-  (见 [platforms.md](../../../../docs/design/platforms.md))。
-- **YouTube 的商务邮箱按钮后面是 reCAPTCHA**,不碰。能用的是简介文本和链接区。
-- **YouTube 官方 Data API 没有邮箱字段** —— 不是权限问题,字段根本不存在。
-- **GitHub 用官方 API,不用 cookie 也不爬页面。** 它是唯一系统性给 `email` 字段的平台。
-- **落地页那一层不需要认证,也不烧 credit,是覆盖率增量最大的一块。**
+- **只做公开页,不做认证墙后** —— 设计文档已定,见
+  [platforms.md](../../../../docs/design/platforms.md)。
+- **YouTube 频道页能取到的是简介文本与链接区。** About 页那个联系方式按钮由 reCAPTCHA
+  保护,**不碰**;官方 Data API 的频道资源里没有对应字段,那条路也不存在。
+- **GitHub 走官方 API,不用 cookie 也不爬页面。** 用户资源里有 `email` 字段,
+  本人设为公开时才有值。
+- **站外落地页零成本** —— 不需要认证、不烧 credit,只是普通 HTTP。
 
 ## 待探索
 

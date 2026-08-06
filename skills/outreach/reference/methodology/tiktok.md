@@ -23,7 +23,7 @@
 GET /v1/scrape/tiktok/search/keyword?query=<关键词>&sort_by=most-liked
 ```
 
-**参数名是 `query`,不是 `keyword`。** 传错返 400,不扣 credit。
+端点契约(参数名、header)见 [../datalayer/tiktok.md](../datalayer/tiktok.md)。
 
 从 `data.search_item_list` 取三个字段:
 

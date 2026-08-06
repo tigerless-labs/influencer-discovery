@@ -1,6 +1,6 @@
 # Instagram
 
-第三方 API:ScrapeCreators。**唯一直接给邮箱字段的平台。**
+第三方 API:ScrapeCreators。**唯一按资料内容检索账号、且返回商务联系字段的平台。**
 
 ## 发现:`/v1/instagram/search/profiles`
 
@@ -15,10 +15,9 @@ media_count · category_name · is_business_account · is_professional_account
 is_verified · is_private · username · full_name
 ```
 
-搜索结果就带 bio 和外链,不用再逐个查 profile —— 这是它比 TikTok 便宜 10 倍的原因。
+**搜索结果已带 bio 与外链,不必再逐个查 profile。** 这是它和 TikTok 的结构性差别。
 
-query 直接吃 bio 文本,等于可以自定义筛选条件:`"business inquiries" + 垂类词`、
-`"@gmail.com" + 垂类词`、`"linktr.ee" + 垂类词`。
+query 吃 bio 文本本身,所以筛选条件可以写进检索词,不必事后过滤。
 
 底层是 Google 索引的包装(cursor 是 Google 结果页),**单个 query 大约几十到一百来个结果**,
 铺量要靠多个 query 变体,不是无限翻页。
@@ -26,12 +25,11 @@ query 直接吃 bio 文本,等于可以自定义筛选条件:`"business inquirie
 ## 富化:`/v1/instagram/profile`
 
 1 credit,给 `business_email` / `business_phone_number` / `business_address_json` /
-`business_contact_method` —— 专业号填了就直接给,不用点那个带 CAPTCHA 的按钮。
+`business_contact_method`。专业号填了就在响应里,**不经过网页上那个 CAPTCHA 保护的按钮**。
 
 同一次调用还带 `edge_related_profiles`(32 个同类账号)和近 12 条帖的互动数据。
 
-## 消耗
+## 单次消耗
 
-**约 0.15 credit / 可触达联系方式** —— 全部路径里最低。
-
-命中结构与做法见 [../methodology/instagram.md](../methodology/instagram.md)。
+搜索、富化各 1 credit。单价见 [providers.md](providers.md);折算到每个联系方式多少钱
+是用途的事,见 [../methodology/cost-ranking.md](../methodology/cost-ranking.md)。

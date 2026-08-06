@@ -11,6 +11,8 @@
 
 本机 Chrome 有 `li_at`(已登录),技术上能走 —— 不走是判断,不是能力问题。
 
-## 现在的实际角色
+## 不做也拿得到的那一点
 
-第二跳的落点。记下 profile URL 作为联系方式形态,不解析页面,不需要登录。
+profile URL 本身。它从别处顺过来,不需要登录也不需要解析页面 ——
+**这一路根本不经过取数层。** 怎么用见
+[../methodology/linkedin.md](../methodology/linkedin.md)。

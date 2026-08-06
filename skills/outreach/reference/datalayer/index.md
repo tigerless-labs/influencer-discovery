@@ -1,9 +1,13 @@
 # 数据层
 
-怎么把数据取出来。一份公开可访问的,其余每个平台一份;供应商是另一个轴,单独一份。
+**怎么把数据取出来 —— 与用途无关。** 渠道、API、端点与字段、单价与配额。
+换个人拿它去做别的事,这一档照样能用;「拿到之后怎么找邮箱、每个邮箱多少钱」
+归 [../methodology/](../methodology/index.md)。
+
+一份公开可访问的,其余每个平台一份;供应商是另一个轴,单独一份。
 
 - [public.md](public.md) —— 免认证:纯 HTTP 或官方免费接口
-- [providers.md](providers.md) —— 第三方 API 各家的能力、单价、认证与验证状态
+- [providers.md](providers.md) —— 第三方供应商名录:能力、网址、收费方式、实验记录
 - [instagram.md](instagram.md) —— 第三方 API,**已跑通**
 - [tiktok.md](tiktok.md) —— 第三方 API,**已跑通**
 - [linkedin.md](linkedin.md) —— cookie,不做
@@ -19,8 +23,8 @@
 |---|---|---|
 | `SCRAPECREATORS_API_KEY` | ScrapeCreators | 已跑通 |
 | `SOCIAVAULT_API_KEY` | SociaVault | 已跑通 |
-| `LAMATOK_API_KEY` | LamaTok | 未验证,账户余额为 0 |
-| `BRIGHTDATA_API_TOKEN` | Bright Data | 未验证,缺 zone |
+| `LAMATOK_API_KEY` | LamaTok | 未跑通,待充值 |
+| `BRIGHTDATA_API_TOKEN` | Bright Data | 未跑通,待建 zone |
 
 余额、命中率这类会漂的运行时数值不写在这里 —— 查 `/v1/credits` 一类的余额端点,
 或看运行报告。文档只写不随一次调用改变的事实。
@@ -37,8 +41,8 @@ key 轮换静默打断另一方。
 且从未配对过(`list_connected_browsers` 返回 `[]`)。
 
 **服务端 filter 普遍不存在** —— 粉丝数、地区、垂类都没有服务端筛选。但搜索结果自带
-`follower_count`,**客户端筛不额外花钱**。唯一的例外是 Instagram 的 bio 关键词搜索:
-筛选条件写进 query 本身,筛掉的人根本不产生调用。
+`follower_count`,**客户端筛不额外花钱**。唯一的例外是 Instagram:
+它的检索词吃 bio 文本本身,筛选条件可以写进 query。
 
 ## 一条排除规则
 

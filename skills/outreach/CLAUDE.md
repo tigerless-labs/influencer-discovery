@@ -7,14 +7,30 @@
 
 ## reference 两档的分界
 
-**[datalayer/](reference/datalayer/index.md) —— 能不能取到,以及怎么取。**
-认证方式、cookie、API、credit 与配额、可用性。一个平台**做不做,在这一档裁决**。
+**[datalayer/](reference/datalayer/index.md) —— 渠道、API、通用指令。**
+认证方式、cookie、CLI、端点与字段、单价与配额、可用性。
+**所有用途通用的信息获取方式** —— 换个人来做别的事,这一档照样能用。
+一个平台**做不做,在这一档裁决**。
 
-**[methodology/](reference/methodology/index.md) —— 取到之后,联系方式在哪。**
-入口、停止语义、去重的键、已知边界。假定数据已经在手,不问它怎么来的。
+**[methodology/](reference/methodology/index.md) —— 本项目要的那件事:拿到联系方式。**
+邮箱在哪一页、怎么抠、命中率多少、每个联系方式花多少钱、多条路怎么选。
+假定数据已经在手,不问它怎么来的。
 
-归属拿不准时问一句:**这句话在换了取数方式之后还成立吗?**
-成立的进 methodology,不成立的进 datalayer。
+归属靠两问,顺序不能反:
+
+1. **这句话在换了用途之后还成立吗?** —— 有人拿同一个 API 去做选品、做舆情,
+   这句话还有用吗?有用的进 datalayer,只有找邮箱才用得上的进 methodology。
+2. **这句话在换了取数方式之后还成立吗?** —— 成立的进 methodology,不成立的进 datalayer。
+
+**「邮箱」两个字是分界的标志。** datalayer 里出现它,多半放错了 ——
+「返回 `business_email` 字段」是端点契约,归 datalayer;
+「所以这个平台不用走第二跳」是用途,归 methodology。
+
+**价格也分两层。** 供应商**怎么收钱**(档位、计费单位、免费额度)通用,归 datalayer,
+且**原样记、不换算、不排序、不推荐**;换算成每个可触达联系方式多少钱、谁划算,
+是用途算出来的,归 methodology。
+
+`providers.md` 是名录不是评测:**能力、网址、收费方式、实验记录**四样,再无别的。
 
 一个平台在数据层是「不做」,它的 methodology 那份不删——降级为备查,写法照旧。
 

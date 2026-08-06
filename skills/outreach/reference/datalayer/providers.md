@@ -1,62 +1,58 @@
-# 供应商
+# 第三方供应商
 
-平台之外的另一个轴:同一个平台可以由多家供应商提供。这里只写**各家能力与价钱**,
-选哪家是方法论的事(见 [../methodology/cost-ranking.md](../methodology/cost-ranking.md))。
+名录。只记**能力、网址、收费方式、实验记录**。
 
-全部按量付费。有月费的一律不用 —— 见 [index.md](index.md) 的排除规则。
+**不比价、不排序、不推荐** —— 那要看用途,归
+[../methodology/cost-ranking.md](../methodology/cost-ranking.md)。这里连单位换算都不做:
+原样记收费方式,谁划算由用途去算。
 
-## 单价
+全部按量付费。有月费的一律不用,见 [index.md](index.md)。
 
-| 供应商 | 最低档 | 单价 | 备注 |
+## 名录
+
+| 供应商 | 覆盖 | 收费方式 | 实验记录 |
 |---|---|---|---|
-| LamaTok | 充值即用 | **$0.001**/请求 | TikTok 专属,$50/$100/$300 有阶梯折扣 |
-| Bright Data | — | **$0.0015**/条 | 通用抓取,每月免费 5000 条 |
-| ScrapeCreators | $47 / 25,000 credits | **$0.00188**/credit | 20+ 平台,**缓存命中免费** |
-| ScrapeCreators | $497 / 500,000 credits | $0.00099/credit | 量大才划算 |
-| TikHub | 充值 | $0.001–0.01/请求 | **16 平台,含小红书/B站/微博/知乎/快手/微信** |
-| SociaVault | $29 / 6,000 credits | **$0.0048**/credit | 25+ 平台,credits 永不过期 |
-| SociaVault | $79 / 20,000 credits | $0.0040/credit | |
+| ScrapeCreators | 20+ 平台 | $47 / 25,000 credits;$497 / 500,000 credits。**缓存命中免费** | ✅ Instagram、TikTok |
+| SociaVault | 25+ 平台,credits 永不过期 | $29 / 6,000 credits;$79 / 20,000 credits | ✅ TikTok |
+| LamaTok | TikTok 专属 | $0.001 / 请求,$50 / $100 / $300 有阶梯折扣 | ⬜ 账户无额度,待充值或后台领取 |
+| Bright Data | 通用抓取 | $0.0015 / 条,每月免费 5,000 条 | ⬜ 待在控制台建 zone |
+| TikHub | 16 平台,**含小红书 / B站 / 微博 / 知乎 / 快手 / 微信** | $0.001–0.01 / 请求 | ⬜ 未注册 |
 
-**单价不等于成本。** 真实成本要乘上每个可触达联系方式消耗多少次调用,而那取决于端点
-一次返回几个人、带不带 bio。排序见方法论。
+## 网址与认证
 
-## 认证与状态
+凭据变量名见 [index.md](index.md#凭据)。
 
-凭据全部读自 `~/.config/outreach/.env`,变量名见 [index.md](index.md#凭据)。
+| 供应商 | base | 端点清单 | header |
+|---|---|---|---|
+| ScrapeCreators | `https://api.scrapecreators.com` | `openapi.json`(175 个) | `x-api-key` |
+| SociaVault | `https://api.sociavault.com/v1/scrape/` | `llms.txt` | `X-API-Key` |
+| LamaTok | `https://api.lamatok.com` | `/openapi.json`(23 个) | `x-access-key` |
+| Bright Data | — | — | `Authorization: Bearer` |
 
-**ScrapeCreators** —— `SCRAPECREATORS_API_KEY`,header `x-api-key`,
-base `https://api.scrapecreators.com`。
-全量端点规格 `https://docs.scrapecreators.com/openapi.json` 免费可取,175 个端点。
-**没有任何服务端 filter**(粉丝数、地区、垂类都没有),但搜索结果自带 `follower_count`,
-客户端筛不额外花钱。**已跑通 Instagram 与 TikTok 两条链。**
+两份端点清单都在各自的 docs 域下,免费可取。
 
-**SociaVault** —— `SOCIAVAULT_API_KEY`,header `X-API-Key`,
-base `https://api.sociavault.com/v1/scrape/`。
-端点索引 `https://docs.sociavault.com/llms.txt`。余额查询 `/v1/credits` 不扣费,
-参数错误返 400 也不扣费。**已跑通 TikTok 两步链。**
+## 独有能力
 
-它有 ScrapeCreators 没有的 `/tiktok/demographics`(受众国家分布)——
-**唯一按量提供受众画像的**,别家这类数据都在月费订阅里。
+- **SociaVault `/tiktok/demographics`** —— 受众国家分布。按量提供受众画像的只此一家,
+  别家这类数据都在月费产品里。
+- **ScrapeCreators 缓存命中免费** —— 重复取同一批对象不再扣费。
 
-**LamaTok** —— `LAMATOK_API_KEY`,header `x-access-key`
-(用 `access-key` 或 `Authorization` 都是 401)。
-base `https://api.lamatok.com`,OpenAPI 在 `/openapi.json`,23 个端点。
-**未验证:账户余额为 0,返回 `InsufficientFunds`。** 宣称的 100 次免费没到账,
-需要充值或在后台领取。它的 profile 端点返不返回 `signature` / `bioLink` 仍然未知 ——
-这决定了它是不是 TikTok 上最便宜的一条路。
+## 探测不扣费
 
-**Bright Data** —— `BRIGHTDATA_API_TOKEN`,header `Authorization: Bearer <token>`。
-**未验证:`/status` 报 `can_make_requests: false`,`auth_fail_reason: zone_not_found`。**
-key 本身有效,但要先在控制台建 zone(Web Scraper API 或 Web Unlocker)才能发请求。
-
-**TikHub** —— 未注册。唯一覆盖中文平台的一家;要做中文创作者时它没有替代品。
+SociaVault 的余额端点 `/v1/credits` 与参数错误的请求都不扣 credit,可以放心探。
 
 ## 一条跨供应商的事实
 
-**TikTok 的搜索端点不返回 bio,换供应商解决不了。**
+**TikTok 拿 bio 要多付一次调用,换供应商消不掉这一次。**
 
-ScrapeCreators 与 SociaVault 的搜索响应结构完全相同 —— `challenge_list` / `cursor` /
-`global_doodle_config` / `log_pb` / `rid` / `status_code`,这是 TikTok 自己内部搜索接口的
-原始响应,两家都只是转发,`signature` 一律为空。
+bio 本身拿得到 —— `profile` 端点给 `signature` 与 `bioLink`。消不掉的是那次调用:
+搜索只返回 handle,每个人都得单独再查一次。
 
-任何包装 TikTok 官方搜索接口的服务都会是同一个结果。**这是平台限制,不是选型问题。**
+ScrapeCreators 与 SociaVault 的搜索响应是 TikTok 内部接口的原始转发,结构完全相同,
+`signature` 一律为空。任何包装该接口的服务都是同一个结果 —— **平台的响应结构决定的,
+不是选型问题。** 除非某家不直接转发、自己做了富化,目前没有一家验证过。
+
+## 未跑通的还差一条能力确认
+
+LamaTok 的 profile 端点**返不返回 `signature` / `bioLink` 未知**。充值后第一件事是验它 ——
+不返回的话它就只是个视频接口,覆盖那一栏要改写。
