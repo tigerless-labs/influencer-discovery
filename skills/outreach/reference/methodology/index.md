@@ -15,7 +15,7 @@
 |---|---|---|
 | `_shared/` | 共享件,不是渠道 | 第二跳 · 卖买判别 · 成本排序 |
 | `1-social/` | 大 social media | X · TikTok · Instagram · Threads · YouTube · Reddit · Mastodon |
-| `2-blog-platform/` | 大 blog 平台 | DEV.to · Hashnode |
+| `2-blog-platform/` | 大 blog 平台 | [整档的清单在它自己的 index](2-blog-platform/index.md) —— 已跑通的只有 DEV.to |
 | `3-personal-site/` | 个人主场,站是他自己的 | Blog · Newsletter · Podcast |
 | `4-distribution/` | 做分发的站,产出是投递入口不是人 | Website |
 | `_not-run/` | 不跑 | Media(单独预算)· LinkedIn |

@@ -77,33 +77,12 @@ contact 页要点击才显示邮箱,或者用了 Cloudflare 那类邮箱混淆 �
 
 同理,JSON-LD 作为**邮箱**来源没有价值(命中的都和首页重复),作为**身份**来源有价值。
 
-## 发布社区不是博客
+## 发布社区不归这里
 
-**注册就能发、无编辑门槛的写作平台。** 和个人博客的区别:**站不是他的** ——
-页脚没有他的邮箱,联系方式只能从资料页或他自己的域名走第二跳。
-
-| 平台 | 归属 |
-|---|---|
-| Medium | 不做 —— 平台上没有联系方式,资料页对 CLI 关着门 |
-| Substack | [newsletter.md](newsletter.md) —— 那一档有赞助入口这条捷径 |
-| DEV.to | [2-blog-platform/dev-to.md](../2-blog-platform/dev-to.md) —— 已跑通 |
-| Hashnode | [2-blog-platform/hashnode.md](../2-blog-platform/hashnode.md) —— 未跑通 |
-| freeCodeCamp News | 未跑通;有编辑审,介于社区与媒体之间 |
-| HackerNoon | 未跑通;有编辑审,AI 垂类密度高,同上介于社区与媒体 |
-| WordPress.com | 未跑通;体量最大的一个,自带公开的标签与阅读器入口 |
-| Tumblr | 未跑通 |
-| Mirror / Paragraph | 未跑通;写作者集中在加密垂类 |
-
-**托管型个人博客不在这张表里。** Bear Blog、micro.blog、write.as、Ghost 这类
-**站是他自己的**(自定义域名、页脚是他的),按个人博客处理 ——
-其中 Bear Blog 与 micro.blog 还各有一个公开的发现页,归上面「入口」那一节。
-
-**Hacker News 与 Lobsters 不在这张表里** —— 它们不承载文章,是上面「入口」那一节的发现源。
-
-**体量最大的两个已单列**,归 `2-blog-platform/`。这张表剩下的都未跑通。
-
-社区上的人几乎都在别处有主场 —— **从个人博客或 newsletter 发现同一个人更便宜**,
-所以在这张表里出现不等于要从这里进。
+**站不是他的**就不算个人博客,清单与做法归
+[2-blog-platform/](../2-blog-platform/index.md)。反过来,Bear Blog、micro.blog、
+write.as、Ghost 这类托管站**是他自己的**,归这里 —— 其中两家还各有一个公开发现页,
+在上面「入口」那一节。
 
 ## 停止语义
 
