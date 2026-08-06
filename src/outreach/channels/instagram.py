@@ -47,7 +47,11 @@ class Instagram(Channel):
         user = data.get("user") or data.get("profile") or data
         followers = user.get("follower_count") or (user.get("edge_followed_by") or {}).get("count")
         bio = user.get("biography") or ""
-        links = [link.get("url") for link in user.get("bio_links") or [] if link.get("url")]
+        links = [
+            link.get("url") if isinstance(link, dict) else link
+            for link in user.get("bio_links") or []
+        ]
+        links = [link for link in links if isinstance(link, str) and link.startswith("http")]
         candidate = Candidate(
             channel=self.name,
             person_key=handle,

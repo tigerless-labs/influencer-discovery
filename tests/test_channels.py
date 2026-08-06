@@ -61,3 +61,12 @@ def test_a_missing_follower_count_does_not_become_a_silent_zero_unit():
 def test_the_profile_call_is_recorded_as_checked():
     candidate = Instagram(None, {})._profile(FakeProvider(IG_ENVELOPE), "fixture_person")
     assert candidate.was_checked("profile")
+
+
+def test_bio_links_may_be_plain_strings():
+    payload = {"data": {"data": {"user": {
+        "username": "x", "biography": "",
+        "bio_links": ["https://fixtureperson.dev", "not-a-url"],
+    }}}}
+    candidate = Instagram(None, {})._profile(FakeProvider(payload), "x")
+    assert candidate.own_site == "https://fixtureperson.dev"

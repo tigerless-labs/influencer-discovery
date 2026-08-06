@@ -69,7 +69,11 @@
       实测 10 个刊物零命中。Substack 侧目前没有可替代的公开邮箱字段,只剩自定义域名走第二跳。
 - [ ] **Instagram adapter 头一轮解析全错**(SociaVault 的响应多包了一层信封),8 次调用白花。
       信封已修、`edge_followed_by.count` 已接上、fixture 测试已钉住,**但修完之后一次都没真跑过**。
-      SociaVault 余额只剩 2 credits,充值后第一件事是重跑 Instagram。
+      修完之后**用落盘的 raw 回放了那 8 条**,不花 credit —— 解析确认无误(粉丝带生效),
+      但那批账号本身粉丝数只有几十,`instagram` 的搜索词选得太窄。
+- [ ] **Instagram 的发现质量**:`instagram/search` 返回的是名字里带关键词的账号,不是有受众的账号。
+      要么换词、要么改走 hashtag 那条端点。这是它 0 产出的真正原因,不是解析。
+- [ ] SociaVault 余额只剩 2 credits。充值后重跑 Instagram 与 TikTok。
 - [ ] **邮箱抽取有两类误报,已修但只在这一批上验过**:fediverse handle
       (`@user@instance` 正好匹配邮箱正则)与职能地址(`support@` / `subscriptions@` 那类)。
 - [ ] **多作者刊物判据不够** —— 只靠根页上的作者链接数,漏掉了 thenextweb、atlasobscura 这类。
