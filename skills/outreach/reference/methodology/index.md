@@ -9,13 +9,13 @@
 
 ## 目录即优先级
 
-合作优先级由目录名承载,**正文里不另写一份排序**。两档 `1-` 并列第一。
+合作优先级由目录名的序号承载,**正文里不另写一份排序**。
 
 | 目录 | 是什么 | 渠道 |
 |---|---|---|
 | `_shared/` | 共享件,不是渠道 | 第二跳 · 卖买判别 · 成本排序 |
 | `1-social/` | 大 social media | X · TikTok · Instagram · Threads · YouTube · Reddit · Mastodon |
-| `1-blog-platform/` | 大 blog 平台 | DEV.to · Hashnode |
+| `2-blog-platform/` | 大 blog 平台 | DEV.to · Hashnode |
 | `3-personal-site/` | 个人主场,站是他自己的 | Blog · Newsletter · Podcast |
 | `4-distribution/` | 做分发的站,产出是投递入口不是人 | Website |
 | `_not-run/` | 不跑 | Media(单独预算)· LinkedIn |
@@ -39,7 +39,7 @@
   不解析页面
 - [newsletter.md](3-personal-site/newsletter.md) —— 类目接口**目录型可穷尽**,feed 给地址
 - [blog.md](3-personal-site/blog.md) —— 四个免 key 的发现源,偏性互补要交叉用
-- [dev-to.md](1-blog-platform/dev-to.md) —— 公开 API 免 key,作者字段随文章一次拿到
+- [dev-to.md](2-blog-platform/dev-to.md) —— 公开 API 免 key,作者字段随文章一次拿到
 - [youtube.md](1-social/youtube.md) —— 简介直接给邮箱的不到一成,产量靠链接区
 - [website.md](4-distribution/website.md) —— 要投递入口,不要人
 
@@ -57,7 +57,7 @@
 
 - [mastodon.md](1-social/mastodon.md) —— **自有域名不用推断**,平台自己做了归属校验;免 key 免登录
 - [twitter-x.md](1-social/twitter-x.md) —— 话题搜索能找到人,取数走用户本人账号
-- [hashnode.md](1-blog-platform/hashnode.md) —— 官方有赞助通道,
+- [hashnode.md](2-blog-platform/hashnode.md) —— 官方有赞助通道,
   **可能推翻赞助位市场那一类的整类裁决**
 
 ## 不跑

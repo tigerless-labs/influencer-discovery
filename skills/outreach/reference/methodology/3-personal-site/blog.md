@@ -86,8 +86,8 @@ contact 页要点击才显示邮箱,或者用了 Cloudflare 那类邮箱混淆 �
 |---|---|
 | Medium | 不做 —— 平台上没有联系方式,资料页对 CLI 关着门 |
 | Substack | [newsletter.md](newsletter.md) —— 那一档有赞助入口这条捷径 |
-| DEV.to | [1-blog-platform/dev-to.md](../1-blog-platform/dev-to.md) —— 已跑通 |
-| Hashnode | [1-blog-platform/hashnode.md](../1-blog-platform/hashnode.md) —— 未跑通 |
+| DEV.to | [2-blog-platform/dev-to.md](../2-blog-platform/dev-to.md) —— 已跑通 |
+| Hashnode | [2-blog-platform/hashnode.md](../2-blog-platform/hashnode.md) —— 未跑通 |
 | freeCodeCamp News | 未跑通;有编辑审,介于社区与媒体之间 |
 | HackerNoon | 未跑通;有编辑审,AI 垂类密度高,同上介于社区与媒体 |
 | WordPress.com | 未跑通;体量最大的一个,自带公开的标签与阅读器入口 |
@@ -100,7 +100,7 @@ contact 页要点击才显示邮箱,或者用了 Cloudflare 那类邮箱混淆 �
 
 **Hacker News 与 Lobsters 不在这张表里** —— 它们不承载文章,是上面「入口」那一节的发现源。
 
-**体量最大的两个已单列**,归 `1-blog-platform/`。这张表剩下的都未跑通。
+**体量最大的两个已单列**,归 `2-blog-platform/`。这张表剩下的都未跑通。
 
 社区上的人几乎都在别处有主场 —— **从个人博客或 newsletter 发现同一个人更便宜**,
 所以在这张表里出现不等于要从这里进。

@@ -17,9 +17,8 @@
   - `reference/datalayer/` —— 每个平台的**能力边界**:能取到什么、要什么凭据、代价多少。
     **与用途无关**,写法见其自带的 `CLAUDE.md`。
   - `reference/methodology/` —— 一个渠道一份,写联系方式从哪进、怎么拿。
-    **目录名即合作优先级**(`1-social/` 与 `1-blog-platform/` 并列第一,
-    然后 `3-personal-site/`、`4-distribution/`;`_shared/` 是共享件,`_not-run/` 不跑),
-    正文里不另写排序。
+    **目录名的序号即合作优先级**(`1-social/` → `2-blog-platform/` → `3-personal-site/`
+    → `4-distribution/`;`_shared/` 是共享件,`_not-run/` 不跑),正文里不另写排序。
 - `src/outreach/` —— 流水线实现:五阶段、渠道 adapter 注册表、Sheet 客户端。
 - `config/` —— 全部旋钮:渠道清单与抓取参数、共享域名清单、Sheet 与列映射。
 - `data/` —— 本地中间态:抓取证据、运行报告、路径日志。**不入库**(见下方安全规则)。
