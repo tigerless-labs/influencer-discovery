@@ -104,18 +104,28 @@ def summarise(run_id, per_channel, band, priority, store=None):
     return report
 
 
-def rejudge(run_id, band, store=None):
+DERIVED_SIGNALS = ("is_buyer", "buyer_reason", "sponsor_page", "own_site_is_a_platform")
+
+
+def rejudge(run_id, band, store=None, replay=False):
     """The log is a cache, not the authority: a corrected judgement supersedes the stored one."""
+    from .fetch import ReplayFetcher
     from .hop import is_an_inbox
 
     store = store or Store()
     gate = Gate(band)
+    hop = SecondHop(ReplayFetcher(), store, run_id) if replay else None
     corrected = []
     for candidate in store.people():
         if candidate.outcome is None:
             continue
         before = (candidate.outcome, [c.value for c in candidate.contacts])
         candidate.contacts = [c for c in candidate.contacts if is_an_inbox(c.value)]
+        if hop and candidate.own_site:
+            for signal in DERIVED_SIGNALS:
+                candidate.signals.pop(signal, None)
+            hop.walk(candidate)
+            candidate.contacts = [c for c in candidate.contacts if is_an_inbox(c.value)]
         verdict = gate.judge(candidate)
         candidate.outcome = verdict.outcome
         candidate.signals["verdict_reason"] = verdict.reason
@@ -161,11 +171,12 @@ def main():
     parser.add_argument("--run-id", default=date.today().isoformat())
     parser.add_argument("--summarise", action="store_true")
     parser.add_argument("--rejudge", action="store_true")
+    parser.add_argument("--replay", action="store_true")
     parser.add_argument("--append-sheet", action="store_true")
     args = parser.parse_args()
 
     if args.rejudge:
-        for candidate in rejudge(args.run_id, DEFAULT_BAND):
+        for candidate in rejudge(args.run_id, DEFAULT_BAND, replay=args.replay):
             print(f"{candidate.channel}/{candidate.person_key} -> {candidate.outcome.value}")
         return
 

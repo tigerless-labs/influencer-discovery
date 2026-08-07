@@ -98,6 +98,37 @@ class Fetcher:
         return urllib.parse.urlparse(url).netloc in self._blocked
 
 
+class ReplayFetcher:
+    """Serves what earlier runs already paid for. It cannot reach the network at all."""
+
+    def __init__(self, run_ids=None):
+        root = state_dir() / "raw"
+        self.dirs = (
+            [root / r for r in run_ids] if run_ids else sorted(p for p in root.glob("*") if p.is_dir())
+        )
+
+    def try_get(self, url, headers=None):
+        digest = hashlib.sha256(url.encode()).hexdigest()[:16]
+        for directory in self.dirs:
+            path = directory / f"{digest}.json"
+            if path.exists():
+                try:
+                    return json.loads(path.read_text(encoding="utf-8")).get("body")
+                except json.JSONDecodeError:
+                    continue
+        return None
+
+    def try_json(self, url, headers=None):
+        body = self.try_get(url)
+        try:
+            return json.loads(body) if body else None
+        except json.JSONDecodeError:
+            return None
+
+    def site_blocked(self, url):
+        return False
+
+
 def pmap(fn, items, workers=6):
     with ThreadPoolExecutor(max_workers=workers) as pool:
         return list(pool.map(fn, items))

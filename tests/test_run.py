@@ -186,3 +186,38 @@ def test_rejudging_reports_only_what_it_changed(tmp_path):
     good.outcome = Outcome.QUALIFIED
     store.record(good, run_id="before")
     assert run_module.rejudge("fix", BAND, store=store) == []
+
+
+def test_the_replay_fetcher_serves_disk_and_never_the_network(tmp_path, monkeypatch):
+    import hashlib
+    import json as _json
+
+    from outreach import fetch as fetch_module
+
+    monkeypatch.setattr(fetch_module, "state_dir", lambda: tmp_path)
+    raw = tmp_path / "raw" / "earlier"
+    raw.mkdir(parents=True)
+    url = "https://janesblog.dev"
+    digest = hashlib.sha256(url.encode()).hexdigest()[:16]
+    (raw / f"{digest}.json").write_text(_json.dumps({"url": url, "body": "<p>hi</p>"}))
+
+    replay = fetch_module.ReplayFetcher()
+    assert replay.try_get(url) == "<p>hi</p>"
+    assert replay.try_get("https://never-fetched.example") is None
+    assert not hasattr(replay, "get")
+
+
+def test_a_stale_buyer_call_is_cleared_before_the_page_is_read_again(tmp_path, monkeypatch):
+    store = Store(tmp_path)
+    c = person("blogger", followers=9000)
+    c.own_site = "https://janesblog.dev"
+    c.signals["is_buyer"] = True
+    c.signals["buyer_reason"] = "stale"
+    c.outcome = Outcome.BUYER
+    store.record(c, run_id="before")
+
+    monkeypatch.setattr(run_module.SecondHop, "walk", lambda self, candidate: candidate)
+    run_module.rejudge("fix", BAND, store=store, replay=True)
+    fixed = next(x for x in store.people() if x.person_key == "blogger")
+    assert fixed.outcome is Outcome.QUALIFIED
+    assert "is_buyer" not in fixed.signals
