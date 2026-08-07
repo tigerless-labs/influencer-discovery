@@ -157,6 +157,7 @@ def rejudge(run_id, band, store=None, replay=False, floor=0):
         if candidate.outcome is None:
             continue
         before = _judgement(candidate)
+        candidate.signals.pop("topic_hits", None)
         candidate.contacts = [c for c in candidate.contacts if is_an_inbox(c.value)]
         if hop and candidate.own_site:
             for signal in DERIVED_SIGNALS:

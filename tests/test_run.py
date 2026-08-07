@@ -295,3 +295,16 @@ def test_someone_above_the_floor_is_still_walked(tmp_path, monkeypatch):
     r = Run("test", 3, BAND, "test", store=Store(tmp_path), floor=1000)
     r.channel("fake", {})
     assert walked == ["big"]
+
+
+def test_rejudging_drops_the_evidence_it_is_about_to_recompute(tmp_path, monkeypatch):
+    """Stored hits came from the old rule; keeping them would re-confirm the verdict being retested."""
+    store = Store(tmp_path)
+    c = person("stale", followers=9000, on_topic=False)
+    c.signals["topic_hits"] = ["ai agents"]
+    c.outcome = Outcome.QUALIFIED
+    store.record(c, run_id="old")
+    monkeypatch.setattr(run_module.SecondHop, "walk", lambda self, candidate: None)
+    run_module.rejudge("re", BAND, store=store)
+    after = next(p for p in store.people() if p.person_key == "stale")
+    assert after.outcome is Outcome.OFF_TOPIC

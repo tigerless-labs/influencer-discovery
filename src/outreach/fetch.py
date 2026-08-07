@@ -214,7 +214,7 @@ class ReplayFetcher:
         self.raw = raw or RawStore()
         self.run_ids = run_ids
 
-    def try_get(self, url, headers=None):
+    def try_get(self, url, headers=None, reuse=False, persist=True):
         return self.raw.get(url, run_ids=self.run_ids)
 
     def try_json(self, url, headers=None):
