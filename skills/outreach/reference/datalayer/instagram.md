@@ -15,7 +15,9 @@ is_business_account · is_professional_account · is_verified · is_private
 username · full_name
 ```
 
-**没有 `follower_count`** —— 粉丝数只在 profile 端点里。
+**带 `follower_count`,4/4 命中**(2026-08-07 复验;更早那条「没有粉丝数」写错了,
+它测的是 `/v1/instagram/search`——那是另一个端点,只回 username 与 full_name,判人不够用)。
+**粉丝数不必再单买 profile**,一整轮九百人只回落了四次。
 
 **搜索结果已带 bio 与外链**,判人够用;这是它和 TikTok 的结构性差别。
 
