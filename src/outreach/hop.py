@@ -56,9 +56,9 @@ def is_an_inbox(address):
         return False
     if domain.rpartition(".")[2] in IMAGE_TLD:
         return False
-    if local in PLACEHOLDER_LOCAL or domain in PLACEHOLDER_DOMAIN:
+    if local in PLACEHOLDER_LOCAL:
         return False
-    if domain.endswith(".sentry.io") or "ingest.sentry.io" in domain:
+    if any(domain == d or domain.endswith(f".{d}") for d in PLACEHOLDER_DOMAIN):
         return False
     if local in ROLE_LOCAL:
         return False

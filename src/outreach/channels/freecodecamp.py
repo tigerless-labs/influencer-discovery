@@ -22,6 +22,8 @@ class FreeCodeCamp(Channel):
         for slug in slugs:
             if len(candidates) >= limit:
                 break
+            if self.already_have(slug):
+                continue
             candidate = self._author(slug)
             if candidate:
                 candidates.append(candidate)
@@ -29,7 +31,7 @@ class FreeCodeCamp(Channel):
 
     def _author(self, slug):
         page = self.fetcher.try_get(AUTHOR.format(slug=slug))
-        person = schema_person(page) if page else None
+        person = schema_person(page, identity=slug) if page else None
         if not person:
             return None
         bio = person.get("description") or ""

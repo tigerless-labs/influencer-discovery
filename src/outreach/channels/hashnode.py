@@ -32,6 +32,8 @@ class Hashnode(Channel):
 
         candidates = []
         for handle in handles[:limit]:
+            if self.already_have(handle):
+                continue
             candidate = self._profile(handle)
             if candidate and candidate.own_site:
                 candidates.append(candidate)
@@ -41,7 +43,7 @@ class Hashnode(Channel):
         page = self.fetcher.try_get(PROFILE.format(handle=handle))
         if not page:
             return None
-        person = schema_person(page) or {}
+        person = schema_person(page, identity=handle) or {}
         found = BIO.search(page)
         bio = html.unescape(html.unescape(found.group(1))) if found else ""
         titled = TITLE.search(page)

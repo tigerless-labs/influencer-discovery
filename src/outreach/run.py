@@ -54,6 +54,7 @@ class Run:
 
     def channel(self, name, config):
         adapter = channel_registry.build(name, self.fetcher, config)
+        adapter.already_have = lambda person_key: self.store.is_seen((person_key, name))
         raw = adapter.discover(self.per_channel * self.pool_factor)
         fresh = [c for c in raw if not self.store.is_seen(c.dedup_key)]
 

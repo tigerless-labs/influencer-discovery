@@ -214,3 +214,9 @@ def test_a_domain_that_merely_ends_in_a_listed_word_is_not_listed():
     from outreach.domains import is_institution
     assert is_institution("https://notgithub.com") is False
     assert is_institution("https://github.com/x") is True
+
+
+def test_a_placeholder_domain_matches_its_subdomains_too():
+    from outreach.hop import emails_in
+    assert emails_in("605a7b@sentry-next.wixpress.com") == []
+    assert emails_in("abc@o123.ingest.sentry.io") == []

@@ -38,14 +38,29 @@ def _enclosing_object(text, at):
     return None
 
 
-def schema_person(html):
-    """The one place a schema.org Person is read off a page, escaped payload or plain script tag."""
+def schema_person(html, identity=None):
+    """The one place a schema.org Person is read off a page, escaped payload or plain script tag.
+
+    A profile page also carries the platform's own people. Passing the handle the page was
+    fetched for turns a wrong match into no match, which is the only safe direction.
+    """
     text = _unescaped(html or "")
+    people = []
     for match in PERSON.finditer(text):
         found = _enclosing_object(text, match.start())
         if not isinstance(found, dict):
             continue
-        person = found.get("mainEntity") if found.get("@type") == "ProfilePage" else found
+        profile_page = found.get("@type") == "ProfilePage"
+        person = found.get("mainEntity") if profile_page else found
         if isinstance(person, dict) and person.get("name"):
-            return person
-    return None
+            people.append((0 if profile_page else 1, person))
+    if not people:
+        return None
+    if identity:
+        wanted = identity.lower()
+        for _, person in sorted(people, key=lambda pair: pair[0]):
+            named = f"{person.get('alternateName') or ''} {person.get('url') or ''}".lower()
+            if wanted in named:
+                return person
+        return None
+    return min(people, key=lambda pair: pair[0])[1]

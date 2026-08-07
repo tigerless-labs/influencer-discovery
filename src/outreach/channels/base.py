@@ -24,6 +24,10 @@ class Channel:
         self.fetcher = fetcher
         self.config = config or {}
 
+    def already_have(self, person_key):
+        """A directory channel that cannot skip what it has seen never gets past its first page."""
+        return False
+
     def discover(self, limit):
         raise NotImplementedError
 
