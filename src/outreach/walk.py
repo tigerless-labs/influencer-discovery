@@ -1,11 +1,13 @@
 from .buyer import looks_like_a_product_site
 from .domains import (
     is_a_persons_own_site,
+    is_link_aggregator,
     looks_like_a_multi_author_publication,
     registrable_domain,
 )
 from .hop import (
     emails_in,
+    external_links,
     internal_links,
     is_directory_page,
     looks_contactish,
@@ -32,6 +34,10 @@ class SecondHop:
         candidate.mark_checked("own_site")
         if not site:
             return candidate
+        if is_link_aggregator(site):
+            site = self._through_aggregator(candidate, site)
+            if not site:
+                return candidate
         if not is_a_persons_own_site(site):
             candidate.signals["own_site_is_a_platform"] = True
             return candidate
@@ -80,6 +86,21 @@ class SecondHop:
                 run_id=self.run_id,
             )
         return candidate
+
+    def _through_aggregator(self, candidate, url):
+        """A link page is a redirect with extra steps: read it, take the first real site, keep going."""
+        candidate.signals["via_aggregator"] = url
+        page = self.fetcher.try_get(url)
+        candidate.mark_checked("aggregator")
+        if page is None:
+            return None
+        self._note_topic(candidate, page)
+        self._harvest(candidate, page, "aggregator_page")
+        for link in external_links(page, url):
+            if is_a_persons_own_site(link):
+                candidate.own_site = link
+                return link
+        return None
 
     def _note_topic(self, candidate, html):
         existing = candidate.signals.get("topic_hits") or []

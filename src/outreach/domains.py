@@ -57,7 +57,12 @@ def _is_listed(url, listing):
 
 
 def is_platform_host(url):
-    return _is_listed(url, _config()["platform_hosts"])
+    return _is_listed(url, _config()["platform_hosts"]) or is_link_aggregator(url)
+
+
+def is_link_aggregator(url):
+    """Not a person's site, but the page itself holds the link to one."""
+    return _is_listed(url, _config()["link_aggregators"])
 
 
 def is_institution(url):

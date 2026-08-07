@@ -1,5 +1,13 @@
 # 共享域名清单。落在这些域名上的地址不属于某一个人。
 
+# 聚合页:本身不是谁的站,但页面里就是他真正的站。第二跳要穿过去,不是停下。
+link_aggregators = [
+  "linktr.ee", "beacons.ai", "stan.store", "lnk.bio", "linkin.bio", "bio.link",
+  "carrd.co", "zblinks.com", "allmylinks.com", "taplink.cc", "komi.io", "koji.to",
+  "snipfeed.co", "msha.ke", "solo.to", "shorby.com", "campsite.bio", "flowcode.com",
+  "linkpop.com", "hoo.be", "many.link", "withkoji.com", "direct.me", "linkr.bio",
+]
+
 # 平台托管:看着像自有站,其实是平台的地址
 platform_hosts = [
   "podcasters.spotify.com", "anchor.fm", "buzzsprout.com", "libsyn.com", "podbean.com",

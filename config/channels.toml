@@ -40,8 +40,10 @@ methodology = "2-blog-platform/micro-blog.md"
 
 [mastodon]
 methodology = "1-social/mastodon.md"
-hosts = ["mastodon.social", "fosstodon.org", "hachyderm.io", "indieweb.social"]
-max_offset = 240
+hosts = ["mastodon.social", "fosstodon.org", "hachyderm.io", "indieweb.social",
+         "sigmoid.social", "mas.to", "techhub.social", "social.coop", "mstdn.social",
+         "infosec.exchange", "ioc.exchange", "floss.social"]
+max_offset = 480
 
 [reddit]
 methodology = "1-social/reddit.md"
@@ -49,7 +51,12 @@ subreddits = ["SideProject", "IndieBiz", "selfhosted", "webdev"]
 
 [instagram]
 methodology = "1-social/instagram.md"
-terms = ["ai", "ai agent", "ai creator", "llm", "prompt engineering", "machine learning", "ai art", "genai"]
+terms = [
+  "ai", "ai agent", "ai creator", "ai educator", "ai newsletter", "ai automation",
+  "llm", "prompt engineering", "machine learning", "genai", "ai art", "ai video",
+  "ai marketing", "ai productivity", "ai research", "data science", "chatgpt",
+  "midjourney", "ai founder", "ai builder", "no code ai", "ai writer",
+]
 credit_budget = 400
 
 [tiktok]
@@ -59,5 +66,17 @@ credit_budget = 400
 
 [threads]
 methodology = "1-social/threads.md"
-terms = ["ai agents", "ai tools", "llm", "prompt engineering", "ai coding"]
+terms = [
+  "ai", "ai agents", "ai tools", "llm", "prompt engineering", "ai coding",
+  "machine learning", "genai", "ai newsletter", "ai art", "chatgpt", "claude",
+  "ai builder", "ai research", "data science", "ai automation",
+]
 credit_budget = 400
+
+[youtube]
+methodology = "1-social/youtube.md"
+terms = [
+  "ai tools", "ai agents", "llm", "prompt engineering", "ai coding", "machine learning",
+  "generative ai", "ai news", "ai automation", "chatgpt tutorial", "claude ai",
+  "ai for developers", "ai productivity", "rag tutorial", "fine tuning llm",
+]

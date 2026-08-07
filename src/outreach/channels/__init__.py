@@ -12,6 +12,7 @@ from . import (  # noqa: F401
     threads,
     tiktok,
     wordpress,
+    youtube,
 )
 from .base import REGISTRY
 

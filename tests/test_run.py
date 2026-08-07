@@ -186,7 +186,8 @@ def test_rejudging_reports_only_what_it_changed(tmp_path):
     good = person("good", followers=9000)
     good.outcome = Outcome.QUALIFIED
     store.record(good, run_id="before")
-    assert run_module.rejudge("fix", BAND, store=store) == []
+    run_module.rejudge("fix", BAND, store=store)
+    assert run_module.rejudge("again", BAND, store=store) == []
 
 
 def test_the_replay_fetcher_serves_disk_and_never_the_network(tmp_path, monkeypatch):
@@ -222,3 +223,55 @@ def test_a_stale_buyer_call_is_cleared_before_the_page_is_read_again(tmp_path, m
     fixed = next(x for x in store.people() if x.person_key == "blogger")
     assert fixed.outcome is Outcome.QUALIFIED
     assert "is_buyer" not in fixed.signals
+
+
+def test_rejudging_persists_refreshed_evidence_behind_an_unchanged_verdict(tmp_path):
+    from outreach.run import rejudge
+
+    store = Store(tmp_path)
+    stale = person("keeper", followers=9000)
+    stale.outcome = Outcome.QUALIFIED
+    stale.signals["verdict_reason"] = "sponsorship page on own site"
+    store.record(stale, run_id="old")
+
+    changed = rejudge("fresh", BAND, store=store)
+
+    assert [c.person_key for c in changed] == ["keeper"]
+    kept = next(iter(store.people()))
+    assert kept.outcome is Outcome.QUALIFIED
+    assert kept.signals["topic_hits"]
+    assert kept.signals["verdict_reason"] != "sponsorship page on own site"
+
+
+def test_rejudging_leaves_an_already_current_row_alone(tmp_path):
+    from outreach.run import rejudge
+
+    store = Store(tmp_path)
+    current = person("settled", followers=9000)
+    store.record(current, run_id="r1")
+    rejudge("r2", BAND, store=store)
+    before = len(store.raw_lines("fake"))
+    assert rejudge("r3", BAND, store=store) == []
+    assert len(store.raw_lines("fake")) == before
+
+
+def test_people_past_the_target_are_still_logged(runner, tmp_path):
+    store = Store(tmp_path)
+    pool = FakePool([person(f"p{i}", followers=9000) for i in range(8)])
+    runner(pool, per_channel=3, store=store)
+    rows = {r.person_key for r in store.people("fake")}
+    assert len(rows) == 8
+
+
+def test_parked_people_carry_no_verdict(runner, tmp_path):
+    store = Store(tmp_path)
+    runner(FakePool([person(f"p{i}", followers=9000) for i in range(6)]), per_channel=2, store=store)
+    parked = [r for r in store.people("fake") if r.signals.get("pending_judgement")]
+    assert len(parked) == 4
+    assert all(r.outcome is None for r in parked)
+
+
+def test_a_parked_person_is_not_rediscovered(runner, tmp_path):
+    store = Store(tmp_path)
+    runner(FakePool([person(f"p{i}", followers=9000) for i in range(6)]), per_channel=2, store=store)
+    assert store.is_seen(("p5", "fake"))

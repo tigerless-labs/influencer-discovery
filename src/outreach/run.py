@@ -67,10 +67,11 @@ class Run:
         judged = []
         qualified = 0
         for candidate in fresh:
-            if qualified >= self.per_channel:
-                break
-            if self.total and self.qualified_so_far >= self.total:
-                break
+            if qualified >= self.per_channel or (
+                self.total and self.qualified_so_far >= self.total
+            ):
+                self._park(candidate)
+                continue
             needs_signal = candidate.audience is None or candidate.audience.unit != "followers"
             if candidate.own_site and (not candidate.email or needs_signal):
                 self.hop.walk(candidate)
@@ -92,6 +93,11 @@ class Run:
         judged = self.gate.rank(judged)
         self.report.add(name, judged, stop, self.per_channel, shortfall=shortfall)
         return judged
+
+    def _park(self, candidate):
+        """Discovery already paid for this person, so the log owes them a row even unjudged."""
+        candidate.signals["pending_judgement"] = True
+        self.store.record(candidate, run_id=self.run_id)
 
     def qualified(self):
         return [
@@ -120,6 +126,17 @@ def summarise(run_id, per_channel, band, priority, store=None, total=None, subje
 DERIVED_SIGNALS = ("is_buyer", "buyer_reason", "sponsor_page", "own_site_is_a_platform")
 
 
+def _judgement(candidate):
+    """Stale evidence behind a still-correct verdict is a wrong record, so the evidence is compared too."""
+    return (
+        candidate.outcome,
+        sorted(c.value for c in candidate.contacts),
+        tuple(candidate.signals.get("topic_hits") or ()),
+        candidate.signals.get("verdict_reason"),
+        candidate.signals.get("in_band"),
+    )
+
+
 def rejudge(run_id, band, store=None, replay=False):
     """The log is a cache, not the authority: a corrected judgement supersedes the stored one."""
     from .fetch import ReplayFetcher
@@ -132,7 +149,7 @@ def rejudge(run_id, band, store=None, replay=False):
     for candidate in store.people():
         if candidate.outcome is None:
             continue
-        before = (candidate.outcome, [c.value for c in candidate.contacts])
+        before = _judgement(candidate)
         candidate.contacts = [c for c in candidate.contacts if is_an_inbox(c.value)]
         if hop and candidate.own_site:
             for signal in DERIVED_SIGNALS:
@@ -143,7 +160,7 @@ def rejudge(run_id, band, store=None, replay=False):
         candidate.outcome = verdict.outcome
         candidate.signals["verdict_reason"] = verdict.reason
         candidate.signals["band_applied"] = verdict.band_applied
-        if before != (candidate.outcome, [c.value for c in candidate.contacts]):
+        if before != _judgement(candidate):
             store.record(candidate, run_id=run_id)
             corrected.append(candidate)
     return corrected

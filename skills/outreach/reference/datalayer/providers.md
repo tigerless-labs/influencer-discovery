@@ -42,7 +42,13 @@
 
 SociaVault 的余额端点 `/v1/credits` 与参数错误的请求都不扣 credit,可以放心探。
 
-## 两条跨供应商的事实
+## 三条跨供应商的事实
+
+**Instagram 的 `business_email` 恒为 null,换供应商也拿不到。**
+
+响应里 `business_contact_method` 与 `business_address_json` 有真值,`should_show_public_contacts`
+多数为真 —— 结构是平台给的,只有邮箱与电话两个值被抠空。匿名抓公开网页同样没有。
+**值在登录墙后面,是平台边界。**
 
 **Threads 的搜索不给粉丝数,换供应商也拿不到。**
 

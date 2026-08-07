@@ -89,6 +89,7 @@ def looks_contactish(url):
 
 
 LINK = re.compile(r'href=["\']([^"\']+)["\']', re.I)
+BARE_URL = re.compile(r'https?://[A-Za-z0-9.\-]+\.[A-Za-z]{2,}(?:/[^\s"\'<>\\]*)?')
 
 
 def internal_links(html, base_url):
@@ -105,3 +106,17 @@ def internal_links(html, base_url):
 
 def mailto_addresses(html):
     return emails_in(" ".join(re.findall(r'href=["\']mailto:([^"\'?]+)', html or "", re.I)))
+
+
+def external_links(html, base_url):
+    """Everything the page points at that is not the page's own host."""
+    here = registrable_domain(base_url)
+    out = []
+    for url in LINK.findall(html or "") + BARE_URL.findall(html or ""):
+        if not url.startswith("http"):
+            continue
+        domain = registrable_domain(url)
+        if not domain or domain == here or url in out:
+            continue
+        out.append(url)
+    return out

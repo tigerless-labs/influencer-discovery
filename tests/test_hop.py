@@ -220,3 +220,43 @@ def test_a_placeholder_domain_matches_its_subdomains_too():
     from outreach.hop import emails_in
     assert emails_in("605a7b@sentry-next.wixpress.com") == []
     assert emails_in("abc@o123.ingest.sentry.io") == []
+
+
+LINKTREE = (
+    '<html><body><a href="https://linktr.ee/settings">settings</a>'
+    '<a href="https://instagram.com/someone">ig</a>'
+    '<a href="https://janedoe.dev">my site</a>'
+    '<a href="https://youtube.com/@someone">yt</a></body></html>'
+)
+
+
+def test_an_aggregator_page_yields_the_first_real_site():
+    from outreach.hop import external_links
+    from outreach.domains import is_a_persons_own_site
+
+    real = [u for u in external_links(LINKTREE, "https://linktr.ee/someone")
+            if is_a_persons_own_site(u)]
+    assert real == ["https://janedoe.dev"]
+
+
+def test_external_links_skip_the_aggregators_own_host():
+    from outreach.hop import external_links
+
+    assert "https://linktr.ee/settings" not in external_links(LINKTREE, "https://linktr.ee/x")
+
+
+def test_an_aggregator_with_only_platform_links_yields_nothing():
+    from outreach.hop import external_links
+    from outreach.domains import is_a_persons_own_site
+
+    only_platforms = '<a href="https://instagram.com/x">a</a><a href="https://tiktok.com/@x">b</a>'
+    assert [u for u in external_links(only_platforms, "https://stan.store/x")
+            if is_a_persons_own_site(u)] == []
+
+
+def test_an_aggregator_is_not_mistaken_for_a_persons_own_site():
+    from outreach.domains import is_a_persons_own_site, is_link_aggregator
+
+    for url in ("https://linktr.ee/x", "https://stan.store/x", "https://beacons.ai/x"):
+        assert is_link_aggregator(url) is True
+        assert is_a_persons_own_site(url) is False

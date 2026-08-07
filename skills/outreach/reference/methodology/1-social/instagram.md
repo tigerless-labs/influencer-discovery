@@ -83,6 +83,6 @@ bio 有邮箱          约 22%
 ## 不做的
 
 - **只在需要粉丝数时才 `/v1/instagram/profile`。** 联系方式与主题判断在搜索结果里就够了。
-  只有确认某人是专业号、且要 `business_email` 时才值得多花 1 credit。
+  `business_email` 拿不到(恒 null,见数据层),profile 那一跳只换粉丝数。
 - **不做 `edge_related_profiles` 滚雪球。** 一个种子展开 32 个,一层吃掉大量额度,
   而 bio 关键词搜索直接命中垂类,更省也更准。
