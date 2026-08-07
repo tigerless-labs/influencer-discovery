@@ -26,6 +26,7 @@ PLACEHOLDER_LOCAL = {
 PLACEHOLDER_DOMAIN = {
     "example.com", "example.org", "example.net", "domain.com", "yourdomain.com",
     "here.com", "email.com", "sentry.io", "wixpress.com",
+    "company.com", "yourcompany.com", "mycompany.com", "acme.com", "test.com",
 }
 ASSET_SUFFIX = re.compile(r"@\d+x\.(png|jpe?g|gif|webp|svg)$", re.I)
 

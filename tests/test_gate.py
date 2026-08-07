@@ -115,3 +115,17 @@ def test_another_unit_is_never_measured_against_the_floor():
 def test_no_floor_leaves_the_verdict_exactly_as_before():
     c = with_email(cand(audience=followers(3)))
     assert Gate(BAND).judge(c).outcome is Outcome.QUALIFIED
+
+
+def test_a_measured_size_below_the_floor_is_known_before_any_spending():
+    """The floor has to be answerable without a contact, or the walk is paid for first."""
+    assert Gate(BAND, floor=1000).too_small(cand(audience=followers(800))) is True
+    assert Gate(BAND, floor=1000).too_small(cand(audience=followers(1000))) is False
+    assert Gate(BAND, floor=1000).too_small(cand()) is False
+    assert Gate(BAND).too_small(cand(audience=followers(3))) is False
+
+
+def test_being_too_small_outranks_having_no_address():
+    """Otherwise the log says we looked for an address we deliberately never went after."""
+    c = cand(audience=followers(800))
+    assert Gate(BAND, floor=1000).judge(c).outcome is Outcome.AUDIENCE_OUT_OF_BAND

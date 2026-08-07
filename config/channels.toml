@@ -25,7 +25,7 @@ methodology = "2-blog-platform/dev-to.md"
 tags = ["ai", "productivity", "devtools", "programming", "opensource", "webdev"]
 
 [freecodecamp]
-methodology = "2-blog-platform/freecodecamp-news.md"
+methodology = "5-media/freecodecamp-news.md"
 
 [hashnode]
 methodology = "2-blog-platform/hashnode.md"
@@ -55,6 +55,12 @@ subreddits = [
   "ChatGPTPro", "artificial", "ArtificialInteligence", "MachineLearning",
   "aipromptprogramming", "AIAssisted", "WritingWithAI", "vibecoding", "ClaudeCode",
   "LangChain", "mcp", "RAG", "n8n", "Substack", "beehiiv", "NewsletterCreators",
+]
+terms = [
+  "ai agents", "llm", "prompt engineering", "ai tools", "machine learning",
+  "generative ai", "ai coding", "rag", "fine-tuning", "ai newsletter",
+  "ai automation", "vibe coding", "claude code", "self hosted", "devops",
+  "open source", "developer tools", "saas", "indie dev", "web development",
 ]
 # 早先实验已抓好的资料页外链。抓过的不再抓第二遍,见 docs/design/records.md。
 profile_dumps = ["data/experiments/2026-08-06/reddit-raw/profiles.jsonl"]

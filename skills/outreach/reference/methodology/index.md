@@ -22,7 +22,8 @@
 | `2-blog-platform/` | 文章发在平台上,站不是他的 | [清单在它自己的 index](2-blog-platform/index.md) |
 | `3-personal-site/` | **有门槛**:自己的域名、自己养的受众 | 自建博客 · Newsletter · Podcast |
 | `4-distribution/` | 做分发的站,产出是投递入口不是人 | Website |
-| `_not-run/` | 不跑 | Media(单独预算)· LinkedIn |
+| `5-media/` | **有编辑审的多作者刊物**:目标是它的作者,不是刊物 | [清单在它自己的 index](5-media/index.md) |
+| `_not-run/` | 不跑 | LinkedIn |
 
 ## 共享件
 
@@ -67,9 +68,6 @@
 
 ## 不跑
 
-- [media.md](_not-run/media.md) —— **多作者刊物整类的裁决**:一个域名几百个作者,
-  站上只给投稿信箱。这份是清单,防止把媒体当博主渠道跑。
-  **投放走单独预算,不走这条流水线。**
 - [linkedin.md](_not-run/linkedin.md) —— **没有发现这一步**,认证也换不来;
   连带写做了之后怎么拿、不做会怎样影响这条链的形状。
 

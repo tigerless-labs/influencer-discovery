@@ -1,14 +1,20 @@
 import json
+import re
 import subprocess
+from datetime import date
+from html import unescape
 
 from ..domains import is_a_persons_own_site
 from ..domains import registrable_domain
 from ..paths import repo_dir
-from ..record import Candidate
-from ..session import NoSession, rdt_session_ready
+from ..record import Audience, Candidate
+from ..session import NoSession, rdt_cookie_header, rdt_session_ready
 from .base import Channel, register
 
 OWN_DOMAIN_LINK = "CUSTOM"
+SOCIAL_LINK_BLOB = re.compile(r'data-faceplate-tracking-context="([^"]*social_link[^"]*)"', re.I)
+FOLLOWER_LINE = re.compile(r"([\d][\d,\.]*)\s*([km])?\s*followers", re.I)
+SCALE = {"k": 1_000, "m": 1_000_000}
 
 
 @register
@@ -19,9 +25,62 @@ class Reddit(Channel):
 
     def discover(self, limit):
         found = {c.person_key: c for c in self._from_dumps(limit)}
+        for candidate in self._from_profiles(limit - len(found)):
+            found.setdefault(candidate.person_key, candidate)
         for candidate in self._from_subreddits(limit - len(found)):
             found.setdefault(candidate.person_key, candidate)
         return list(found.values())[:limit]
+
+    def _authors(self, limit):
+        """Posts are cheap and only name people; the profile page is where the person actually is."""
+        names, listings = [], []
+        for term in self.config.get("terms", []):
+            listings.append(["search", term, "--limit", "100"])
+        for subreddit in self.config.get("subreddits", []):
+            listings.append(["sub", subreddit, "--sort", "top", "--time", "year", "--limit", "100"])
+            listings.append(["sub", subreddit, "--sort", "hot", "--limit", "100"])
+        seen = set()
+        for argv in listings:
+            if len(names) >= limit:
+                break
+            for post in self._listing(argv):
+                author = post.get("author")
+                if not author or author == "[deleted]" or author in seen:
+                    continue
+                seen.add(author)
+                if self.already_have(author):
+                    continue
+                names.append(author)
+                if len(names) >= limit:
+                    break
+        return names
+
+    def _from_profiles(self, limit):
+        """The declared domain and the follower count live on the same page, behind the same login."""
+        if limit <= 0 or not self.fetcher:
+            return []
+        try:
+            cookie = rdt_cookie_header()
+        except NoSession as e:
+            self.unavailable = str(e)
+            return []
+        people = []
+        for author in self._authors(limit):
+            page = self.fetcher.try_get(
+                f"https://www.reddit.com/user/{author}/",
+                headers={"Cookie": cookie},
+                persist=False,
+            )
+            if page is None:
+                continue
+            links = self._social_links(page)
+            candidate = self._person(author, self._own_domain(links), {"social_links": links})
+            followers = self._followers(page)
+            if followers is not None:
+                candidate.audience = Audience(followers, "followers", date.today().isoformat())
+            candidate.mark_checked("profile")
+            people.append(candidate)
+        return people
 
     def _from_dumps(self, limit):
         """Profile pages already harvested elsewhere. No session, no request, no second charge."""
@@ -29,10 +88,13 @@ class Reddit(Channel):
         for path in self.config.get("profile_dumps", []):
             for row in self._rows(repo_dir() / path):
                 user = row.get("user")
-                if not user or str(row.get("status")) != "200":
+                if not user or str(row.get("status")) != "200" or self.already_have(user):
                     continue
-                site = self._own_domain(row.get("social_links"))
-                (with_site if site else without).append(self._person(user, site, row))
+                links = row.get("social_links") or []
+                site = self._own_domain(links)
+                (with_site if site else without).append(
+                    self._person(user, site, {"social_links": links})
+                )
         return (with_site + without)[:limit]
 
     @staticmethod
@@ -48,6 +110,34 @@ class Reddit(Channel):
                 continue
             if isinstance(row, dict):
                 yield row
+
+    @staticmethod
+    def _social_links(html):
+        """Reddit carries these as its own tracking JSON, so they are read, never scraped off the text."""
+        links, seen = [], set()
+        for blob in SOCIAL_LINK_BLOB.findall(html or ""):
+            try:
+                context = json.loads(unescape(blob))
+            except json.JSONDecodeError:
+                continue
+            link = (context or {}).get("social_link") or {}
+            url = link.get("url")
+            if url and url not in seen:
+                seen.add(url)
+                links.append({"type": link.get("type"), "url": url})
+        return links
+
+    @staticmethod
+    def _followers(html):
+        """Two different figures on one page means we cannot tell which is his, so neither is."""
+        found = set()
+        for number, suffix in FOLLOWER_LINE.findall(html or ""):
+            try:
+                value = float(number.replace(",", ""))
+            except ValueError:
+                continue
+            found.add(int(value * SCALE.get((suffix or "").lower(), 1)))
+        return found.pop() if len(found) == 1 else None
 
     @staticmethod
     def _own_domain(links):
@@ -89,7 +179,7 @@ class Reddit(Channel):
         for subreddit in self.config.get("subreddits", []):
             if len(found) >= limit:
                 break
-            for post in self._top(subreddit):
+            for post in self._listing(["sub", subreddit, "--sort", "top", "--time", "year", "--limit", "60"]):
                 if len(found) >= limit:
                     break
                 author = post.get("author")
@@ -114,10 +204,10 @@ class Reddit(Channel):
                 )
         return list(found.values())
 
-    def _top(self, subreddit):
+    def _listing(self, argv):
         proc = subprocess.run(
-            ["rdt", "sub", subreddit, "--sort", "top", "--time", "year", "--limit", "60", "--json"],
-            capture_output=True, text=True, timeout=90,
+            ["rdt", *argv, "--json"],
+            capture_output=True, text=True, timeout=120,
         )
         if proc.returncode != 0:
             return []

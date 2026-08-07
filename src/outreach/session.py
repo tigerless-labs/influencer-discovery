@@ -1,4 +1,6 @@
+import json
 import subprocess
+from pathlib import Path
 
 MISSING_READER = (
     "缺 browser-cookie3,登录态取不到。装:pip install browser-cookie3"
@@ -41,6 +43,31 @@ def x_session_ready(label="browser"):
     if added.returncode != 0:
         raise NoSession("twscrape 收不下这份 cookie")
     return True
+
+
+def rdt_credential_file():
+    return Path.home() / ".config" / "rdt-cli" / "credential.json"
+
+
+def rdt_cookie_header():
+    """Reddit hides a profile behind login; rdt already holds that session, so it is reused, not re-asked."""
+    stored = rdt_credential_file()
+    if not stored.exists():
+        raise NoSession("rdt 没存过 cookie —— 跑一次 `rdt login`")
+    try:
+        cookies = json.loads(stored.read_text(encoding="utf-8")).get("cookies")
+    except (json.JSONDecodeError, OSError):
+        raise NoSession("rdt 的凭据文件读不出来 —— 重跑一次 `rdt login`") from None
+    if isinstance(cookies, dict):
+        pairs = list(cookies.items())
+    elif isinstance(cookies, list):
+        pairs = [(c.get("name"), c.get("value")) for c in cookies if isinstance(c, dict)]
+    else:
+        pairs = []
+    header = "; ".join(f"{k}={v}" for k, v in pairs if k and v)
+    if not header:
+        raise NoSession("rdt 的凭据文件里没有 cookie —— 重跑一次 `rdt login`")
+    return header
 
 
 def rdt_session_ready():

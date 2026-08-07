@@ -187,9 +187,9 @@ class Fetcher:
             self._fail(url, "not json")
             raise Blocked(f"{url} -> not json") from None
 
-    def try_get(self, url, headers=None, reuse=False):
+    def try_get(self, url, headers=None, reuse=False, persist=True):
         try:
-            return self.get(url, headers, reuse=reuse)
+            return self.get(url, headers, persist=persist, reuse=reuse)
         except Blocked:
             return None
 

@@ -76,7 +76,8 @@ class Run:
                 self._park(candidate)
                 continue
             needs_signal = candidate.audience is None or candidate.audience.unit != "followers"
-            if candidate.own_site and (not candidate.email or needs_signal):
+            worth_walking = candidate.own_site and not self.gate.too_small(candidate)
+            if worth_walking and (not candidate.email or needs_signal):
                 self.hop.walk(candidate)
             verdict = self.gate.judge(candidate)
             candidate.outcome = verdict.outcome
