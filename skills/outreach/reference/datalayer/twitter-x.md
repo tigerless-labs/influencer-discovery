@@ -6,9 +6,12 @@
 
 ## 已确定的
 
-**认证走浏览器 cookie,不走密码,且取数层自己取。** `auth_token` + `ct0` 从浏览器读出、
-喂给 **twscrape** 的 cookie 入口,不需要用户名密码、不需要邮箱验证码,也不需要人手动加账号 ——
-账号池为空时取数层自动补一次。**twikit 过不了 X 的反爬握手**,同一份 cookie twscrape
+**认证走浏览器 cookie,不走密码,且取数层自己取。** `auth_token` + `ct0` 用
+`browser-cookie3` 从本机 Chrome 读出、喂给 **twscrape** 的 cookie 入口,不需要用户名密码、
+不需要邮箱验证码,也不需要人手动加账号 —— 账号池为空时取数层自动补一次。
+
+**twscrape 不自己去浏览器取,只收下喂进去的那份**,存在它自己的账号池里,
+之后的搜索从池子里取会话。**取和持有是两件事,分在两个工具里。****twikit 过不了 X 的反爬握手**,同一份 cookie twscrape
 能返回实时结果。
 
 没登录 x.com 的浏览器里没有 `auth_token`,这份 cookie 就配不齐。
