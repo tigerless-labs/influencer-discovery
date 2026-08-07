@@ -136,3 +136,43 @@ def test_a_plain_blob_is_still_readable_before_packing(raw):
         json.dumps({"url": "https://plain.dev", "body": "legacy"}), encoding="utf-8"
     )
     assert raw.get("https://plain.dev") == "legacy"
+
+
+def test_a_second_visit_is_served_from_disk_without_a_request(tmp_path, monkeypatch):
+    from outreach import fetch as fetch_module
+
+    monkeypatch.setattr(fetch_module, "state_dir", lambda: tmp_path)
+    fetcher = fetch_module.Fetcher("run1")
+    fetcher.raw.put("https://shared.dev", "<p>page</p>", run_id="earlier")
+
+    def explode(*a, **k):
+        raise AssertionError("the network must not be touched for a reused page")
+
+    monkeypatch.setattr(fetch_module.urllib.request, "urlopen", explode)
+    assert fetcher.try_get("https://shared.dev", reuse=True) == "<p>page</p>"
+    assert fetcher.reused == 1
+
+
+def test_reuse_still_credits_the_current_run(tmp_path, monkeypatch):
+    from outreach import fetch as fetch_module
+
+    monkeypatch.setattr(fetch_module, "state_dir", lambda: tmp_path)
+    fetcher = fetch_module.Fetcher("run2")
+    fetcher.raw.put("https://shared.dev", "body", run_id="earlier")
+    fetcher.try_get("https://shared.dev", reuse=True)
+    assert fetcher.raw.digest_of("https://shared.dev") in fetcher.raw.digests_for("run2")
+
+
+def test_without_reuse_a_known_page_is_still_fetched(tmp_path, monkeypatch):
+    from outreach import fetch as fetch_module
+
+    monkeypatch.setattr(fetch_module, "state_dir", lambda: tmp_path)
+    fetcher = fetch_module.Fetcher("run3")
+    fetcher.raw.put("https://shared.dev", "old", run_id="earlier")
+    calls = []
+    monkeypatch.setattr(
+        fetch_module.urllib.request, "urlopen",
+        lambda *a, **k: calls.append(1) or (_ for _ in ()).throw(OSError("no network")),
+    )
+    assert fetcher.try_get("https://shared.dev") is None
+    assert calls == [1]

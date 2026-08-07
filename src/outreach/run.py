@@ -10,6 +10,7 @@ from .paths import repo_config_dir
 from .record import Outcome
 from .report import Report
 from .store import Store
+from .export import write_xlsx
 from .walk import SecondHop
 
 DEFAULT_BAND = (5000, 200000)
@@ -221,8 +222,6 @@ def main():
         return
 
     if args.export_xlsx:
-        from .export import write_xlsx
-
         print(write_xlsx(Store(), DEFAULT_BAND, name=args.export_xlsx))
         return
 
@@ -261,6 +260,7 @@ def main():
         except Exception as e:  # a channel that dies must not take the run with it
             run.report.note(f"`{name}` 中断:{type(e).__name__} {e}")
     print(run.report.save())
+    print(write_xlsx(run.store, DEFAULT_BAND))
 
 
 if __name__ == "__main__":

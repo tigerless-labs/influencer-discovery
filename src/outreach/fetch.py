@@ -132,6 +132,7 @@ class Fetcher:
         self._last = {}
         self._lock = threading.Lock()
         self._blocked = set()
+        self.reused = 0
         self.raw = RawStore()
 
     def _wait(self, host):
@@ -144,7 +145,13 @@ class Fetcher:
     def _persist(self, url, body):
         self.raw.put(url, body, run_id=self.run_id)
 
-    def get(self, url, headers=None, persist=True):
+    def get(self, url, headers=None, persist=True, reuse=False):
+        if reuse:
+            kept = self.raw.get(url)
+            if kept is not None:
+                self.raw.note(self.run_id, self.raw.digest_of(url))
+                self.reused += 1
+                return kept
         parsed = urllib.parse.urlparse(url or "")
         if parsed.scheme not in ALLOWED_SCHEMES or not parsed.netloc:
             self._fail(url, "not an http address")
@@ -180,9 +187,9 @@ class Fetcher:
             self._fail(url, "not json")
             raise Blocked(f"{url} -> not json") from None
 
-    def try_get(self, url, headers=None):
+    def try_get(self, url, headers=None, reuse=False):
         try:
-            return self.get(url, headers)
+            return self.get(url, headers, reuse=reuse)
         except Blocked:
             return None
 

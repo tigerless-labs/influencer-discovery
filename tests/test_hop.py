@@ -260,3 +260,12 @@ def test_an_aggregator_is_not_mistaken_for_a_persons_own_site():
     for url in ("https://linktr.ee/x", "https://stan.store/x", "https://beacons.ai/x"):
         assert is_link_aggregator(url) is True
         assert is_a_persons_own_site(url) is False
+
+
+def test_the_big_platforms_are_never_a_persons_own_site():
+    from outreach.domains import is_a_persons_own_site
+
+    for url in ("https://www.linkedin.com/in/someone", "https://t.me/somechannel",
+                "https://discord.gg/abc", "https://patreon.com/someone",
+                "https://www.skool.com/community", "https://calendly.com/someone"):
+        assert is_a_persons_own_site(url) is False

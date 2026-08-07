@@ -52,14 +52,20 @@ def test_a_row_carries_its_address_and_verdict():
     assert row["邮箱"] == "alice@alice.dev"
     assert row["邮箱来源"] == "site_root"
     assert row["粉丝数"] == 50_000
-    assert row["带内"] == "✅"
     assert row["判定"] == "合格"
 
 
-def test_an_unmeasured_audience_shows_unknown_not_zero():
+def test_the_band_is_used_for_order_but_is_not_a_column(store):
+    assert "带内" not in HEADERS
+    store.record(person("small", followers=100, in_band=False), run_id="r")
+    store.record(person("right", followers=50_000, in_band=True), run_id="r")
+    order = [c.person_key for c in contactable(store, BAND)["blog"]]
+    assert order.index("right") < order.index("small")
+
+
+def test_an_unmeasured_audience_shows_no_number():
     row = dict(zip(HEADERS, row_for(person("alice"))))
     assert row["粉丝数"] == ""
-    assert row["带内"] == "未知"
 
 
 def test_the_workbook_has_a_summary_then_one_tab_per_channel(store):

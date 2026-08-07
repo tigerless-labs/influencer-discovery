@@ -45,7 +45,7 @@ class SecondHop:
         if not domain:
             return candidate
 
-        root = self.fetcher.try_get(site)
+        root = self.fetcher.try_get(site, reuse=True)
         candidate.mark_checked("site_root")
         if root is None:
             return candidate
@@ -71,7 +71,7 @@ class SecondHop:
             if url in seen:
                 continue
             seen.add(url)
-            page = self.fetcher.try_get(url)
+            page = self.fetcher.try_get(url, reuse=True)
             if page is None:
                 continue
             source = "sponsor_page" if looks_like_sponsor_page(url) else "site_contact"
@@ -90,7 +90,7 @@ class SecondHop:
     def _through_aggregator(self, candidate, url):
         """A link page is a redirect with extra steps: read it, take the first real site, keep going."""
         candidate.signals["via_aggregator"] = url
-        page = self.fetcher.try_get(url)
+        page = self.fetcher.try_get(url, reuse=True)
         candidate.mark_checked("aggregator")
         if page is None:
             return None

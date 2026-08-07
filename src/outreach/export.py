@@ -3,10 +3,9 @@ from .paths import memory_dir
 from .record import Outcome
 
 HEADERS = [
-    "名字", "邮箱", "邮箱来源", "粉丝数", "带内", "主题证据",
+    "名字", "邮箱", "邮箱来源", "粉丝数", "主题证据",
     "判定", "平台主页", "自有站", "渠道", "入库时间",
 ]
-BAND_MARK = {True: "✅", False: "带外", None: "未知"}
 VERDICT = {
     Outcome.QUALIFIED: "合格",
     Outcome.NO_CONTACT: "无联系方式",
@@ -26,7 +25,6 @@ def row_for(candidate):
         contact.value if contact else "",
         contact.source if contact else "",
         audience.value if audience and audience.value else "",
-        BAND_MARK[candidate.signals.get("in_band")],
         ", ".join(candidate.signals.get("topic_hits") or []),
         VERDICT.get(candidate.outcome, ""),
         candidate.profile_url or "",
@@ -69,25 +67,22 @@ def _style(sheet, widths):
 def to_workbook(by_channel):
     from openpyxl import Workbook
 
-    widths = [26, 34, 15, 11, 7, 26, 13, 34, 34, 12, 12]
+    widths = [26, 34, 15, 11, 26, 13, 34, 34, 12, 12]
     book = Workbook()
     summary = book.active
     summary.title = SUMMARY_TAB
-    summary.append(["渠道", "有邮箱", "其中合格", "带内 5k–200k"])
+    summary.append(["渠道", "有邮箱", "其中合格"])
     for channel, people in by_channel.items():
         summary.append([
-            channel,
-            len(people),
+            channel, len(people),
             sum(1 for c in people if c.outcome is Outcome.QUALIFIED),
-            sum(1 for c in people if c.signals.get("in_band") is True),
         ])
     summary.append([
         "合计",
         sum(len(p) for p in by_channel.values()),
         sum(1 for p in by_channel.values() for c in p if c.outcome is Outcome.QUALIFIED),
-        sum(1 for p in by_channel.values() for c in p if c.signals.get("in_band") is True),
     ])
-    _style(summary, [16, 10, 11, 15])
+    _style(summary, [16, 10, 11])
 
     for channel, people in by_channel.items():
         sheet = book.create_sheet(channel[:31])

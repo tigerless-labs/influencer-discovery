@@ -103,6 +103,17 @@
 - [ ] **WordPress.com 样本质量确认很差** —— 10 个作者里 9 个拿不到联系方式,且明显混着垃圾账号,
       与 methodology 里已记的「只有时间序」一致。
 
+## X 的现状(2026-08-07 复验)
+
+- [ ] **只用 ScrapeCreators 的前提下,X 没有发现能力。** 它的 Twitter 只有
+      `profile` / `user-tweets` / `tweet` / `community`,**没有任何用户或内容搜索端点**
+      (`search`、`search/users`、`users/search`、`tweets/search` 一律 404)。
+      给已知 handle 能富化,但产不出新名字 —— 与 LinkedIn 同一个裁决形状。
+- [ ] `methodology/1-social/twitter-x.md` 里「话题搜索能找到人」只在**走用户本人账号**
+      那条路上成立,不适用于当前供应商。正文没有标出这个前提。
+- [ ] 两条尚未评估的发现路子:X Community 的成员发帖(要先有 community id),
+      以及从 DEV.to 的 `twitter_username` 反查(那是富化,不产生新人)。
+
 ## 将来的选项
 
 - **与 auto-gtm 合并**(已定方向)。它的取数层已解决认证:复用浏览器登录态、单一入口、分档降级、
