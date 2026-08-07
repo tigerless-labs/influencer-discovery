@@ -21,6 +21,7 @@ class Store:
         self.sites_file = self.root / "sites.jsonl"
         self.failures_file = self.root / "failures.jsonl"
         self.seen_dir.mkdir(parents=True, exist_ok=True)
+        self._sites = None
 
     def _channel_file(self, channel):
         return self.seen_dir / f"{_slug(channel)}.jsonl"
@@ -50,16 +51,23 @@ class Store:
         return candidate
 
     def record_site(self, domain, outcome, run_id=None):
+        """Walked is walked — a second visit is not a new fact, so it is not a new line."""
+        if not domain or domain in self.seen_sites():
+            return
         self._append(
             self.sites_file,
             {"domain": domain, "outcome": outcome, "run_id": run_id, "seen_at": _now()},
         )
+        self._sites.add(domain)
 
     def record_failure(self, url, reason, run_id=None):
         self._append(
             self.failures_file,
             {"url": url, "reason": reason, "run_id": run_id, "at": _now()},
         )
+
+    def raw_site_lines(self):
+        return self.sites_file.read_text(encoding="utf-8").splitlines() if self.sites_file.exists() else []
 
     def raw_lines(self, channel):
         path = self._channel_file(channel)
@@ -92,13 +100,31 @@ class Store:
         )
 
     def seen_sites(self):
-        return {row.get("domain") for row in self._read(self.sites_file)}
+        if self._sites is None:
+            self._sites = {row.get("domain") for row in self._read(self.sites_file)}
+        return self._sites
 
     def is_site_seen(self, domain):
         return domain in self.seen_sites()
 
     def failures(self):
         return list(self._read(self.failures_file))
+
+    def compact_sites(self):
+        """Rewrites the address log to one line per domain. Safe: it is a cache, not the authority."""
+        kept, seen = [], set()
+        for row in self._read(self.sites_file):
+            domain = row.get("domain")
+            if not domain or domain in seen:
+                continue
+            seen.add(domain)
+            kept.append(row)
+        before = sum(1 for _ in self._read(self.sites_file))
+        self.sites_file.write_text(
+            "".join(json.dumps(r, ensure_ascii=False) + "\n" for r in kept), encoding="utf-8"
+        )
+        self._sites = seen
+        return before, len(kept)
 
     def seed(self, name_platform_pairs, run_id="seed"):
         for name, platform in name_platform_pairs:

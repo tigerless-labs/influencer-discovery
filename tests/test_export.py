@@ -1,0 +1,88 @@
+import pytest
+
+from outreach.export import HEADERS, SUMMARY_TAB, contactable, row_for, to_workbook
+from outreach.record import Audience, Candidate, Contact, Outcome
+from outreach.store import Store
+
+BAND = (5000, 200000)
+
+
+def person(key, channel="blog", email=True, outcome=Outcome.QUALIFIED, followers=None, in_band=None):
+    c = Candidate(
+        channel=channel, person_key=key, display_name=key.title(),
+        profile_url=f"https://{channel}/{key}", own_site=f"https://{key}.dev",
+        audience=Audience(followers, "followers", "2026-08-07") if followers else None,
+        outcome=outcome,
+    )
+    if email:
+        c.add_contact(Contact(f"{key}@{key}.dev", "email", "site_root"))
+    c.signals["topic_hits"] = ["ai"]
+    c.signals["in_band"] = in_band
+    return c
+
+
+@pytest.fixture
+def store(tmp_path):
+    s = Store(tmp_path)
+    s.record(person("alice", followers=50_000, in_band=True), run_id="r")
+    s.record(person("bob", channel="instagram", outcome=Outcome.OFF_TOPIC), run_id="r")
+    s.record(person("carol", email=False, outcome=Outcome.NO_CONTACT), run_id="r")
+    return s
+
+
+def test_only_people_with_an_address_are_exported(store):
+    names = {c.person_key for people in contactable(store, BAND).values() for c in people}
+    assert names == {"alice", "bob"}
+
+
+def test_rows_are_grouped_by_channel(store):
+    assert set(contactable(store, BAND)) == {"blog", "instagram"}
+
+
+def test_qualified_rows_come_first(store):
+    store.record(person("dave", outcome=Outcome.BUYER), run_id="r")
+    store.record(person("erin", followers=9000, in_band=True), run_id="r")
+    blog = contactable(store, BAND)["blog"]
+    assert blog[0].outcome is Outcome.QUALIFIED
+    assert blog[-1].outcome is Outcome.BUYER
+
+
+def test_a_row_carries_its_address_and_verdict():
+    row = dict(zip(HEADERS, row_for(person("alice", followers=50_000, in_band=True))))
+    assert row["邮箱"] == "alice@alice.dev"
+    assert row["邮箱来源"] == "site_root"
+    assert row["粉丝数"] == 50_000
+    assert row["带内"] == "✅"
+    assert row["判定"] == "合格"
+
+
+def test_an_unmeasured_audience_shows_unknown_not_zero():
+    row = dict(zip(HEADERS, row_for(person("alice"))))
+    assert row["粉丝数"] == ""
+    assert row["带内"] == "未知"
+
+
+def test_the_workbook_has_a_summary_then_one_tab_per_channel(store):
+    book = to_workbook(contactable(store, BAND))
+    assert book.sheetnames == [SUMMARY_TAB, "blog", "instagram"]
+
+
+def test_every_channel_tab_starts_with_the_header_row(store):
+    book = to_workbook(contactable(store, BAND))
+    for name in book.sheetnames[1:]:
+        assert [c.value for c in book[name][1]] == HEADERS
+
+
+def test_the_summary_totals_match_the_tabs(store):
+    by_channel = contactable(store, BAND)
+    book = to_workbook(by_channel)
+    total = book[SUMMARY_TAB].max_row
+    assert book[SUMMARY_TAB].cell(row=total, column=1).value == "合计"
+    assert book[SUMMARY_TAB].cell(row=total, column=2).value == sum(
+        len(p) for p in by_channel.values()
+    )
+
+
+def test_an_empty_store_still_produces_a_summary(tmp_path):
+    book = to_workbook(contactable(Store(tmp_path), BAND))
+    assert book.sheetnames == [SUMMARY_TAB]

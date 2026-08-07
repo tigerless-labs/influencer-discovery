@@ -191,17 +191,11 @@ def test_rejudging_reports_only_what_it_changed(tmp_path):
 
 
 def test_the_replay_fetcher_serves_disk_and_never_the_network(tmp_path, monkeypatch):
-    import hashlib
-    import json as _json
-
     from outreach import fetch as fetch_module
 
     monkeypatch.setattr(fetch_module, "state_dir", lambda: tmp_path)
-    raw = tmp_path / "raw" / "earlier"
-    raw.mkdir(parents=True)
     url = "https://janesblog.dev"
-    digest = hashlib.sha256(url.encode()).hexdigest()[:16]
-    (raw / f"{digest}.json").write_text(_json.dumps({"url": url, "body": "<p>hi</p>"}))
+    fetch_module.RawStore().put(url, "<p>hi</p>", run_id="earlier")
 
     replay = fetch_module.ReplayFetcher()
     assert replay.try_get(url) == "<p>hi</p>"

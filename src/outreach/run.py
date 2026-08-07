@@ -205,7 +205,24 @@ def main():
     parser.add_argument("--rejudge", action="store_true")
     parser.add_argument("--replay", action="store_true")
     parser.add_argument("--append-sheet", action="store_true")
+    parser.add_argument("--export-xlsx", default="")
+    parser.add_argument("--compact", action="store_true")
     args = parser.parse_args()
+
+    if args.compact:
+        from .fetch import RawStore
+
+        store = Store()
+        before, after = store.compact_sites()
+        print(f"sites.jsonl  {before} -> {after} 行")
+        print(f"raw          折叠 {RawStore().migrate()} 个按轮存的文件")
+        return
+
+    if args.export_xlsx:
+        from .export import write_xlsx
+
+        print(write_xlsx(Store(), DEFAULT_BAND, name=args.export_xlsx))
+        return
 
     if args.rejudge:
         for candidate in rejudge(args.run_id, DEFAULT_BAND, replay=args.replay):

@@ -1,5 +1,6 @@
 import hashlib
 import json
+import pathlib
 import threading
 import time
 import urllib.error
@@ -20,6 +21,80 @@ class Blocked(Exception):
     pass
 
 
+class RawStore:
+    """Content-addressed: one address, one blob, however many runs touch it.
+    Each run keeps a manifest of what it saw, so a run is still replayable on its own."""
+
+    def __init__(self, root=None):
+        self.root = pathlib.Path(root) if root else state_dir() / "raw"
+        self.blob_dir = self.root / "blobs"
+
+    @staticmethod
+    def digest_of(url):
+        return hashlib.sha256(url.encode()).hexdigest()[:16]
+
+    def blobs(self):
+        return sorted(self.blob_dir.glob("*.json"))
+
+    def _manifest(self, run_id):
+        return self.root / f"{run_id}.manifest"
+
+    def digests_for(self, run_id):
+        path = self._manifest(run_id)
+        return set(path.read_text(encoding="utf-8").split()) if path.exists() else set()
+
+    def note(self, run_id, digest):
+        if not run_id or digest in self.digests_for(run_id):
+            return
+        path = self._manifest(run_id)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        with path.open("a", encoding="utf-8") as f:
+            f.write(digest + "\n")
+
+    def put(self, url, body, run_id=None):
+        digest = self.digest_of(url)
+        blob = self.blob_dir / f"{digest}.json"
+        if not blob.exists():
+            self.blob_dir.mkdir(parents=True, exist_ok=True)
+            blob.write_text(
+                json.dumps({"url": url, "body": body}, ensure_ascii=False), encoding="utf-8"
+            )
+        self.note(run_id, digest)
+        return blob
+
+    def get(self, url, run_ids=None):
+        digest = self.digest_of(url)
+        if run_ids is not None and not any(digest in self.digests_for(r) for r in run_ids):
+            return None
+        blob = self.blob_dir / f"{digest}.json"
+        if not blob.exists():
+            return None
+        try:
+            return json.loads(blob.read_text(encoding="utf-8")).get("body")
+        except json.JSONDecodeError:
+            return None
+
+    def migrate(self):
+        """Folds the old raw/<run>/<digest>.json layout in. First body wins; nothing is rewritten."""
+        moved = 0
+        for directory in sorted(p for p in self.root.glob("*") if p.is_dir()):
+            if directory == self.blob_dir:
+                continue
+            for old in sorted(directory.glob("*.json")):
+                try:
+                    record = json.loads(old.read_text(encoding="utf-8"))
+                except (json.JSONDecodeError, OSError):
+                    old.unlink(missing_ok=True)
+                    continue
+                self.put(record.get("url", ""), record.get("body", ""), run_id=directory.name)
+                old.unlink(missing_ok=True)
+                moved += 1
+            if not any(directory.iterdir()):
+                directory.rmdir()
+        return moved
+
+
+
 class Fetcher:
     """The one place requests leave from. It can read; it cannot write."""
 
@@ -31,7 +106,7 @@ class Fetcher:
         self._last = {}
         self._lock = threading.Lock()
         self._blocked = set()
-        self.raw_dir = state_dir() / "raw" / run_id
+        self.raw = RawStore()
 
     def _wait(self, host):
         with self._lock:
@@ -41,11 +116,7 @@ class Fetcher:
             self._last[host] = time.monotonic()
 
     def _persist(self, url, body):
-        digest = hashlib.sha256(url.encode()).hexdigest()[:16]
-        self.raw_dir.mkdir(parents=True, exist_ok=True)
-        (self.raw_dir / f"{digest}.json").write_text(
-            json.dumps({"url": url, "body": body}, ensure_ascii=False), encoding="utf-8"
-        )
+        self.raw.put(url, body, run_id=self.run_id)
 
     def get(self, url, headers=None, persist=True):
         parsed = urllib.parse.urlparse(url or "")
@@ -106,22 +177,12 @@ class Fetcher:
 class ReplayFetcher:
     """Serves what earlier runs already paid for. It cannot reach the network at all."""
 
-    def __init__(self, run_ids=None):
-        root = state_dir() / "raw"
-        self.dirs = (
-            [root / r for r in run_ids] if run_ids else sorted(p for p in root.glob("*") if p.is_dir())
-        )
+    def __init__(self, run_ids=None, raw=None):
+        self.raw = raw or RawStore()
+        self.run_ids = run_ids
 
     def try_get(self, url, headers=None):
-        digest = hashlib.sha256(url.encode()).hexdigest()[:16]
-        for directory in self.dirs:
-            path = directory / f"{digest}.json"
-            if path.exists():
-                try:
-                    return json.loads(path.read_text(encoding="utf-8")).get("body")
-                except json.JSONDecodeError:
-                    continue
-        return None
+        return self.raw.get(url, run_ids=self.run_ids)
 
     def try_json(self, url, headers=None):
         body = self.try_get(url)

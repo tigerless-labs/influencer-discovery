@@ -82,3 +82,36 @@ def test_a_corrupt_line_does_not_kill_the_reader(store, tmp_path):
     with (tmp_path / "seen" / "podcast.jsonl").open("a") as f:
         f.write("{not json\n")
     assert len(list(Store(tmp_path).people())) == 1
+
+
+def test_walking_the_same_site_twice_leaves_one_line(store):
+    store.record_site("example.com", outcome="no_contact", run_id="r1")
+    store.record_site("example.com", outcome="found", run_id="r2")
+    assert len(store.raw_site_lines()) == 1
+
+
+def test_two_different_sites_both_land(store):
+    store.record_site("a.com", outcome="found", run_id="r1")
+    store.record_site("b.com", outcome="found", run_id="r1")
+    assert store.seen_sites() == {"a.com", "b.com"}
+
+
+def test_a_fresh_reader_still_skips_a_recorded_site(store, tmp_path):
+    store.record_site("example.com", outcome="found", run_id="r1")
+    other = Store(tmp_path)
+    other.record_site("example.com", outcome="found", run_id="r2")
+    assert len(other.raw_site_lines()) == 1
+
+
+def test_compacting_collapses_an_old_duplicated_log(store):
+    for _ in range(4):
+        store._append(store.sites_file, {"domain": "dup.com", "outcome": "found"})
+    store._sites = None
+    before, after = store.compact_sites()
+    assert (before, after) == (4, 1)
+    assert store.seen_sites() == {"dup.com"}
+
+
+def test_compacting_an_already_clean_log_changes_nothing(store):
+    store.record_site("a.com", outcome="found", run_id="r1")
+    assert store.compact_sites() == (1, 1)
