@@ -44,7 +44,7 @@
 - [newsletter.md](3-personal-site/newsletter.md) —— 类目接口**目录型可穷尽**,feed 给地址
 - [self-hosted.md](3-personal-site/self-hosted.md) —— 四个免 key 的发现源,偏性互补要交叉用
 - [2-blog-platform/](2-blog-platform/index.md) —— 整档五个平台跑得通,全部免 key。
-  **freeCodeCamp News 是其中唯一目录型可穷尽的**,而且作者自有域名的比例最高
+  **freeCodeCamp News 是其中唯一目录型可穷尽的**
 - [youtube.md](1-social/youtube.md) —— 简介直接给邮箱的不到一成,产量靠链接区
 - [website.md](4-distribution/website.md) —— 要投递入口,不要人
 
