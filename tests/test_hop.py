@@ -156,3 +156,31 @@ def test_an_image_filename_is_never_an_address():
 def test_a_role_address_still_loses_to_a_person():
     from outreach.hop import emails_in
     assert emails_in("sponsors@acme.dev or jane@acme.dev") == ["jane@acme.dev"]
+
+
+ASTRA_THEME = (
+    "<html><head><style>.ast-masthead-custom-menu-items{display:flex}</style></head>"
+    "<body><h1>GeePaw Hill</h1><p>essays on software</p></body></html>"
+)
+
+
+def test_a_css_class_name_is_not_a_masthead():
+    from outreach.domains import looks_like_a_multi_author_publication
+    assert looks_like_a_multi_author_publication(ASTRA_THEME) is False
+
+
+def test_a_real_masthead_in_prose_still_counts():
+    from outreach.domains import looks_like_a_multi_author_publication
+    assert looks_like_a_multi_author_publication("<body><h2>Masthead</h2></body>") is True
+
+
+def test_sponsorship_wording_inside_a_script_block_is_not_a_sponsorship_offer():
+    from outreach.hop import mentions_sponsorship
+    assert mentions_sponsorship('<script>var s="sponsored by acme";</script>') is False
+    assert mentions_sponsorship("<p>Sponsorship inquiries welcome</p>") is True
+
+
+def test_a_product_pitch_hidden_in_markup_does_not_condemn_a_blog():
+    from outreach.buyer import looks_like_a_product_site
+    hidden = '<style>.pricing{}</style><script>trackEvent("request a demo")</script><h1>Jane</h1>'
+    assert looks_like_a_product_site(hidden) is False

@@ -3,6 +3,7 @@ import tomllib
 from functools import lru_cache
 from urllib.parse import urlparse
 
+from .page import visible_text
 from .paths import repo_config_dir
 
 TWO_PART_SUFFIX = {
@@ -58,7 +59,9 @@ def is_institution(url):
 
 def looks_like_a_multi_author_publication(html):
     authors = {a.lower() for a in AUTHOR_LINK.findall(html or "")}
-    return len(authors) >= _config()["multi_author_threshold"] or bool(MASTHEAD.search(html or ""))
+    return len(authors) >= _config()["multi_author_threshold"] or bool(
+        MASTHEAD.search(visible_text(html))
+    )
 
 
 def is_a_persons_own_site(url):

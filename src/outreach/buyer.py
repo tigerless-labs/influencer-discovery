@@ -1,5 +1,7 @@
 import re
 
+from .page import visible_text
+
 PRODUCT = [
     re.compile(p, re.I)
     for p in (
@@ -19,7 +21,7 @@ AUDIENCE = [
 
 def looks_like_a_product_site(html):
     """Conservative on purpose: a wrong buyer call silently drops a real target."""
-    text = html or ""
+    text = visible_text(html)
     product_hits = sum(bool(p.search(text)) for p in PRODUCT)
     audience_hits = sum(bool(p.search(text)) for p in AUDIENCE)
     return product_hits >= 2 and audience_hits == 0

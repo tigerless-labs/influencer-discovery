@@ -2,6 +2,7 @@ import re
 from urllib.parse import urlparse
 
 from .domains import is_a_shared_mailbox, registrable_domain
+from .page import visible_text
 
 EMAIL = re.compile(r"(?<!@)\b[A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}")
 
@@ -43,8 +44,8 @@ SPONSOR_TEXT = re.compile(
 )
 
 
-def mentions_sponsorship(text):
-    return bool(SPONSOR_TEXT.search(text or ""))
+def mentions_sponsorship(html):
+    return bool(SPONSOR_TEXT.search(visible_text(html)))
 
 def is_an_inbox(address):
     if not address or ASSET_SUFFIX.search(address):
