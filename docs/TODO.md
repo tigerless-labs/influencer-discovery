@@ -36,6 +36,10 @@
       **免认证那一档只写了结论,各渠道的具体入口未跑通。**
 - [ ] `reference/methodology/` 里除已实测的几份外仍是骨架,正文混着未验证的经验断言
       (页面结构、字段名、路径名)。用之前先核实。
+- [ ] 建 `reference/scripts/` 收数据层的能力探针,计划见
+      [2026-08-07-reference-scripts.md](../plans/2026-08-07-reference-scripts.md)。
+      两处待裁决:数据层正文能否链探针(倾向不能);渠道探针等并行的 `channels/` 重写落地再补。
+      现有 `data/experiments/` 里的 reddit 脚本已被 `src/` 覆盖,不迁移。
 
 ## 渠道分类收窄的余项
 
