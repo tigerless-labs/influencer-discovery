@@ -43,6 +43,10 @@ institutions = [
   "politico.com", "theinformation.com", "404media.co", "restofworld.org", "githubstatus.com", "thenextweb.com",
   "atlasobscura.com", "twincities.com", "pioneerpress.com", "mashable.com",
   "gizmodo.com", "slashdot.org", "hackernoon.com", "freecodecamp.org", "smithsonianmag.com",
+  "tomshardware.com", "fortune.com", "the-independent.com", "independent.co.uk",
+  "venturebeat.com", "theregister.com", "zdnet.com", "computerworld.com", "infoworld.com",
+  "sciencealert.com", "livescience.com", "phys.org", "newscientist.com", "spectrum.ieee.org",
+  "businesstoday.in", "indiatimes.com", "scmp.com", "japantimes.co.jp", "aljazeera.com",
 ]
 
 # 多作者刊物的判据:根页上不同作者链接达到这个数,就按刊物处理

@@ -86,6 +86,8 @@ class Run:
                 qualified += 1
                 self.qualified_so_far += 1
 
+        if getattr(adapter, "unavailable", None):
+            self.report.note(f"`{name}` 跳过:{adapter.unavailable}")
         met = qualified >= self.per_channel
         stop = "凑够" if met else ("翻到底" if adapter.form == "directory" else "连续无新")
         shortfall = None if met else (

@@ -80,3 +80,13 @@ terms = [
   "generative ai", "ai news", "ai automation", "chatgpt tutorial", "claude ai",
   "ai for developers", "ai productivity", "rag tutorial", "fine tuning llm",
 ]
+
+[twitter-x]
+methodology = "1-social/twitter-x.md"
+filters = "lang:en -filter:replies"
+per_term = 60
+terms = [
+  "ai agents", "llm", "prompt engineering", "ai tools", "machine learning",
+  "generative ai", "ai coding", "rag", "fine-tuning", "ai newsletter",
+  "ai research", "vibe coding", "claude code", "ai automation",
+]

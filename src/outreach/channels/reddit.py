@@ -4,6 +4,7 @@ import subprocess
 from ..domains import is_a_persons_own_site
 from ..domains import registrable_domain
 from ..record import Candidate
+from ..session import NoSession, rdt_session_ready
 from .base import Channel, register
 
 
@@ -11,8 +12,14 @@ from .base import Channel, register
 class Reddit(Channel):
     name = "reddit"
     form = "search"
+    unavailable = None
 
     def discover(self, limit):
+        try:
+            rdt_session_ready()
+        except NoSession as e:
+            self.unavailable = str(e)
+            return []
         found = {}
         for subreddit in self.config.get("subreddits", []):
             if len(found) >= limit:

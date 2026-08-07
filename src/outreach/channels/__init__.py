@@ -10,6 +10,7 @@ from . import (  # noqa: F401
     reddit,
     selfhosted,
     threads,
+    twitter_x,
     tiktok,
     wordpress,
     youtube,
