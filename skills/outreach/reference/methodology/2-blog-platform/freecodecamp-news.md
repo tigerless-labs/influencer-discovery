@@ -12,7 +12,8 @@
 GET https://www.freecodecamp.org/news/sitemap-authors.xml
 ```
 
-免 key、免登录,**一次返回 559 个作者页地址,不翻页**。这就是全量,不必从文章反推作者。
+免 key、免登录,**一次返回五百多个作者页地址,不翻页**。这就是全量,不必从文章反推作者。
+**sitemap 里没有 `lastmod`**,按最近发文时间筛这条路在这个入口上不存在。
 
 首页与标签页也能给作者(各不到 20 个),**只在要按垂类切时才用** ——
 要全量就直接取 sitemap。
@@ -23,8 +24,12 @@ GET https://www.freecodecamp.org/news/sitemap-authors.xml
 GET https://www.freecodecamp.org/news/author/<slug>/
 ```
 
-服务端渲染,12 个抽样全部取得回。**12/12 有社交外链,12/12 有自有域名** ——
-个人站、GitHub、LinkedIn、X、YouTube、Instagram、StackOverflow 都直接列在页面上。
+服务端渲染。**外链取 ld+json 里那块 `Person` 的 `sameAs`**,不要通配抓页面上的链接 ——
+页面本身挂着 freeCodeCamp 自己的社交账号、应用商店与 CDN 地址,通配抓会把平台当成人。
+姓名与简介也在同一块里。
+
+**`sameAs` 里的地址不保证带协议头**(见过裸的 `iriscode.co`),
+交给取数层之前先筛掉不是 http(s) 的。
 
 **页面上没有邮箱**,一个 mailto 都没有。邮箱全部来自
 [第二跳](../_shared/landing-page-two-hop.md),而这里的落点是自有域名,

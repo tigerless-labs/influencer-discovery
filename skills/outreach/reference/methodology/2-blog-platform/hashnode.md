@@ -10,27 +10,30 @@
 ### ① 标签页
 
 ```
-GET https://hashnode.com/n/<tag>
+GET https://hashnode.com/n/<tag>   → 301 https://hashnode.com/tag/<tag>
 ```
 
-服务端渲染,**一页给 20 个作者 handle**(`hashnode.com/@<handle>` 的形式),不需要执行 JS。
-三个标签一轮拿到 19 个不同的人 —— **跨标签重复很重**,铺量要靠换标签,且收益递减。
+服务端渲染,handle 以 `href="/@<handle>"` 的形式直接在 HTML 里,不需要执行 JS。
+**跨标签重复很重**,铺量要靠换标签,且收益递减。
 
-### ② 资料页
+### ② 资料页取 schema.org 的 Person
 
 ```
 GET https://hashnode.com/@<handle>
 ```
 
-服务端渲染,12 个抽样**全部取得回**。
+**要的东西不在普通的 ld+json script 标签里。** 页面顶部那两块是平台自己的 WebSite 与
+Organization;**人的那块 `ProfilePage` 藏在 Next 的转义 payload 里**,`mainEntity` 就是
+Person,给姓名与他自己声明的外链(`sameAs`)。
 
-- **12/12 有社交外链**(GitHub · LinkedIn · X 之类)。
-- **只有 4/12 有自有域名。** 三分之二的人在平台之外没有站,
-  按[这一档的第一道筛](index.md)就该在这里落下去。
-- **页面上唯一的 mailto 是平台自己的支持信箱**,属于职能地址,不算数
-  (见 [landing-page-two-hop.md](../_shared/landing-page-two-hop.md))。
+**自有域名有两个来源,要合起来看**:`sameAs`,以及 `og:description` 那条简介里的裸链接。
+只读简介会漏掉大半 —— 实测只读简介 72 个人里只剩 2 个。
 
-那三分之一有自有域名的走第二跳,其余进社交兜底。
+**不要从页面里通配抓外链。** 侧栏挂着平台自己的推广位和**别人**的账号,
+通配抓会把不相干的人当成他的。
+
+**页面上唯一的 mailto 是平台自己的支持信箱**,属于职能地址,不算数
+(见 [landing-page-two-hop.md](../_shared/landing-page-two-hop.md))。
 
 ## 赞助通道是另一回事
 
@@ -50,4 +53,4 @@ GET https://hashnode.com/@<handle>
 
 - 赞助通道有没有公开可翻的创作者目录 —— 有的话它比标签页强,因为**列在那里的人本身就是卖方**。
 - 标签页能不能翻页,一个标签的总量是多少。
-- 那 4/12 的自有域名走完第二跳的邮箱命中率。
+- 合起 `sameAs` 与简介之后的自有域名比例,以及它们走完第二跳的邮箱命中率。
