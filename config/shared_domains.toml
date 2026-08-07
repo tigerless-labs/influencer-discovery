@@ -10,6 +10,8 @@ platform_hosts = [
   "vercel.app", "pages.dev", "bit.ly", "linktr.ee", "beacons.ai", "carrd.co", "micro.blog",
   "mastodon.social", "codeberg.org", "sourcehut.org", "hashnode.dev", "hashnode.com",
   "dev.to", "paragraph.xyz", "write.as", "bearblog.dev", "tumblr.com",
+  "redd.it", "imgur.com", "youtu.be", "buymeacoffee.com", "ko-fi.com", "patreon.com",
+  "gumroad.com", "substack.app", "t.co", "goo.gl", "tinyurl.com",
 ]
 
 # 大站与机构:发现阶段就不该当成某个人的主场
