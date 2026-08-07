@@ -18,6 +18,9 @@
       合格行已 stage 在 `~/.local/share/outreach/pending-sheet-rows.jsonl`,
       重新授权后跑 `--append-sheet` 即可。**先对副本跑通再碰正式表这条还没做。**
 - [ ] 补 `docs/testing.md` 与测试映射;需要时再建 `docs/bugs/`、`dev_skills/`、`workflows/`。
+- [ ] **前两档还有三个渠道没有 adapter** —— YouTube、X、Threads。前者免 key
+      (频道 about 页在初始 HTML 里),卡在发现那一步没实现;后两个要付费/认证取数层。
+      「每档每渠道 10 条」在补齐之前只覆盖得到 1-social 的四个。
 
 ## skill(`skills/outreach/`)
 

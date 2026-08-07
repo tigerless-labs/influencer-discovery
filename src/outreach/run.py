@@ -13,6 +13,7 @@ from .store import Store
 from .walk import SecondHop
 
 DEFAULT_BAND = (5000, 100000)
+DEFAULT_POOL_FACTOR = 25
 
 
 def load_config(name):
@@ -20,10 +21,31 @@ def load_config(name):
     return tomllib.loads(path.read_text(encoding="utf-8"))
 
 
+def tier_of(entry):
+    """The methodology directory owns tier membership; this only reads it back."""
+    return int(entry["methodology"].split("/")[0].split("-")[0])
+
+
+def select(config, names="", tiers=""):
+    wanted = [n.strip() for n in names.split(",") if n.strip()]
+    wanted_tiers = {int(t) for t in tiers.split(",") if t.strip()}
+    picked = []
+    for name, entry in config.items():
+        if not isinstance(entry, dict):
+            continue
+        if wanted and name not in wanted:
+            continue
+        if wanted_tiers and tier_of(entry) not in wanted_tiers:
+            continue
+        picked.append(name)
+    return picked
+
+
 class Run:
-    def __init__(self, run_id, per_channel, band, priority, store=None):
+    def __init__(self, run_id, per_channel, band, priority, store=None, pool_factor=DEFAULT_POOL_FACTOR):
         self.run_id = run_id
         self.per_channel = per_channel
+        self.pool_factor = pool_factor
         self.gate = Gate(band)
         self.store = store or Store()
         self.fetcher = Fetcher(run_id, store=self.store)
@@ -32,12 +54,13 @@ class Run:
 
     def channel(self, name, config):
         adapter = channel_registry.build(name, self.fetcher, config)
-        raw = adapter.discover(self.per_channel * 4)
+        raw = adapter.discover(self.per_channel * self.pool_factor)
         fresh = [c for c in raw if not self.store.is_seen(c.dedup_key)]
 
         judged = []
+        qualified = 0
         for candidate in fresh:
-            if len(judged) >= self.per_channel:
+            if qualified >= self.per_channel:
                 break
             needs_signal = candidate.audience is None or candidate.audience.unit != "followers"
             if candidate.own_site and (not candidate.email or needs_signal):
@@ -48,11 +71,15 @@ class Run:
             candidate.signals["band_applied"] = verdict.band_applied
             self.store.record(candidate, run_id=self.run_id)
             judged.append(candidate)
+            if verdict.writes_to_sheet:
+                qualified += 1
 
-        stop = "凑够" if len(judged) >= self.per_channel else (
-            "翻到底" if adapter.form == "directory" else "连续无新"
+        met = qualified >= self.per_channel
+        stop = "凑够" if met else ("翻到底" if adapter.form == "directory" else "连续无新")
+        shortfall = None if met else (
+            "候选不足" if len(fresh) < self.per_channel else "闸门卡住"
         )
-        self.report.add(name, judged, stop, self.per_channel)
+        self.report.add(name, judged, stop, self.per_channel, shortfall=shortfall)
         return judged
 
     def qualified(self):
@@ -75,6 +102,28 @@ def summarise(run_id, per_channel, band, priority, store=None):
     for channel, candidates in sorted(by_channel.items()):
         report.add(channel, candidates, "见各轮报告", per_channel)
     return report
+
+
+def rejudge(run_id, band, store=None):
+    """The log is a cache, not the authority: a corrected judgement supersedes the stored one."""
+    from .hop import is_an_inbox
+
+    store = store or Store()
+    gate = Gate(band)
+    corrected = []
+    for candidate in store.people():
+        if candidate.outcome is None:
+            continue
+        before = (candidate.outcome, [c.value for c in candidate.contacts])
+        candidate.contacts = [c for c in candidate.contacts if is_an_inbox(c.value)]
+        verdict = gate.judge(candidate)
+        candidate.outcome = verdict.outcome
+        candidate.signals["verdict_reason"] = verdict.reason
+        candidate.signals["band_applied"] = verdict.band_applied
+        if before != (candidate.outcome, [c.value for c in candidate.contacts]):
+            store.record(candidate, run_id=run_id)
+            corrected.append(candidate)
+    return corrected
 
 
 def append_to_sheet(store=None):
@@ -107,11 +156,18 @@ def append_to_sheet(store=None):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--channels", default="")
+    parser.add_argument("--tiers", default="")
     parser.add_argument("--per-channel", type=int, default=10)
     parser.add_argument("--run-id", default=date.today().isoformat())
     parser.add_argument("--summarise", action="store_true")
+    parser.add_argument("--rejudge", action="store_true")
     parser.add_argument("--append-sheet", action="store_true")
     args = parser.parse_args()
+
+    if args.rejudge:
+        for candidate in rejudge(args.run_id, DEFAULT_BAND):
+            print(f"{candidate.channel}/{candidate.person_key} -> {candidate.outcome.value}")
+        return
 
     if args.append_sheet:
         staged, problem = append_to_sheet()
@@ -125,9 +181,15 @@ def main():
         return
 
     config = load_config("channels.toml")
-    names = [n for n in (args.channels.split(",") if args.channels else config) if n in config]
+    names = select(config, names=args.channels, tiers=args.tiers)
 
-    run = Run(args.run_id, args.per_channel, DEFAULT_BAND, "接单意愿优先于规模")
+    run = Run(
+        args.run_id,
+        args.per_channel,
+        DEFAULT_BAND,
+        "接单意愿优先于规模",
+        pool_factor=config.get("pool_factor", DEFAULT_POOL_FACTOR),
+    )
     for name in names:
         try:
             run.channel(name, config[name])

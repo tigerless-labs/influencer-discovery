@@ -19,7 +19,7 @@ class Report:
         self.channels = {}
         self.notes = []
 
-    def add(self, channel, candidates, stop_reason, planned, note=None):
+    def add(self, channel, candidates, stop_reason, planned, note=None, shortfall=None):
         self.channels[channel] = {
             "planned": planned,
             "crawled": len(candidates),
@@ -27,6 +27,7 @@ class Report:
             "qualified": [c for c in candidates if c.outcome is Outcome.QUALIFIED],
             "unverified": [c for c in candidates if c.outcome is Outcome.AUDIENCE_UNVERIFIED],
             "stop": stop_reason,
+            "shortfall": shortfall,
             "note": note,
         }
 
@@ -34,11 +35,14 @@ class Report:
         self.notes.append(text)
 
     def _summary_table(self):
-        lines = ["| 渠道 | 计划 | 实际抓取 | 合格 | 停止原因 |", "|---|---|---|---|---|"]
+        lines = [
+            "| 渠道 | 目标(合格) | 实际判定 | 合格 | 停止原因 | 差在哪 |",
+            "|---|---|---|---|---|---|",
+        ]
         for name, block in self.channels.items():
             lines.append(
                 f"| {name} | {block['planned']} | {block['crawled']} "
-                f"| {len(block['qualified'])} | {block['stop']} |"
+                f"| {len(block['qualified'])} | {block['stop']} | {block.get('shortfall') or '—'} |"
             )
         return "\n".join(lines)
 
@@ -87,7 +91,7 @@ class Report:
             "",
             "## 本轮的三件事",
             "",
-            f"- **要多少** —— {self.ask['per_channel']} 条 / 渠道,YouTube 除外。",
+            f"- **要多少** —— **合格** {self.ask['per_channel']} 条 / 渠道;判不合格的人不消耗这个数。",
             f"- **符合要求** —— 粉丝数 {self.ask['band'][0]}–{self.ask['band'][1]};"
             "平台不给粉丝数的渠道改判自有站上有没有招商页。",
             f"- **优先什么** —— {self.ask['priority']}。",

@@ -1,34 +1,57 @@
 # 渠道清单与抓取参数。随代码走。
 # 随安装走的值(目标表标识、凭据)住 ~/.config/outreach/,不在这里。
+#
+# `methodology` 指向 skills/outreach/reference/methodology/ 下的那份文档。
+# 档位由这条路径推出 —— 目录名是档位的唯一权威源,这里不存第二份档位号。
+
+# 候选池取目标数的多少倍。判不合格的人不消耗目标数,池子要够深才凑得够。
+pool_factor = 25
 
 [podcast]
+methodology = "3-personal-site/podcast.md"
 terms = ["indie hacker", "developer tools", "ai coding", "software engineering daily", "product builders"]
 
 [newsletter]
+methodology = "3-personal-site/newsletter.md"
 categories = ["Technology", "Business"]
 max_pages = 2
 
 [blog]
+methodology = "3-personal-site/self-hosted.md"
 
 [devto]
+methodology = "2-blog-platform/dev-to.md"
 tags = ["ai", "productivity", "devtools", "programming", "opensource", "webdev"]
 
+[freecodecamp]
+methodology = "2-blog-platform/freecodecamp-news.md"
+
+[hashnode]
+methodology = "2-blog-platform/hashnode.md"
+tags = ["ai", "productivity", "developer-tools", "programming", "web-development"]
+
 [wordpress]
+methodology = "2-blog-platform/wordpress-com.md"
 tags = ["technology", "productivity", "software", "writing"]
 
 [microblog]
+methodology = "2-blog-platform/micro-blog.md"
 
 [mastodon]
+methodology = "1-social/mastodon.md"
 hosts = ["mastodon.social", "fosstodon.org", "hachyderm.io", "indieweb.social"]
 max_offset = 240
 
 [reddit]
+methodology = "1-social/reddit.md"
 subreddits = ["SideProject", "IndieBiz", "selfhosted", "webdev"]
 
 [instagram]
+methodology = "1-social/instagram.md"
 terms = ["notion tips", "productivity coach", "ai tools"]
 credit_budget = 11
 
 [tiktok]
+methodology = "1-social/tiktok.md"
 terms = ["ai tools", "productivity tips", "coding tips"]
 credit_budget = 11

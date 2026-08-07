@@ -140,8 +140,12 @@ skill 从哪个目录触发都要读到同一份判重库,所以状态是 per-us
 
 ## 怎么跑
 
+`--per-channel` 是**合格行数**,不是抓取数:判不合格的人不消耗这个数。
+`--tiers` 按档位选范围,档位取自 `config/channels.toml` 里指向 methodology 的那条路径。
+
 ```bash
-python3 -m outreach.run --channels podcast,newsletter,devto,mastodon,blog,wordpress,microblog,reddit --per-channel 10
+python3 -m outreach.run --tiers 1,2 --per-channel 10     # 只跑前两档
+python3 -m outreach.run --channels devto,mastodon --per-channel 10
 python3 -m outreach.run --summarise          # 汇总视图:按渠道分的可联系列表
 python3 -m outreach.run --append-sheet       # 只追加合格行;表头对不上即中止
 ```
