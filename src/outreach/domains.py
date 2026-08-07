@@ -12,17 +12,23 @@ TWO_PART_SUFFIX = {
 }
 
 
-def registrable_domain(url):
+def host_of(url):
     if not url:
         return None
     host = urlparse(url if "//" in url else f"//{url}").netloc.lower()
     host = host.split("@")[-1].split(":")[0].removeprefix("www.")
+    return host or None
+
+
+def registrable_domain(url):
+    host = host_of(url)
     if not host or "." not in host or " " in host:
         return None
     parts = host.split(".")
     if len(parts) >= 3 and ".".join(parts[-2:]) in TWO_PART_SUFFIX:
         return ".".join(parts[-3:])
     return ".".join(parts[-2:])
+
 
 AUTHOR_LINK = re.compile(
     r'href=["\'][^"\']*/(?:author|authors|by|contributor|contributors|staff|writers)/'
@@ -38,23 +44,24 @@ def _config():
     return tomllib.loads(path.read_text(encoding="utf-8"))
 
 
-def _matches(domain, names):
-    return any(domain == n or domain.endswith(f".{n}") for n in names)
+def _matches(host, names):
+    """A shared host is matched by label, never by substring: t.co must not swallow troyhunt.com."""
+    return any(host == n or host.endswith(f".{n}") for n in names)
+
+
+def _is_listed(url, listing):
+    host = host_of(url)
+    if not host:
+        return False
+    return _matches(host, listing) or _matches(registrable_domain(url) or "", listing)
 
 
 def is_platform_host(url):
-    domain = registrable_domain(url)
-    if not domain:
-        return False
-    host = (url or "").lower()
-    return _matches(domain, _config()["platform_hosts"]) or any(
-        p in host for p in _config()["platform_hosts"]
-    )
+    return _is_listed(url, _config()["platform_hosts"])
 
 
 def is_institution(url):
-    domain = registrable_domain(url)
-    return bool(domain) and _matches(domain, _config()["institutions"])
+    return _is_listed(url, _config()["institutions"])
 
 
 def looks_like_a_multi_author_publication(html):

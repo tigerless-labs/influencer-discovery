@@ -193,3 +193,24 @@ def test_a_url_with_no_scheme_is_a_failed_fetch_not_a_crash(tmp_path, monkeypatc
     fetcher = fetch_module.Fetcher("test")
     assert fetcher.try_get("iriscode.co") is None
     assert fetcher.try_get("file:///etc/passwd") is None
+
+
+def test_a_shortener_in_the_list_does_not_swallow_a_real_domain():
+    from outreach.domains import is_a_persons_own_site, is_platform_host
+    assert is_platform_host("https://t.co/abc") is True
+    assert is_platform_host("https://troyhunt.com") is False
+    assert is_platform_host("https://enderahmetyurt.com") is False
+    assert is_a_persons_own_site("https://enderahmetyurt.com") is True
+
+
+def test_a_platform_subdomain_is_still_the_platform():
+    from outreach.domains import is_platform_host
+    assert is_platform_host("https://podcasters.spotify.com/pod/show/x") is True
+    assert is_platform_host("https://someone.github.io") is True
+    assert is_platform_host("https://someone.hashnode.dev") is True
+
+
+def test_a_domain_that_merely_ends_in_a_listed_word_is_not_listed():
+    from outreach.domains import is_institution
+    assert is_institution("https://notgithub.com") is False
+    assert is_institution("https://github.com/x") is True
