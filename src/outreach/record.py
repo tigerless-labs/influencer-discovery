@@ -10,6 +10,7 @@ class Outcome(Enum):
     BUYER = "buyer"
     AUDIENCE_OUT_OF_BAND = "audience_out_of_band"
     AUDIENCE_UNVERIFIED = "audience_unverified"
+    OFF_TOPIC = "off_topic"
 
 
 @dataclass

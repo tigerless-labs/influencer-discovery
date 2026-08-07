@@ -9,6 +9,7 @@ from . import (  # noqa: F401
     podcast,
     reddit,
     selfhosted,
+    threads,
     tiktok,
     wordpress,
 )

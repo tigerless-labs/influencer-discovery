@@ -18,6 +18,7 @@ max_pages = 2
 
 [blog]
 methodology = "3-personal-site/self-hosted.md"
+terms = ["AI", "LLM", "AI agents", "machine learning", "prompt engineering", "inference", "fine-tuning", "RAG"]
 
 [devto]
 methodology = "2-blog-platform/dev-to.md"
@@ -48,10 +49,15 @@ subreddits = ["SideProject", "IndieBiz", "selfhosted", "webdev"]
 
 [instagram]
 methodology = "1-social/instagram.md"
-terms = ["notion tips", "productivity coach", "ai tools"]
-credit_budget = 11
+terms = ["ai", "ai agent", "ai creator", "llm", "prompt engineering", "machine learning", "ai art", "genai"]
+credit_budget = 400
 
 [tiktok]
 methodology = "1-social/tiktok.md"
-terms = ["ai tools", "productivity tips", "coding tips"]
-credit_budget = 11
+terms = ["ai tools", "ai agents", "llm", "prompt engineering", "ai coding", "machine learning"]
+credit_budget = 400
+
+[threads]
+methodology = "1-social/threads.md"
+terms = ["ai agents", "ai tools", "llm", "prompt engineering", "ai coding"]
+credit_budget = 400

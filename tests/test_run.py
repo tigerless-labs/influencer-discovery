@@ -10,14 +10,15 @@ from outreach.record import Audience, Candidate, Contact, Outcome
 from outreach.run import Run, load_config, select, tier_of
 from outreach.store import Store
 
-BAND = (5000, 100000)
+BAND = (5000, 200000)
 
 
-def person(key, followers=None, email=True, buyer=False):
+def person(key, followers=None, email=True, buyer=False, on_topic=True):
     c = Candidate(
         channel="fake",
         person_key=key,
         display_name=key,
+        bio="writes about AI agents and LLM tooling" if on_topic else "sourdough and gardening",
         audience=Audience(followers, "followers", "2026-08-07") if followers else None,
     )
     if email:
@@ -54,7 +55,7 @@ def runner(tmp_path, monkeypatch):
 
 
 def test_the_target_counts_qualified_rows_not_crawled_ones(runner):
-    duds = [person(f"dud{i}", followers=10) for i in range(20)]
+    duds = [person(f"dud{i}", on_topic=False) for i in range(20)]
     good = [person(f"good{i}", followers=9000) for i in range(3)]
     block = runner(FakePool(duds + good), per_channel=3)
     assert len(block["qualified"]) == 3
@@ -70,22 +71,22 @@ def test_it_stops_the_moment_the_target_is_met(runner):
 
 
 def test_a_dry_search_pool_stops_as_no_new_rather_than_met(runner):
-    block = runner(FakePool([person(f"dud{i}", followers=10) for i in range(5)]), per_channel=3)
+    block = runner(FakePool([person(f"dud{i}", on_topic=False) for i in range(5)]), per_channel=3)
     assert len(block["qualified"]) == 0
     assert block["stop"] == "连续无新"
 
 
 def test_a_dry_directory_pool_stops_as_exhausted(runner):
-    pool = FakePool([person(f"dud{i}", followers=10) for i in range(5)], form="directory")
+    pool = FakePool([person(f"dud{i}", on_topic=False) for i in range(5)], form="directory")
     block = runner(pool, per_channel=3)
     assert block["stop"] == "翻到底"
 
 
 def test_a_shortfall_says_whether_people_or_evidence_ran_out(runner):
-    thin = runner(FakePool([person("only", followers=10)]), per_channel=3)
+    thin = runner(FakePool([person("only", on_topic=False)]), per_channel=3)
     assert thin["shortfall"] == "候选不足"
 
-    plenty = runner(FakePool([person(f"d{i}", followers=10) for i in range(30)]), per_channel=3)
+    plenty = runner(FakePool([person(f"d{i}", on_topic=False) for i in range(30)]), per_channel=3)
     assert plenty["shortfall"] == "闸门卡住"
 
 
@@ -106,7 +107,7 @@ def test_people_already_in_the_log_do_not_consume_the_target(runner, tmp_path):
 
 
 def test_the_pool_asked_for_is_a_multiple_of_the_target(runner):
-    pool = FakePool([person(f"d{i}", followers=10) for i in range(200)])
+    pool = FakePool([person(f"d{i}", on_topic=False) for i in range(200)])
     runner(pool, per_channel=3)
     assert pool.asked_for > 3
 

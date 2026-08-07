@@ -8,8 +8,8 @@ from .scrapecreators import OutOfCredits, ScrapeCreators
 
 
 @register
-class TikTok(Channel):
-    name = "tiktok"
+class Threads(Channel):
+    name = "threads"
     form = "search"
     audience_unit = "followers"
 
@@ -23,11 +23,11 @@ class TikTok(Channel):
             if len(handles) >= limit * 2:
                 break
             try:
-                data = provider.call("v1/tiktok/search/users", query=urllib.parse.quote(term))
+                data = provider.call("v1/threads/search/users", query=urllib.parse.quote(term))
             except OutOfCredits:
                 break
-            for user in self._users(data):
-                handle = user.get("unique_id") or user.get("uniqueId")
+            for user in (data or {}).get("users", []):
+                handle = user.get("username")
                 if handle and handle not in handles and not self.already_have(handle):
                     handles.append(handle)
 
@@ -43,39 +43,26 @@ class TikTok(Channel):
                 found.append(candidate)
         return found
 
-    @staticmethod
-    def _users(data):
-        if not data:
-            return []
-        for key in ("users", "user_list", "search_item_list", "results"):
-            block = data.get(key)
-            if isinstance(block, dict):
-                block = list(block.values())
-            if isinstance(block, list):
-                return [b.get("user_info") or b.get("user") or b for b in block if isinstance(b, dict)]
-        return []
-
     def _profile(self, provider, handle):
-        data = provider.call("v1/tiktok/profile", handle=urllib.parse.quote(handle))
+        """The search never carries a follower count; that is why the profile call cannot be skipped."""
+        data = provider.call("v1/threads/profile", handle=urllib.parse.quote(handle))
         if not data:
             return None
-        user = data.get("user") or {}
-        stats = data.get("stats") or {}
-        bio = user.get("signature") or ""
-        link = user.get("bioLink")
+        bio = data.get("biography") or ""
+        links = [
+            link.get("url") if isinstance(link, dict) else link
+            for link in data.get("bio_links") or []
+        ]
+        links = [l for l in links if isinstance(l, str) and l.startswith("http")]
         candidate = Candidate(
             channel=self.name,
             person_key=handle,
-            display_name=user.get("nickname") or handle,
-            profile_url=f"https://www.tiktok.com/@{handle}",
-            own_site=link.get("link") if isinstance(link, dict) else link,
-            audience=Audience(stats.get("followerCount") or 0, self.audience_unit, "2026-08-07"),
+            display_name=data.get("full_name") or handle,
+            profile_url=f"https://www.threads.net/@{handle}",
+            own_site=data.get("external_url") or (links[0] if links else None),
+            audience=Audience(data.get("follower_count") or 0, self.audience_unit, "2026-08-07"),
             bio=bio,
-            payload={
-                "videoCount": stats.get("videoCount"),
-                "heartCount": stats.get("heartCount"),
-                "verified": user.get("verified"),
-            },
+            payload={"is_verified": data.get("is_verified")},
         )
         for address in emails_in(bio):
             candidate.add_contact(Contact(address, "email", "platform_bio"))

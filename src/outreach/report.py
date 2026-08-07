@@ -9,6 +9,7 @@ ZH = {
     Outcome.BUYER: "买方,不进表",
     Outcome.AUDIENCE_OUT_OF_BAND: "规模不在带内",
     Outcome.AUDIENCE_UNVERIFIED: "规模未核实",
+    Outcome.OFF_TOPIC: "主题不符",
 }
 
 
@@ -59,13 +60,16 @@ class Report:
         for name, block in self.channels.items():
             if not block["qualified"]:
                 continue
-            rows = ["| 名字 | 邮箱 | 来源 | 受众 | 站点 |", "|---|---|---|---|---|"]
+            rows = ["| 名字 | 邮箱 | 来源 | 粉丝 | 带内 | 主题证据 | 站点 |",
+                    "|---|---|---|---|---|---|---|"]
             for c in block["qualified"]:
                 source = next((x.source for x in c.contacts if x.kind == "email"), "")
-                audience = f"{c.audience.value} {c.audience.unit}" if c.audience else "—"
+                audience = f"{c.audience.value:,}" if c.audience and c.audience.value else "未知"
+                in_band = {True: "✅", False: "带外", None: "—"}[c.signals.get("in_band")]
+                evidence = ", ".join((c.signals.get("topic_hits") or [])[:4])
                 rows.append(
-                    f"| {c.display_name} | {c.email} | {source} | {audience} "
-                    f"| {c.own_site or c.profile_url or ''} |"
+                    f"| {c.display_name} | {c.email} | {source} | {audience} | {in_band} "
+                    f"| {evidence} | {c.own_site or c.profile_url or ''} |"
                 )
             blocks.append(f"### {name}\n\n" + "\n".join(rows))
         return "\n\n".join(blocks) or "本轮没有合格行。"
@@ -91,10 +95,10 @@ class Report:
             "",
             "## 本轮的三件事",
             "",
-            f"- **要多少** —— **合格** {self.ask['per_channel']} 条 / 渠道;判不合格的人不消耗这个数。",
-            f"- **符合要求** —— 粉丝数 {self.ask['band'][0]}–{self.ask['band'][1]};"
-            "平台不给粉丝数的渠道改判自有站上有没有招商页。",
-            f"- **优先什么** —— {self.ask['priority']}。",
+            f"- **要多少** —— **合格合计 {self.ask['total']} 条**(跨渠道),每渠道上限 {self.ask['per_channel']}。",
+            f"- **符合要求** —— **{self.ask['subject'].upper()} 相关** 且拿得到联系方式。"
+            "主题是闸门,拿不到粉丝数不算不合格。",
+            f"- **优先什么** —— 粉丝 {self.ask['band'][0]:,}–{self.ask['band'][1]:,} 排前面,其次是有数字的,最后是规模未知的。",
             "",
             "## 计划与实际",
             "",

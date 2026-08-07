@@ -1,9 +1,12 @@
+import urllib.parse
+
 from ..domains import is_a_persons_own_site
 from ..domains import registrable_domain
 from ..record import Candidate
 from .base import Channel, register
 
-HN = "https://hn.algolia.com/api/v1/search_by_date?tags=story&hitsPerPage=200"
+HN_RECENT = "https://hn.algolia.com/api/v1/search_by_date?tags=story&hitsPerPage=200"
+HN_TOPIC = "https://hn.algolia.com/api/v1/search?tags=story&hitsPerPage=100&query={q}"
 LOBSTERS = "https://lobste.rs/hottest.json"
 
 
@@ -15,7 +18,10 @@ class SelfHosted(Channel):
 
     def discover(self, limit):
         found = {}
-        for url, extract in ((HN, self._hn), (LOBSTERS, self._lobsters)):
+        sources = [(HN_RECENT, self._hn), (LOBSTERS, self._lobsters)]
+        for term in self.config.get("terms", []):
+            sources.append((HN_TOPIC.format(q=urllib.parse.quote(term)), self._hn))
+        for url, extract in sources:
             data = self.fetcher.try_json(url)
             if not data:
                 continue

@@ -1,0 +1,21 @@
+# 主题闸门的词表。命中即算相关,记下命中的词作为证据。
+# 词按整词匹配,不做子串 —— 否则 "ai" 会命中 email / chair / maintain。
+
+[ai]
+terms = [
+  "ai", "a.i.", "artificial intelligence", "agi", "genai", "generative ai",
+  "llm", "llms", "large language model", "gpt", "chatgpt", "openai", "anthropic",
+  "claude", "gemini", "llama", "mistral", "deepseek", "qwen", "grok", "copilot",
+  "machine learning", "deep learning", "neural network", "neural networks",
+  "transformer", "transformers", "diffusion", "stable diffusion", "midjourney",
+  "computer vision", "nlp", "natural language processing", "speech recognition",
+  "prompt engineering", "prompting", "rag", "retrieval augmented", "embeddings",
+  "vector database", "fine-tuning", "finetuning", "inference", "quantization",
+  "agentic", "ai agent", "ai agents", "multi-agent", "langchain", "llamaindex",
+  "hugging face", "huggingface", "ollama", "vllm", "pytorch", "tensorflow",
+  "mlops", "ml engineer", "data science", "ai tools", "ai coding", "vibe coding",
+  "cursor", "copilot", "codex", "claude code", "ai writing", "ai art",
+]
+
+# 这些词单独出现不算 —— 太泛,只有和上面的词同现才有意义
+weak = ["model", "models", "agent", "agents", "training", "dataset", "automation"]

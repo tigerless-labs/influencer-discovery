@@ -3,14 +3,15 @@
 取数见 [datalayer/instagram.md](../../datalayer/instagram.md),选不选这条路见
 [cost-ranking.md](../_shared/cost-ranking.md)。
 
-搜索结果自带 bio、外链、粉丝数 —— 一步到位,不需要逐个查 profile。
+搜索结果自带 bio 与外链,**但不带粉丝数**(2026-08-07 复验)。
+要粉丝数得再打一次 profile —— 那一次只影响排序,不影响判人。
 
 ## 全链路
 
 ```
-① bio 关键词搜索     1 credit/次  → 每次 10 个博主,带 bio + 外链 + 粉丝数
+① bio 关键词搜索     1 credit/次  → 一批博主,带 bio + 外链;**无粉丝数**
 ② 多组 query 变体    0 credit     → 变体间重叠严重,按 username 去重
-③ 客户端筛           0 credit     → 粉丝区间;follower_count 已在结果里
+③ 粉丝数(可选)      1 credit/人  → 只为排序,判人不需要
 ④ 从 bio 抠邮箱      0 credit
 ⑤ 无邮箱者走第二跳    0 credit
 ```
@@ -30,12 +31,13 @@ GET /v1/instagram/search/profiles?query=<bio 关键词>
 <垂类词> <城市名>                  变相地区筛选
 ```
 
+**多词 query 会 500。** `ai agent` 正常,`ai tools` 稳定报错 —— 换词,不重试。
+
 从 `profiles` 取:
 
 ```
 username · full_name · biography · bio_links[].url · external_url
-follower_count · media_count · category_name
-is_business_account · is_professional_account · is_verified · is_private
+category_name · is_business_account · is_professional_account · is_verified · is_private
 ```
 
 ### ② 多组 query 变体
@@ -80,7 +82,7 @@ bio 有邮箱          约 22%
 
 ## 不做的
 
-- **不用 `/v1/instagram/profile` 逐个富化。** 搜索结果已带除 `business_email` 外的全部字段。
+- **只在需要粉丝数时才 `/v1/instagram/profile`。** 联系方式与主题判断在搜索结果里就够了。
   只有确认某人是专业号、且要 `business_email` 时才值得多花 1 credit。
 - **不做 `edge_related_profiles` 滚雪球。** 一个种子展开 32 个,一层吃掉大量额度,
   而 bio 关键词搜索直接命中垂类,更省也更准。

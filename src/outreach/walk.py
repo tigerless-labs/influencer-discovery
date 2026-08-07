@@ -14,6 +14,7 @@ from .hop import (
     mentions_sponsorship,
 )
 from .record import Contact
+from .topic import hits_in_page
 
 MAX_SUBPAGES = 5
 
@@ -50,6 +51,7 @@ class SecondHop:
             candidate.signals["is_buyer"] = True
             candidate.signals["buyer_reason"] = "multi-author publication, not a reachable person"
 
+        self._note_topic(candidate, root)
         self._harvest(candidate, root, "site_root")
         links = internal_links(root, site)
         sponsor_links = [u for u in links if looks_like_sponsor_page(u)]
@@ -67,6 +69,7 @@ class SecondHop:
             if page is None:
                 continue
             source = "sponsor_page" if looks_like_sponsor_page(url) else "site_contact"
+            self._note_topic(candidate, page)
             self._harvest(candidate, page, source)
 
         candidate.mark_checked("site_contact")
@@ -77,6 +80,13 @@ class SecondHop:
                 run_id=self.run_id,
             )
         return candidate
+
+    def _note_topic(self, candidate, html):
+        existing = candidate.signals.get("topic_hits") or []
+        for term in hits_in_page(html):
+            if term not in existing:
+                existing.append(term)
+        candidate.signals["topic_hits"] = existing[:8]
 
     def _harvest(self, candidate, html, source):
         addresses = mailto_addresses(html) or emails_in(html)

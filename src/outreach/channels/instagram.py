@@ -2,8 +2,9 @@ import urllib.parse
 
 from ..hop import emails_in
 from ..record import Audience, Candidate, Contact
+from ..topic import note_hits
 from .base import Channel, register
-from .sociavault import OutOfCredits, SociaVault
+from .scrapecreators import OutOfCredits, ScrapeCreators
 
 
 @register
@@ -13,63 +14,69 @@ class Instagram(Channel):
     audience_unit = "followers"
 
     def discover(self, limit):
-        provider = SociaVault(self.fetcher, self.config.get("credit_budget", 0))
+        provider = ScrapeCreators(self.fetcher, self.config.get("credit_budget", 0))
         if not provider.available:
             return []
-        handles = []
-        for term in self.config.get("terms", []):
-            if len(handles) >= limit * 2:
-                break
-            found = provider.call("instagram/search", query=urllib.parse.quote(term))
-            for user in (found or {}).get("users", {}).values():
-                if user.get("is_verified"):
-                    continue
-                handle = user.get("username")
-                if handle and handle not in handles:
-                    handles.append(handle)
 
-        candidates = []
-        for handle in handles:
-            if len(candidates) >= limit:
+        found = {}
+        for term in self.config.get("terms", []):
+            if len(found) >= limit:
                 break
             try:
-                candidate = self._profile(provider, handle)
+                data = provider.call(
+                    "v1/instagram/search/profiles", query=urllib.parse.quote(term)
+                )
             except OutOfCredits:
                 break
-            if candidate:
-                candidates.append(candidate)
-        return candidates
+            for profile in (data or {}).get("profiles", []):
+                handle = profile.get("username")
+                if not handle or handle in found or self.already_have(handle):
+                    continue
+                candidate = self._from_search(profile, term)
+                if note_hits(candidate):
+                    found[handle] = candidate
 
-    def _profile(self, provider, handle):
-        data = provider.call("instagram/profile", handle=handle, trim="true")
-        if not data:
-            return None
-        user = data.get("user") or data.get("profile") or data
-        followers = user.get("follower_count") or (user.get("edge_followed_by") or {}).get("count")
-        bio = user.get("biography") or ""
+        for candidate in list(found.values()):
+            try:
+                self._add_followers(provider, candidate)
+            except OutOfCredits:
+                break
+        return list(found.values())[:limit]
+
+    def _from_search(self, profile, term):
+        handle = profile["username"]
+        bio = profile.get("biography") or ""
         links = [
             link.get("url") if isinstance(link, dict) else link
-            for link in user.get("bio_links") or []
+            for link in profile.get("bio_links") or []
         ]
-        links = [link for link in links if isinstance(link, str) and link.startswith("http")]
+        links = [l for l in links if isinstance(l, str) and l.startswith("http")]
         candidate = Candidate(
             channel=self.name,
             person_key=handle,
-            display_name=user.get("full_name") or handle,
+            display_name=profile.get("full_name") or handle,
             profile_url=f"https://instagram.com/{handle}",
-            own_site=user.get("external_url") or (links[0] if links else None),
-            audience=Audience(value=followers or 0, unit=self.audience_unit, as_of="2026-08-06"),
+            own_site=profile.get("external_url") or (links[0] if links else None),
             bio=bio,
             payload={
-                "is_business": user.get("is_business_account"),
-                "category": user.get("category_name") or user.get("category"),
-                "media_count": user.get("media_count"),
+                "term": term,
+                "category": profile.get("category_name"),
+                "is_business_account": profile.get("is_business_account"),
+                "is_verified": profile.get("is_verified"),
             },
         )
         for address in emails_in(bio):
             candidate.add_contact(Contact(address, "email", "platform_bio"))
             break
-        if user.get("public_email"):
-            candidate.add_contact(Contact(user["public_email"], "email", "platform_field"))
-        candidate.mark_checked("profile")
         return candidate
+
+    def _add_followers(self, provider, candidate):
+        """The count only orders the results, so it is fetched after the topic gate, not before."""
+        data = provider.call("v1/instagram/profile", handle=candidate.person_key)
+        candidate.mark_checked("profile")
+        user = ((data or {}).get("data") or {}).get("user") or {}
+        count = user.get("follower_count") or (user.get("edge_followed_by") or {}).get("count")
+        if count:
+            candidate.audience = Audience(count, self.audience_unit, "2026-08-07")
+        if not candidate.own_site and user.get("external_url"):
+            candidate.own_site = user["external_url"]

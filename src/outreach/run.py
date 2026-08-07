@@ -12,7 +12,8 @@ from .report import Report
 from .store import Store
 from .walk import SecondHop
 
-DEFAULT_BAND = (5000, 100000)
+DEFAULT_BAND = (5000, 200000)
+DEFAULT_SUBJECT = "ai"
 DEFAULT_POOL_FACTOR = 25
 
 
@@ -42,15 +43,20 @@ def select(config, names="", tiers=""):
 
 
 class Run:
-    def __init__(self, run_id, per_channel, band, priority, store=None, pool_factor=DEFAULT_POOL_FACTOR):
+    def __init__(self, run_id, per_channel, band, priority, store=None,
+                 pool_factor=DEFAULT_POOL_FACTOR, total=None, subject=DEFAULT_SUBJECT):
         self.run_id = run_id
         self.per_channel = per_channel
         self.pool_factor = pool_factor
-        self.gate = Gate(band)
+        self.gate = Gate(band, subject)
         self.store = store or Store()
         self.fetcher = Fetcher(run_id, store=self.store)
         self.hop = SecondHop(self.fetcher, self.store, run_id)
-        self.report = Report(run_id, {"per_channel": per_channel, "band": band, "priority": priority})
+        self.total = total
+        self.subject = subject
+        self.qualified_so_far = 0
+        self.report = Report(run_id, {"per_channel": per_channel, "band": band, "priority": priority,
+                                      "total": total or per_channel, "subject": subject})
 
     def channel(self, name, config):
         adapter = channel_registry.build(name, self.fetcher, config)
@@ -63,6 +69,8 @@ class Run:
         for candidate in fresh:
             if qualified >= self.per_channel:
                 break
+            if self.total and self.qualified_so_far >= self.total:
+                break
             needs_signal = candidate.audience is None or candidate.audience.unit != "followers"
             if candidate.own_site and (not candidate.email or needs_signal):
                 self.hop.walk(candidate)
@@ -74,12 +82,14 @@ class Run:
             judged.append(candidate)
             if verdict.writes_to_sheet:
                 qualified += 1
+                self.qualified_so_far += 1
 
         met = qualified >= self.per_channel
         stop = "凑够" if met else ("翻到底" if adapter.form == "directory" else "连续无新")
         shortfall = None if met else (
             "候选不足" if len(fresh) < self.per_channel else "闸门卡住"
         )
+        judged = self.gate.rank(judged)
         self.report.add(name, judged, stop, self.per_channel, shortfall=shortfall)
         return judged
 
@@ -91,17 +101,19 @@ class Run:
         ]
 
 
-def summarise(run_id, per_channel, band, priority, store=None):
+def summarise(run_id, per_channel, band, priority, store=None, total=None, subject=DEFAULT_SUBJECT):
     """The contactable list is a view over the store, not a fourth place to keep it."""
     store = store or Store()
-    report = Report(run_id, {"per_channel": per_channel, "band": band, "priority": priority})
+    report = Report(run_id, {"per_channel": per_channel, "band": band, "priority": priority,
+                             "total": total or per_channel, "subject": subject})
     by_channel = {}
     for candidate in store.people():
         if candidate.outcome is None:
             continue
         by_channel.setdefault(candidate.channel, []).append(candidate)
+    ranker = Gate(band, subject)
     for channel, candidates in sorted(by_channel.items()):
-        report.add(channel, candidates, "见各轮报告", per_channel)
+        report.add(channel, ranker.rank(candidates), "见各轮报告", per_channel)
     return report
 
 
@@ -169,6 +181,8 @@ def main():
     parser.add_argument("--channels", default="")
     parser.add_argument("--tiers", default="")
     parser.add_argument("--per-channel", type=int, default=10)
+    parser.add_argument("--total", type=int, default=None)
+    parser.add_argument("--subject", default=DEFAULT_SUBJECT)
     parser.add_argument("--run-id", default=date.today().isoformat())
     parser.add_argument("--summarise", action="store_true")
     parser.add_argument("--rejudge", action="store_true")
@@ -188,7 +202,8 @@ def main():
         return
 
     if args.summarise:
-        report = summarise(args.run_id, args.per_channel, DEFAULT_BAND, "接单意愿优先于规模")
+        report = summarise(args.run_id, args.per_channel, DEFAULT_BAND, "规模只排序,不筛人",
+                           total=args.total, subject=args.subject)
         print(report.save())
         return
 
@@ -199,8 +214,10 @@ def main():
         args.run_id,
         args.per_channel,
         DEFAULT_BAND,
-        "接单意愿优先于规模",
+        "规模只排序,不筛人",
         pool_factor=config.get("pool_factor", DEFAULT_POOL_FACTOR),
+        total=args.total,
+        subject=args.subject,
     )
     for name in names:
         try:
