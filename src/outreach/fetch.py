@@ -7,7 +7,7 @@ import urllib.parse
 import urllib.request
 from concurrent.futures import ThreadPoolExecutor
 
-from .hop import registrable_domain
+from .domains import registrable_domain
 from .paths import state_dir
 
 USER_AGENT = "outreach-research/0.1 (+https://tigerless.com; polite crawler)"

@@ -1,5 +1,5 @@
 from ..domains import is_a_persons_own_site
-from ..hop import registrable_domain
+from ..domains import registrable_domain
 from ..record import Candidate
 from .base import Channel, register
 

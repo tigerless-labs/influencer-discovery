@@ -134,3 +134,25 @@ def test_a_role_address_is_not_a_person():
 
 def test_a_personal_address_on_the_same_domain_survives():
     assert emails_in("ada@fixtureperson.dev") == ["ada@fixtureperson.dev"]
+
+
+def test_an_address_on_a_platforms_own_domain_is_not_a_person():
+    from outreach.hop import emails_in
+    assert emails_in("write to partners@dev.to") == []
+    assert emails_in("git@github.com") == []
+
+
+def test_a_mailbox_provider_is_still_a_persons_inbox():
+    from outreach.hop import emails_in
+    assert emails_in("reach me at someone.real@gmail.com") == ["someone.real@gmail.com"]
+
+
+def test_an_image_filename_is_never_an_address():
+    from outreach.hop import emails_in
+    assert emails_in("gpl4g2uubfck9daw.jpeg@1f.png") == []
+    assert emails_in("logo@2x.png") == []
+
+
+def test_a_role_address_still_loses_to_a_person():
+    from outreach.hop import emails_in
+    assert emails_in("sponsors@acme.dev or jane@acme.dev") == ["jane@acme.dev"]

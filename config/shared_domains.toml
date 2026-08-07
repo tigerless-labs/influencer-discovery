@@ -8,12 +8,14 @@ platform_hosts = [
   "substack.com", "beehiiv.com", "ghost.io", "medium.com", "wordpress.com", "blogspot.com",
   "wixsite.com", "squarespace.com", "notion.site", "github.io", "gitlab.io", "netlify.app",
   "vercel.app", "pages.dev", "bit.ly", "linktr.ee", "beacons.ai", "carrd.co", "micro.blog",
-  "mastodon.social", "codeberg.org", "sourcehut.org",
+  "mastodon.social", "codeberg.org", "sourcehut.org", "hashnode.dev", "hashnode.com",
+  "dev.to", "paragraph.xyz", "write.as", "bearblog.dev", "tumblr.com",
 ]
 
 # 大站与机构:发现阶段就不该当成某个人的主场
 institutions = [
   "github.com", "youtube.com", "twitter.com", "x.com", "reddit.com", "wikipedia.org",
+  "linkedin.com", "facebook.com", "instagram.com", "threads.net", "tiktok.com",
   "arxiv.org", "stackoverflow.com", "gitlab.com", "google.com", "microsoft.com",
   "apple.com", "amazon.com", "aws.amazon.com", "cloudflare.com", "openai.com",
   "anthropic.com", "meta.com", "nvidia.com", "ibm.com", "oracle.com", "modernatx.com",

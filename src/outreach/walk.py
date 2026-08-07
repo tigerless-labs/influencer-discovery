@@ -1,5 +1,9 @@
 from .buyer import looks_like_a_product_site
-from .domains import is_a_persons_own_site, looks_like_a_multi_author_publication
+from .domains import (
+    is_a_persons_own_site,
+    looks_like_a_multi_author_publication,
+    registrable_domain,
+)
 from .hop import (
     emails_in,
     internal_links,
@@ -8,7 +12,6 @@ from .hop import (
     looks_like_sponsor_page,
     mailto_addresses,
     mentions_sponsorship,
-    registrable_domain,
 )
 from .record import Contact
 

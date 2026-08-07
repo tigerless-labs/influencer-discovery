@@ -1,6 +1,8 @@
 import re
 from urllib.parse import urlparse
 
+from .domains import is_a_shared_mailbox, registrable_domain
+
 EMAIL = re.compile(r"(?<!@)\b[A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}")
 
 ROLE_LOCAL = {
@@ -9,7 +11,11 @@ ROLE_LOCAL = {
     "sales", "billing", "accounts", "subscriptions", "subscribe", "careers", "jobs",
     "legal", "privacy", "security", "feedback", "team", "office", "enquiries",
     "inquiries", "general", "mail", "service", "customerservice",
+    "partners", "partnerships", "advertise", "advertising", "ads", "sponsor", "sponsors",
+    "git", "noreply", "no-reply",
 }
+
+IMAGE_TLD = {"png", "jpg", "jpeg", "gif", "webp", "svg", "avif", "ico"}
 
 PLACEHOLDER_LOCAL = {
     "you", "your", "youremail", "your.email", "name", "yourname", "email",
@@ -40,36 +46,28 @@ SPONSOR_TEXT = re.compile(
 def mentions_sponsorship(text):
     return bool(SPONSOR_TEXT.search(text or ""))
 
-TWO_PART_SUFFIX = {
-    "co.uk", "org.uk", "ac.uk", "gov.uk", "co.jp", "co.nz", "co.za", "com.au",
-    "com.br", "com.cn", "co.in", "co.kr", "com.mx", "com.tr", "co.il",
-}
-
-
-def registrable_domain(url):
-    if not url:
-        return None
-    host = urlparse(url if "//" in url else f"//{url}").netloc.lower()
-    host = host.split("@")[-1].split(":")[0].removeprefix("www.")
-    if not host or "." not in host or " " in host:
-        return None
-    parts = host.split(".")
-    if len(parts) >= 3 and ".".join(parts[-2:]) in TWO_PART_SUFFIX:
-        return ".".join(parts[-3:])
-    return ".".join(parts[-2:])
+def is_an_inbox(address):
+    if not address or ASSET_SUFFIX.search(address):
+        return False
+    local, _, domain = address.rpartition("@")
+    local, domain = local.lower(), domain.lower()
+    if not local or "." not in domain:
+        return False
+    if domain.rpartition(".")[2] in IMAGE_TLD:
+        return False
+    if local in PLACEHOLDER_LOCAL or domain in PLACEHOLDER_DOMAIN:
+        return False
+    if domain.endswith(".sentry.io") or "ingest.sentry.io" in domain:
+        return False
+    if local in ROLE_LOCAL:
+        return False
+    return not is_a_shared_mailbox(address)
 
 
 def emails_in(text):
     found = []
     for raw in EMAIL.findall(text or ""):
-        if ASSET_SUFFIX.search(raw):
-            continue
-        local, _, domain = raw.rpartition("@")
-        if local.lower() in PLACEHOLDER_LOCAL or domain.lower() in PLACEHOLDER_DOMAIN:
-            continue
-        if domain.lower().endswith(".sentry.io") or "ingest.sentry.io" in domain.lower():
-            continue
-        if local.lower() in ROLE_LOCAL:
+        if not is_an_inbox(raw):
             continue
         if raw.lower() not in {e.lower() for e in found}:
             found.append(raw.lower())
