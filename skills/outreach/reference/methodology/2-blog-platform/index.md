@@ -18,7 +18,7 @@
 |---|---|---|---|
 | [WordPress.com](wordpress-com.md) | 注册即发 | 约四成 | 抽样 |
 | [Hashnode](hashnode.md) | 注册即发 | 28% | 50 |
-| [freeCodeCamp News](freecodecamp-news.md) | 有编辑审 | 24% | 215 |
+| [freeCodeCamp News](freecodecamp-news.md) | 有编辑审 | 28% | 501 |
 
 **编辑审筛的是稿子,不是作者有没有站。** freeCodeCamp 先前那个 12/12 来自十二个人,
 放大到两百多人就掉到与零门槛平台同一档 —— **这一档没有哪个平台能省掉第一道筛。**
@@ -81,7 +81,8 @@ sitemap 十个请求可枚举约 25 万个刊物,还免 key 给**订阅数**—�
 | 平台 | 有自有域名的样本 | 走完第二跳拿到邮箱 |
 |---|---|---|
 | Micro.blog | 16 | 56% |
-| freeCodeCamp News | 53 | 35% |
+| freeCodeCamp News | 144 | 34% |
+| Hashnode | 19 | 26% |
 | DEV.to | 175 | 24% |
 | WordPress.com | 67 | 10% |
 
