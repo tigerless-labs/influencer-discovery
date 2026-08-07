@@ -184,3 +184,12 @@ def test_a_product_pitch_hidden_in_markup_does_not_condemn_a_blog():
     from outreach.buyer import looks_like_a_product_site
     hidden = '<style>.pricing{}</style><script>trackEvent("request a demo")</script><h1>Jane</h1>'
     assert looks_like_a_product_site(hidden) is False
+
+
+def test_a_url_with_no_scheme_is_a_failed_fetch_not_a_crash(tmp_path, monkeypatch):
+    from outreach import fetch as fetch_module
+
+    monkeypatch.setattr(fetch_module, "state_dir", lambda: tmp_path)
+    fetcher = fetch_module.Fetcher("test")
+    assert fetcher.try_get("iriscode.co") is None
+    assert fetcher.try_get("file:///etc/passwd") is None

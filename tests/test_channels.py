@@ -247,3 +247,46 @@ def test_a_reddit_post_hosted_on_reddit_is_not_a_persons_domain():
 def test_a_forwarded_news_link_is_not_the_posters_domain():
     found = reddit_channel([REDDIT_POSTS[2]]).discover(10)
     assert found == []
+
+
+HN_PROFILE_PAYLOAD = (
+    '<script>self.__next_f.push([1,"{\\\\\\"@context\\\\\\":\\\\\\"https://schema.org\\\\\\",'
+    '\\\\\\"@type\\\\\\":\\\\\\"ProfilePage\\\\\\",\\\\\\"mainEntity\\\\\\":{\\\\\\"@type\\\\\\":'
+    '\\\\\\"Person\\\\\\",\\\\\\"name\\\\\\":\\\\\\"Simone Festa\\\\\\",\\\\\\"sameAs\\\\\\":'
+    '[\\\\\\"https://github.com/simone\\\\\\",\\\\\\"https://simone.it\\\\\\"]}}"])</script>'
+    '<meta property="og:title" content="Simone Festa (@simone) | Hashnode"/>'
+    '<meta property="og:description" content="Full-Stack Dev"/>'
+)
+
+
+def test_a_profile_page_person_survives_the_escaped_payload():
+    from outreach.page import schema_person
+
+    person = schema_person(HN_PROFILE_PAYLOAD)
+    assert person["name"] == "Simone Festa"
+    assert "https://simone.it" in person["sameAs"]
+
+
+def test_the_declared_links_are_used_when_the_bio_has_no_address():
+    channel, _ = hn({
+        "https://hashnode.com/n/ai": '<a href="/@simone">x</a>',
+        "https://hashnode.com/@simone": HN_PROFILE_PAYLOAD,
+    })
+    simone = channel.discover(10)[0]
+    assert simone.own_site == "https://simone.it"
+
+
+def test_a_page_with_no_structured_person_still_reads_the_meta_tags():
+    channel, _ = hn(HN_PAGES)
+    simone = channel.discover(10)[0]
+    assert simone.display_name == "Simone Festa"
+    assert simone.own_site == "https://www.simone.it/"
+
+
+def test_a_sameas_link_without_a_scheme_is_never_fetched():
+    author = FCC_AUTHOR.replace('"https://alicewrites.dev"', '"iriscode.co"')
+    channel, _ = fcc({
+        "https://www.freecodecamp.org/news/sitemap-authors.xml": FCC_SITEMAP,
+        "https://www.freecodecamp.org/news/author/alice/": author,
+    })
+    assert channel.discover(1)[0].own_site is None

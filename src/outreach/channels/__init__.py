@@ -1,5 +1,7 @@
 from . import (  # noqa: F401
     devto,
+    freecodecamp,
+    hashnode,
     instagram,
     mastodon,
     microblog,

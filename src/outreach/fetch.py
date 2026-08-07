@@ -13,6 +13,7 @@ from .paths import state_dir
 USER_AGENT = "outreach-research/0.1 (+https://tigerless.com; polite crawler)"
 HOST_GAP_SECONDS = 1.5
 STOP_CODES = {403, 429}
+ALLOWED_SCHEMES = {"http", "https"}
 
 
 class Blocked(Exception):
@@ -47,7 +48,11 @@ class Fetcher:
         )
 
     def get(self, url, headers=None, persist=True):
-        host = urllib.parse.urlparse(url).netloc
+        parsed = urllib.parse.urlparse(url or "")
+        if parsed.scheme not in ALLOWED_SCHEMES or not parsed.netloc:
+            self._fail(url, "not an http address")
+            raise Blocked(f"{url} -> not an http address")
+        host = parsed.netloc
         if host in self._blocked:
             raise Blocked(f"{host} already refused this run")
         self._wait(host)
