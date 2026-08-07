@@ -20,9 +20,10 @@ class Verdict:
 class Gate:
     """Reachable, on topic, and not a buyer. Audience size orders the result; it does not reject."""
 
-    def __init__(self, band, subject="ai"):
+    def __init__(self, band, subject="ai", floor=0):
         self.low, self.high = band
         self.subject = subject
+        self.floor = floor
 
     def judge(self, candidate):
         if not candidate.contacts:
@@ -40,6 +41,11 @@ class Gate:
         candidate.signals["in_band"] = (
             self.low <= audience.value <= self.high if measured else None
         )
+        if measured and self.floor and audience.value < self.floor:
+            return Verdict(
+                Outcome.AUDIENCE_OUT_OF_BAND, True,
+                f"{audience.value} {audience.unit} < {self.floor}",
+            )
         evidence = ", ".join(candidate.signals.get("topic_hits") or [])
         size = f"{audience.value} {audience.unit}" if measured else "规模未知"
         return Verdict(Outcome.QUALIFIED, measured, f"{size};{evidence}")

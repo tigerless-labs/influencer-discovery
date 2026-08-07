@@ -89,3 +89,29 @@ def test_only_a_qualified_verdict_may_reach_the_sheet(gate):
     for outcome in Outcome:
         v = Verdict(outcome=outcome, band_applied=False, reason="")
         assert v.writes_to_sheet == (outcome is Outcome.QUALIFIED)
+
+
+def test_a_measured_size_below_the_floor_is_rejected():
+    c = with_email(cand(audience=followers(800)))
+    assert Gate(BAND, floor=1000).judge(c).outcome is Outcome.AUDIENCE_OUT_OF_BAND
+
+
+def test_the_floor_is_inclusive():
+    c = with_email(cand(audience=followers(1000)))
+    assert Gate(BAND, floor=1000).judge(c).outcome is Outcome.QUALIFIED
+
+
+def test_an_unmeasured_size_is_never_below_the_floor():
+    """Channels that expose no follower count would otherwise be judged dead in a batch."""
+    c = with_email(cand())
+    assert Gate(BAND, floor=1000).judge(c).outcome is Outcome.QUALIFIED
+
+
+def test_another_unit_is_never_measured_against_the_floor():
+    c = with_email(cand(audience=Audience(12, "reactions", "2026-08-07")))
+    assert Gate(BAND, floor=1000).judge(c).outcome is Outcome.QUALIFIED
+
+
+def test_no_floor_leaves_the_verdict_exactly_as_before():
+    c = with_email(cand(audience=followers(3)))
+    assert Gate(BAND).judge(c).outcome is Outcome.QUALIFIED

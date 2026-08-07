@@ -42,12 +42,22 @@ methodology = "2-blog-platform/micro-blog.md"
 methodology = "1-social/mastodon.md"
 hosts = ["mastodon.social", "fosstodon.org", "hachyderm.io", "indieweb.social",
          "sigmoid.social", "mas.to", "techhub.social", "social.coop", "mstdn.social",
-         "infosec.exchange", "ioc.exchange", "floss.social"]
-max_offset = 480
+         "infosec.exchange", "ioc.exchange", "floss.social", "mastodon.world",
+         "mstdn.party", "toot.community", "mastodon.online", "mastodon.cloud",
+         "fediscience.org", "scholar.social", "hci.social", "vis.social",
+         "genart.social", "mastodon.art", "writing.exchange", "journa.host"]
+max_offset = 2000
 
 [reddit]
 methodology = "1-social/reddit.md"
-subreddits = ["SideProject", "IndieBiz", "selfhosted", "webdev"]
+subreddits = [
+  "LocalLLaMA", "LLMDevs", "AI_Agents", "PromptEngineering", "ClaudeAI", "OpenAI",
+  "ChatGPTPro", "artificial", "ArtificialInteligence", "MachineLearning",
+  "aipromptprogramming", "AIAssisted", "WritingWithAI", "vibecoding", "ClaudeCode",
+  "LangChain", "mcp", "RAG", "n8n", "Substack", "beehiiv", "NewsletterCreators",
+]
+# 早先实验已抓好的资料页外链。抓过的不再抓第二遍,见 docs/design/records.md。
+profile_dumps = ["data/experiments/2026-08-06/reddit-raw/profiles.jsonl"]
 
 [instagram]
 methodology = "1-social/instagram.md"
@@ -56,22 +66,33 @@ terms = [
   "llm", "prompt engineering", "machine learning", "genai", "ai art", "ai video",
   "ai marketing", "ai productivity", "ai research", "data science", "chatgpt",
   "midjourney", "ai founder", "ai builder", "no code ai", "ai writer",
+  "ai coach", "ai consultant", "ai tools", "ai news", "ai tutorial", "ai design",
+  "generative ai", "deep learning", "computer vision", "nlp", "ai startup",
+  "claude ai", "gemini ai", "ai influencer", "ai content", "ai copywriting",
+  "ai photography", "ai music", "ai entrepreneur", "ai teacher", "ai workflow",
 ]
-credit_budget = 400
+credit_budget = 3000
 
 [tiktok]
 methodology = "1-social/tiktok.md"
-terms = ["ai tools", "ai agents", "llm", "prompt engineering", "ai coding", "machine learning"]
-credit_budget = 400
+terms = [
+  "ai tools", "ai agents", "llm", "prompt engineering", "ai coding", "machine learning",
+  "ai automation", "chatgpt tips", "ai news", "ai tutorial", "generative ai",
+  "ai productivity", "ai marketing", "ai art", "ai video", "ai for business",
+  "claude ai", "midjourney", "ai side hustle", "data science", "ai教程", "ai creator",
+]
+credit_budget = 3000
 
 [threads]
 methodology = "1-social/threads.md"
 terms = [
   "ai", "ai agents", "ai tools", "llm", "prompt engineering", "ai coding",
   "machine learning", "genai", "ai newsletter", "ai art", "chatgpt", "claude",
-  "ai builder", "ai research", "data science", "ai automation",
+  "ai builder", "ai research", "data science", "ai automation", "generative ai",
+  "ai writing", "ai marketing", "ai productivity", "ai startup", "deep learning",
+  "ai news", "ai design", "ai video", "rag", "fine-tuning", "vibe coding",
 ]
-credit_budget = 400
+credit_budget = 3000
 
 [youtube]
 methodology = "1-social/youtube.md"
@@ -79,6 +100,9 @@ terms = [
   "ai tools", "ai agents", "llm", "prompt engineering", "ai coding", "machine learning",
   "generative ai", "ai news", "ai automation", "chatgpt tutorial", "claude ai",
   "ai for developers", "ai productivity", "rag tutorial", "fine tuning llm",
+  "ai app builder", "langchain tutorial", "ai workflow", "ai saas", "vibe coding",
+  "cursor ai", "ai marketing", "ai video generation", "stable diffusion",
+  "deep learning course", "mlops", "ai research paper", "open source llm",
 ]
 
 [twitter-x]
@@ -89,4 +113,6 @@ terms = [
   "ai agents", "llm", "prompt engineering", "ai tools", "machine learning",
   "generative ai", "ai coding", "rag", "fine-tuning", "ai newsletter",
   "ai research", "vibe coding", "claude code", "ai automation",
+  "ai startup", "mlops", "langchain", "open source llm", "ai product",
+  "ai writing", "ai design", "deep learning", "inference", "ai builder",
 ]

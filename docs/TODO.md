@@ -17,6 +17,12 @@
       scope,Sheets API 返 403 `ACCESS_TOKEN_SCOPE_INSUFFICIENT`,且刷新需要交互式登录。
       合格行已 stage 在 `~/.local/share/outreach/pending-sheet-rows.jsonl`,
       重新授权后跑 `--append-sheet` 即可。**先对副本跑通再碰正式表这条还没做。**
+- [x] 早先实验抓的 1176 个 Reddit 资料页入库 —— adapter 多一条来源(已抓产物导入),
+      不重抓、不重付。
+- [ ] Reddit 还有一条验过但没实现的免费路:**r/Substack 强制发帖人把 newsletter URL 放进
+      author flair**,`rdt -o` 存的原始 Listing 里就带 `author_flair_text`。
+- [ ] 实验只抓了 2516 个作者里的 1176 个,**剩约 1340 个无外链作者的资料页没抓**。
+      抽样测出这批里 18.1% 在资料页挂了链接、12.5% 有自有域名 —— 是已知的、可估算的剩余产出。
 - [ ] 补 `docs/testing.md` 与测试映射;需要时再建 `docs/bugs/`、`dev_skills/`、`workflows/`。
 - [ ] **前两档还有三个渠道没有 adapter** —— YouTube、X、Threads。前者免 key
       (频道 about 页在初始 HTML 里),卡在发现那一步没实现;后两个要付费/认证取数层。

@@ -93,3 +93,77 @@ def test_only_scrapecreators_is_wired_in():
         assert "sociavault" not in text.lower()
         assert "ScrapeCreators" in text
     assert "threads" in registry.known()
+
+
+REDDIT_DUMP = "\n".join([
+    '{"user":"blogger","status":200,"social_links":[{"type":"CUSTOM","url":"https://blogger.dev"}]}',
+    '{"user":"linked","status":200,"social_links":[{"type":"CUSTOM","url":"https://www.linkedin.com/in/x"}]}',
+    '{"user":"platformed","status":200,"social_links":[{"type":"TWITTER","url":"https://x.com/y"}]}',
+    '{"user":"bare","status":200,"social_links":[]}',
+    "{ not json",
+    "",
+])
+
+
+def dump(tmp_path, text=REDDIT_DUMP):
+    path = tmp_path / "profiles.jsonl"
+    path.write_text(text, encoding="utf-8")
+    return {"profile_dumps": [str(path)]}
+
+
+def by_key(candidates):
+    return {c.person_key: c for c in candidates}
+
+
+def test_a_declared_own_domain_becomes_the_second_hop_target(tmp_path):
+    from outreach.channels.reddit import Reddit
+
+    found = by_key(Reddit(None, dump(tmp_path))._from_dumps(50))
+    assert found["blogger"].own_site == "https://blogger.dev"
+    assert found["blogger"].profile_url.endswith("/blogger")
+
+
+def test_a_platform_address_typed_into_the_custom_field_is_not_an_own_site(tmp_path):
+    from outreach.channels.reddit import Reddit
+
+    found = by_key(Reddit(None, dump(tmp_path))._from_dumps(50))
+    assert found["linked"].own_site is None
+    assert found["platformed"].own_site is None
+
+
+def test_someone_with_no_links_still_enters_the_log(tmp_path):
+    """Crawled is crawled: leaving them out means paying for them again next round."""
+    from outreach.channels.reddit import Reddit
+
+    assert "bare" in by_key(Reddit(None, dump(tmp_path))._from_dumps(50))
+
+
+def test_a_malformed_line_is_skipped_not_fatal(tmp_path):
+    from outreach.channels.reddit import Reddit
+
+    assert len(Reddit(None, dump(tmp_path))._from_dumps(50)) == 4
+
+
+def test_people_with_a_site_are_offered_before_people_without(tmp_path):
+    from outreach.channels.reddit import Reddit
+
+    sites = [bool(c.own_site) for c in Reddit(None, dump(tmp_path))._from_dumps(50)]
+    assert sites == sorted(sites, reverse=True)
+
+
+def test_the_dump_survives_a_missing_reddit_session(tmp_path, monkeypatch):
+    from outreach.channels import reddit as module
+
+    def no_session():
+        raise module.NoSession("no cookie")
+
+    monkeypatch.setattr(module, "rdt_session_ready", no_session)
+    channel = module.Reddit(None, dump(tmp_path))
+    assert len(channel.discover(50)) == 4
+    assert channel.unavailable
+
+
+def test_a_dump_that_is_not_there_is_not_an_error(tmp_path):
+    from outreach.channels.reddit import Reddit
+
+    assert Reddit(None, {"profile_dumps": [str(tmp_path / "gone.jsonl")]})._from_dumps(50) == []

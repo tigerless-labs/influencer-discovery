@@ -45,11 +45,12 @@ def select(config, names="", tiers=""):
 
 class Run:
     def __init__(self, run_id, per_channel, band, priority, store=None,
-                 pool_factor=DEFAULT_POOL_FACTOR, total=None, subject=DEFAULT_SUBJECT):
+                 pool_factor=DEFAULT_POOL_FACTOR, total=None, subject=DEFAULT_SUBJECT,
+                 floor=0):
         self.run_id = run_id
         self.per_channel = per_channel
         self.pool_factor = pool_factor
-        self.gate = Gate(band, subject)
+        self.gate = Gate(band, subject, floor=floor)
         self.store = store or Store()
         self.fetcher = Fetcher(run_id, store=self.store)
         self.hop = SecondHop(self.fetcher, self.store, run_id)
@@ -57,7 +58,8 @@ class Run:
         self.subject = subject
         self.qualified_so_far = 0
         self.report = Report(run_id, {"per_channel": per_channel, "band": band, "priority": priority,
-                                      "total": total or per_channel, "subject": subject})
+                                      "total": total or per_channel, "subject": subject,
+                                      "floor": floor})
 
     def channel(self, name, config):
         adapter = channel_registry.build(name, self.fetcher, config)
@@ -110,11 +112,12 @@ class Run:
         ]
 
 
-def summarise(run_id, per_channel, band, priority, store=None, total=None, subject=DEFAULT_SUBJECT):
+def summarise(run_id, per_channel, band, priority, store=None, total=None, subject=DEFAULT_SUBJECT,
+              floor=0):
     """The contactable list is a view over the store, not a fourth place to keep it."""
     store = store or Store()
     report = Report(run_id, {"per_channel": per_channel, "band": band, "priority": priority,
-                             "total": total or per_channel, "subject": subject})
+                             "total": total or per_channel, "subject": subject, "floor": floor})
     by_channel = {}
     for candidate in store.people():
         if candidate.outcome is None:
@@ -140,13 +143,13 @@ def _judgement(candidate):
     )
 
 
-def rejudge(run_id, band, store=None, replay=False):
+def rejudge(run_id, band, store=None, replay=False, floor=0):
     """The log is a cache, not the authority: a corrected judgement supersedes the stored one."""
     from .fetch import ReplayFetcher
     from .hop import is_an_inbox
 
     store = store or Store()
-    gate = Gate(band)
+    gate = Gate(band, floor=floor)
     hop = SecondHop(ReplayFetcher(), store, run_id) if replay else None
     corrected = []
     for candidate in store.people():
@@ -203,6 +206,7 @@ def main():
     parser.add_argument("--per-channel", type=int, default=10)
     parser.add_argument("--total", type=int, default=None)
     parser.add_argument("--subject", default=DEFAULT_SUBJECT)
+    parser.add_argument("--min-followers", type=int, default=0)
     parser.add_argument("--run-id", default=date.today().isoformat())
     parser.add_argument("--summarise", action="store_true")
     parser.add_argument("--rejudge", action="store_true")
@@ -228,7 +232,8 @@ def main():
         return
 
     if args.rejudge:
-        for candidate in rejudge(args.run_id, DEFAULT_BAND, replay=args.replay):
+        for candidate in rejudge(args.run_id, DEFAULT_BAND, replay=args.replay,
+                                 floor=args.min_followers):
             print(f"{candidate.channel}/{candidate.person_key} -> {candidate.outcome.value}")
         return
 
@@ -240,7 +245,7 @@ def main():
 
     if args.summarise:
         report = summarise(args.run_id, args.per_channel, DEFAULT_BAND, "规模只排序,不筛人",
-                           total=args.total, subject=args.subject)
+                           total=args.total, subject=args.subject, floor=args.min_followers)
         print(report.save())
         return
 
@@ -255,6 +260,7 @@ def main():
         pool_factor=config.get("pool_factor", DEFAULT_POOL_FACTOR),
         total=args.total,
         subject=args.subject,
+        floor=args.min_followers,
     )
     for name in names:
         try:

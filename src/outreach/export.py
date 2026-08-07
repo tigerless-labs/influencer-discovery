@@ -41,6 +41,8 @@ def contactable(store, band):
     for candidate in store.people():
         if not any(c.kind == "email" for c in candidate.contacts):
             continue
+        if candidate.outcome is Outcome.AUDIENCE_OUT_OF_BAND:
+            continue
         by_channel.setdefault(candidate.channel, []).append(candidate)
     return {
         channel: sorted(

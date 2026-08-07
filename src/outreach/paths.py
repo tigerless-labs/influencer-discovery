@@ -20,8 +20,12 @@ def memory_dir():
     return _dir("OUTREACH_MEMORY_DIR", Path.home() / "Documents" / SKILL)
 
 
+def repo_dir():
+    return Path(__file__).resolve().parents[2]
+
+
 def repo_config_dir():
-    return Path(__file__).resolve().parents[2] / "config"
+    return repo_dir() / "config"
 
 
 def load_env():

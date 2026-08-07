@@ -92,3 +92,10 @@ def test_the_summary_totals_match_the_tabs(store):
 def test_an_empty_store_still_produces_a_summary(tmp_path):
     book = to_workbook(contactable(Store(tmp_path), BAND))
     assert book.sheetnames == [SUMMARY_TAB]
+
+
+def test_a_size_below_the_floor_never_reaches_the_final_table(store):
+    """The verdict already rejected them; a row in the deliverable would re-admit them."""
+    store.record(person("tiny", followers=800, outcome=Outcome.AUDIENCE_OUT_OF_BAND), run_id="r")
+    names = {c.person_key for people in contactable(store, BAND).values() for c in people}
+    assert "tiny" not in names
