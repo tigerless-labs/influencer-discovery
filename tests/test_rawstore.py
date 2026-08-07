@@ -99,3 +99,40 @@ def test_a_replay_can_be_pinned_to_one_run(tmp_path, monkeypatch):
     assert only_r1.try_get("https://a.dev") == "from r1"
     assert only_r1.try_get("https://b.dev") is None
     assert fetch_module.ReplayFetcher().try_get("https://b.dev") == "from r2"
+
+
+def test_a_new_blob_is_written_compressed(raw):
+    blob = raw.put("https://a.dev", "x" * 5000, run_id="r1")
+    assert blob.suffix == ".gz"
+    assert blob.stat().st_size < 5000
+
+
+def test_a_compressed_blob_reads_back_intact(raw):
+    body = "<html>" + "hello " * 2000 + "</html>"
+    raw.put("https://a.dev", body, run_id="r1")
+    assert raw.get("https://a.dev") == body
+
+
+def test_packing_converts_a_plain_blob_and_keeps_its_body(raw):
+    raw.blob_dir.mkdir(parents=True, exist_ok=True)
+    digest = raw.digest_of("https://plain.dev")
+    (raw.blob_dir / f"{digest}.json").write_text(
+        json.dumps({"url": "https://plain.dev", "body": "kept"}), encoding="utf-8"
+    )
+    assert raw.pack() == 1
+    assert raw.get("https://plain.dev") == "kept"
+    assert not (raw.blob_dir / f"{digest}.json").exists()
+
+
+def test_packing_twice_is_a_no_op(raw):
+    raw.put("https://a.dev", "body", run_id="r1")
+    assert raw.pack() == 0
+
+
+def test_a_plain_blob_is_still_readable_before_packing(raw):
+    raw.blob_dir.mkdir(parents=True, exist_ok=True)
+    digest = raw.digest_of("https://plain.dev")
+    (raw.blob_dir / f"{digest}.json").write_text(
+        json.dumps({"url": "https://plain.dev", "body": "legacy"}), encoding="utf-8"
+    )
+    assert raw.get("https://plain.dev") == "legacy"

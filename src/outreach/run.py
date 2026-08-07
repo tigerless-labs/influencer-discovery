@@ -215,7 +215,9 @@ def main():
         store = Store()
         before, after = store.compact_sites()
         print(f"sites.jsonl  {before} -> {after} 行")
-        print(f"raw          折叠 {RawStore().migrate()} 个按轮存的文件")
+        raw = RawStore()
+        print(f"raw          折叠 {raw.migrate()} 个按轮存的文件")
+        print(f"raw          压缩 {raw.pack()} 个 blob")
         return
 
     if args.export_xlsx:

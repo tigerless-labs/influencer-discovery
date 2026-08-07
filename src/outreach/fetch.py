@@ -1,3 +1,4 @@
+import gzip
 import hashlib
 import json
 import pathlib
@@ -34,7 +35,20 @@ class RawStore:
         return hashlib.sha256(url.encode()).hexdigest()[:16]
 
     def blobs(self):
-        return sorted(self.blob_dir.glob("*.json"))
+        return sorted(self.blob_dir.glob("*.json*"))
+
+    def _blob_path(self, digest):
+        packed = self.blob_dir / f"{digest}.json.gz"
+        return packed if packed.exists() else self.blob_dir / f"{digest}.json"
+
+    @staticmethod
+    def _read_blob(path):
+        opener = gzip.open if path.suffix == ".gz" else open
+        try:
+            with opener(path, "rt", encoding="utf-8") as f:
+                return json.load(f)
+        except (json.JSONDecodeError, OSError, EOFError):
+            return None
 
     def _manifest(self, run_id):
         return self.root / f"{run_id}.manifest"
@@ -53,12 +67,12 @@ class RawStore:
 
     def put(self, url, body, run_id=None):
         digest = self.digest_of(url)
-        blob = self.blob_dir / f"{digest}.json"
+        blob = self._blob_path(digest)
         if not blob.exists():
             self.blob_dir.mkdir(parents=True, exist_ok=True)
-            blob.write_text(
-                json.dumps({"url": url, "body": body}, ensure_ascii=False), encoding="utf-8"
-            )
+            blob = self.blob_dir / f"{digest}.json.gz"
+            with gzip.open(blob, "wt", encoding="utf-8", compresslevel=6) as f:
+                json.dump({"url": url, "body": body}, f, ensure_ascii=False)
         self.note(run_id, digest)
         return blob
 
@@ -66,13 +80,25 @@ class RawStore:
         digest = self.digest_of(url)
         if run_ids is not None and not any(digest in self.digests_for(r) for r in run_ids):
             return None
-        blob = self.blob_dir / f"{digest}.json"
+        blob = self._blob_path(digest)
         if not blob.exists():
             return None
-        try:
-            return json.loads(blob.read_text(encoding="utf-8")).get("body")
-        except json.JSONDecodeError:
-            return None
+        record = self._read_blob(blob)
+        return record.get("body") if record else None
+
+    def pack(self):
+        """Compresses blobs left in plain form. Lossless, so it needs no policy decision."""
+        packed = 0
+        for blob in sorted(self.blob_dir.glob("*.json")):
+            record = self._read_blob(blob)
+            if record is None:
+                blob.unlink(missing_ok=True)
+                continue
+            with gzip.open(blob.with_suffix(".json.gz"), "wt", encoding="utf-8", compresslevel=6) as f:
+                json.dump(record, f, ensure_ascii=False)
+            blob.unlink()
+            packed += 1
+        return packed
 
     def migrate(self):
         """Folds the old raw/<run>/<digest>.json layout in. First body wins; nothing is rewritten."""
