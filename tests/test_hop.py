@@ -281,3 +281,13 @@ def test_a_template_stand_in_company_is_not_an_inbox():
 
 def test_a_real_address_on_a_company_like_domain_still_counts():
     assert is_an_inbox("ryan@companyhouse.dev")
+
+
+def test_a_url_with_an_unclosed_bracket_is_not_a_domain_and_does_not_raise():
+    """One malformed bio link used to raise out of the parser and take the whole channel down."""
+    from outreach.domains import host_of, is_a_persons_own_site, registrable_domain
+
+    for bad in ("https://[oops", "http://a[b].com", "https://[", "http://]["):
+        assert host_of(bad) is None
+        assert registrable_domain(bad) is None
+        assert is_a_persons_own_site(bad) is False

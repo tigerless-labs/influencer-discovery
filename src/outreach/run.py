@@ -77,9 +77,17 @@ class Run:
                 continue
             needs_signal = candidate.audience is None or candidate.audience.unit != "followers"
             worth_walking = candidate.own_site and not self.gate.too_small(candidate)
-            if worth_walking and (not candidate.email or needs_signal):
-                self.hop.walk(candidate)
-            verdict = self.gate.judge(candidate)
+            try:
+                if worth_walking and (not candidate.email or needs_signal):
+                    self.hop.walk(candidate)
+                verdict = self.gate.judge(candidate)
+            except Exception as e:  # one hostile record must not discard everyone judged before it
+                self.store.record_failure(
+                    candidate.profile_url or candidate.person_key,
+                    f"{type(e).__name__}: {e}",
+                    run_id=self.run_id,
+                )
+                continue
             candidate.outcome = verdict.outcome
             candidate.signals["verdict_reason"] = verdict.reason
             candidate.signals["band_applied"] = verdict.band_applied

@@ -13,9 +13,13 @@ TWO_PART_SUFFIX = {
 
 
 def host_of(url):
+    """A hostile page is allowed to hold a broken URL; only this line may notice, and it must not raise."""
     if not url:
         return None
-    host = urlparse(url if "//" in url else f"//{url}").netloc.lower()
+    try:
+        host = urlparse(url if "//" in url else f"//{url}").netloc.lower()
+    except ValueError:
+        return None
     host = host.split("@")[-1].split(":")[0].removeprefix("www.")
     return host or None
 

@@ -308,3 +308,21 @@ def test_rejudging_drops_the_evidence_it_is_about_to_recompute(tmp_path, monkeyp
     run_module.rejudge("re", BAND, store=store)
     after = next(p for p in store.people() if p.person_key == "stale")
     assert after.outcome is Outcome.OFF_TOPIC
+
+
+def test_one_poisonous_candidate_does_not_take_the_channel_down(tmp_path, monkeypatch):
+    """A channel that dies mid-judging discards everyone already judged in that pass."""
+    def explode(self, candidate):
+        if candidate.person_key == "bad":
+            raise ValueError("Invalid IPv6 URL")
+
+    monkeypatch.setattr(channel_registry, "build", lambda *a, **k: FakePool(
+        [with_site(person("first", followers=9000, email=False)),
+         with_site(person("bad", followers=9000, email=False)),
+         with_site(person("third", followers=9000, email=False))]))
+    monkeypatch.setattr(run_module.SecondHop, "walk", explode)
+    store = Store(tmp_path)
+    r = Run("test", 5, BAND, "test", store=store)
+    r.channel("fake", {})
+    judged = {p.person_key for p in store.people()}
+    assert {"first", "third"} <= judged
