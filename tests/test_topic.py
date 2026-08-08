@@ -2,6 +2,7 @@ import pytest
 
 from outreach.gate import Gate
 from outreach.record import Candidate, Contact, Outcome
+from outreach.topic import is_on_topic, note_hits
 from outreach.topic import hits_in, is_on_topic, note_hits
 
 
@@ -38,9 +39,11 @@ def test_evidence_is_the_terms_never_the_source_text():
     assert "secret third party prose" not in str(c.signals)
 
 
-def test_payload_strings_count_as_evidence():
+def test_payload_is_not_evidence_even_when_it_holds_something_he_wrote():
+    """A payload holds both his words and our query and cannot tell them apart, so an
+    adapter that harvested his words records them as hits instead of stashing them here."""
     c = cand(payload={"title": "Fine-tuning a transformer", "tag": "webdev"})
-    assert "fine-tuning" in note_hits(c)
+    assert "fine-tuning" not in note_hits(c)
 
 
 def test_off_topic_with_a_contact_is_rejected(gate):
@@ -82,3 +85,33 @@ def test_ranking_puts_in_band_first_then_unknown_then_off_band(gate):
     for c in (in_band, unknown, off_band):
         gate.judge(c)
     assert gate.rank([off_band, unknown, in_band]) == [in_band, unknown, off_band]
+
+
+def test_our_own_query_never_counts_as_his_evidence():
+    """A person found by searching "ai agents" would otherwise always look like an AI account."""
+    c = Candidate(channel="x", person_key="k", display_name="Sam", bio="sourdough and gardening",
+                  payload={"term": "ai agents", "tag": "llm", "query": "machine learning"})
+    note_hits(c)
+    assert c.signals["topic_hits"] == []
+    assert not is_on_topic(c)
+
+
+def test_no_payload_field_becomes_evidence_whatever_it_is_called():
+    c = Candidate(channel="x", person_key="k", display_name="Sam", bio="baking",
+                  payload={"anything_at_all": "prompt engineering"})
+    note_hits(c)
+    assert not is_on_topic(c)
+
+
+def test_the_persons_own_words_still_count():
+    c = Candidate(channel="x", person_key="k", display_name="Sam",
+                  bio="I build LLM agents", payload={"term": "gardening"})
+    note_hits(c)
+    assert "llm" in c.signals["topic_hits"]
+
+
+def test_evidence_an_adapter_already_harvested_is_kept():
+    c = Candidate(channel="x", person_key="k", display_name="Sam", bio="baking")
+    c.signals["topic_hits"] = ["rag"]
+    note_hits(c)
+    assert c.signals["topic_hits"] == ["rag"]

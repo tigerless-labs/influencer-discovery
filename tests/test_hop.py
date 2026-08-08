@@ -1,5 +1,6 @@
 from outreach.hop import (
     emails_in,
+    is_an_inbox,
     is_directory_page,
     looks_like_sponsor_page,
     registrable_domain,
@@ -269,3 +270,24 @@ def test_the_big_platforms_are_never_a_persons_own_site():
                 "https://discord.gg/abc", "https://patreon.com/someone",
                 "https://www.skool.com/community", "https://calendly.com/someone"):
         assert is_a_persons_own_site(url) is False
+
+
+def test_a_template_stand_in_company_is_not_an_inbox():
+    """Seen in the wild on three unrelated sites: the same name at the same fake company."""
+    for address in ("jane@company.com", "john@yourcompany.com", "hi@mycompany.com",
+                    "sales@acme.com", "me@test.com"):
+        assert not is_an_inbox(address)
+
+
+def test_a_real_address_on_a_company_like_domain_still_counts():
+    assert is_an_inbox("ryan@companyhouse.dev")
+
+
+def test_a_url_with_an_unclosed_bracket_is_not_a_domain_and_does_not_raise():
+    """One malformed bio link used to raise out of the parser and take the whole channel down."""
+    from outreach.domains import host_of, is_a_persons_own_site, registrable_domain
+
+    for bad in ("https://[oops", "http://a[b].com", "https://[", "http://]["):
+        assert host_of(bad) is None
+        assert registrable_domain(bad) is None
+        assert is_a_persons_own_site(bad) is False

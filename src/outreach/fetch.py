@@ -187,9 +187,9 @@ class Fetcher:
             self._fail(url, "not json")
             raise Blocked(f"{url} -> not json") from None
 
-    def try_get(self, url, headers=None, reuse=False):
+    def try_get(self, url, headers=None, reuse=False, persist=True):
         try:
-            return self.get(url, headers, reuse=reuse)
+            return self.get(url, headers, persist=persist, reuse=reuse)
         except Blocked:
             return None
 
@@ -214,7 +214,7 @@ class ReplayFetcher:
         self.raw = raw or RawStore()
         self.run_ids = run_ids
 
-    def try_get(self, url, headers=None):
+    def try_get(self, url, headers=None, reuse=False, persist=True):
         return self.raw.get(url, run_ids=self.run_ids)
 
     def try_json(self, url, headers=None):

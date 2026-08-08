@@ -167,3 +167,72 @@ def test_a_dump_that_is_not_there_is_not_an_error(tmp_path):
     from outreach.channels.reddit import Reddit
 
     assert Reddit(None, {"profile_dumps": [str(tmp_path / "gone.jsonl")]})._from_dumps(50) == []
+
+
+def tracker(kind, url):
+    """Reddit ships this attribute HTML-escaped; a fixture with raw quotes would test a page that does not exist."""
+    blob = (f'{{&quot;social_link&quot;:{{&quot;type&quot;:&quot;{kind}&quot;,'
+            f'&quot;url&quot;:&quot;{url}&quot;}}}}')
+    return f'<faceplate-tracker noun="social_link" data-faceplate-tracking-context="{blob}"></faceplate-tracker>'
+
+
+PROFILE_HTML = (
+    "<html><body>"
+    + tracker("CUSTOM", "https://blogger.dev")
+    + tracker("TWITTER", "https://x.com/blogger")
+    + "<span>33882 followers</span></body></html>"
+)
+
+
+def test_a_profile_page_gives_both_the_domain_and_the_size():
+    from outreach.channels.reddit import Reddit
+
+    channel = Reddit(None, {})
+    assert channel._own_domain(channel._social_links(PROFILE_HTML)) == "https://blogger.dev"
+    assert channel._followers(PROFILE_HTML) == 33882
+
+
+def test_a_profile_with_no_follower_line_reports_nothing_rather_than_zero():
+    """A silent zero would be judged as below any floor and drop a real person."""
+    from outreach.channels.reddit import Reddit
+
+    assert Reddit(None, {})._followers("<html><body>no numbers here</body></html>") is None
+
+
+def test_a_shortened_follower_count_is_read_at_its_real_scale():
+    from outreach.channels.reddit import Reddit
+
+    channel = Reddit(None, {})
+    assert channel._followers("<span>12.4k followers</span>") == 12400
+    assert channel._followers("<span>1,204 followers</span>") == 1204
+    assert channel._followers("<span>2m followers</span>") == 2_000_000
+
+
+def test_two_different_follower_figures_leave_the_size_unknown():
+    """Post bodies quote other people's counts; guessing which one is his invents a number."""
+    from outreach.channels.reddit import Reddit
+
+    html = "<p>my friend has 900000 followers</p><span>4210 followers</span>"
+    assert Reddit(None, {})._followers(html) is None
+
+
+def test_the_same_figure_repeated_is_still_a_size():
+    from outreach.channels.reddit import Reddit
+
+    assert Reddit(None, {})._followers("<b>4210 followers</b><i>4,210 followers</i>") == 4210
+
+
+def test_a_tracking_blob_that_is_not_json_does_not_kill_the_page():
+    from outreach.channels.reddit import Reddit
+
+    html = '<faceplate-tracker data-faceplate-tracking-context="{oops social_link"></faceplate-tracker>' + PROFILE_HTML
+    assert Reddit(None, {})._social_links(html)
+
+
+def test_a_dump_does_not_re_offer_people_the_log_already_holds(tmp_path):
+    """Otherwise the already-imported crowd eats the whole budget and the live path never runs."""
+    from outreach.channels.reddit import Reddit
+
+    channel = Reddit(None, dump(tmp_path))
+    channel.already_have = lambda key: key == "blogger"
+    assert "blogger" not in by_key(channel._from_dumps(50))

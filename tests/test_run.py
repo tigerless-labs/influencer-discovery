@@ -269,3 +269,60 @@ def test_a_parked_person_is_not_rediscovered(runner, tmp_path):
     store = Store(tmp_path)
     runner(FakePool([person(f"p{i}", followers=9000) for i in range(6)]), per_channel=2, store=store)
     assert store.is_seen(("p5", "fake"))
+
+
+def with_site(c):
+    c.own_site = f"https://{c.person_key}.dev"
+    return c
+
+
+def test_someone_below_the_floor_is_never_walked(tmp_path, monkeypatch):
+    """Below the floor is a decision not to spend, not just a decision not to write."""
+    walked = []
+    monkeypatch.setattr(channel_registry, "build",
+                        lambda *a, **k: FakePool([with_site(person("tiny", followers=800, email=False))]))
+    monkeypatch.setattr(run_module.SecondHop, "walk", lambda self, c: walked.append(c.person_key))
+    r = Run("test", 3, BAND, "test", store=Store(tmp_path), floor=1000)
+    r.channel("fake", {})
+    assert walked == []
+
+
+def test_someone_above_the_floor_is_still_walked(tmp_path, monkeypatch):
+    walked = []
+    monkeypatch.setattr(channel_registry, "build",
+                        lambda *a, **k: FakePool([with_site(person("big", followers=9000, email=False))]))
+    monkeypatch.setattr(run_module.SecondHop, "walk", lambda self, c: walked.append(c.person_key))
+    r = Run("test", 3, BAND, "test", store=Store(tmp_path), floor=1000)
+    r.channel("fake", {})
+    assert walked == ["big"]
+
+
+def test_rejudging_drops_the_evidence_it_is_about_to_recompute(tmp_path, monkeypatch):
+    """Stored hits came from the old rule; keeping them would re-confirm the verdict being retested."""
+    store = Store(tmp_path)
+    c = person("stale", followers=9000, on_topic=False)
+    c.signals["topic_hits"] = ["ai agents"]
+    c.outcome = Outcome.QUALIFIED
+    store.record(c, run_id="old")
+    monkeypatch.setattr(run_module.SecondHop, "walk", lambda self, candidate: None)
+    run_module.rejudge("re", BAND, store=store)
+    after = next(p for p in store.people() if p.person_key == "stale")
+    assert after.outcome is Outcome.OFF_TOPIC
+
+
+def test_one_poisonous_candidate_does_not_take_the_channel_down(tmp_path, monkeypatch):
+    """A channel that dies mid-judging discards everyone already judged in that pass."""
+    def explode(self, candidate):
+        if candidate.person_key == "bad":
+            raise ValueError("Invalid IPv6 URL")
+
+    monkeypatch.setattr(channel_registry, "build", lambda *a, **k: FakePool(
+        [with_site(person("first", followers=9000, email=False)),
+         with_site(person("bad", followers=9000, email=False)),
+         with_site(person("third", followers=9000, email=False))]))
+    monkeypatch.setattr(run_module.SecondHop, "walk", explode)
+    store = Store(tmp_path)
+    r = Run("test", 5, BAND, "test", store=store)
+    r.channel("fake", {})
+    judged = {p.person_key for p in store.people()}
+    assert {"first", "third"} <= judged

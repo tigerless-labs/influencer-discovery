@@ -25,7 +25,23 @@ class Gate:
         self.subject = subject
         self.floor = floor
 
+    def _measured(self, candidate):
+        audience = candidate.audience
+        return audience if audience and audience.unit == BAND_UNIT and audience.value else None
+
+    def too_small(self, candidate):
+        """Answerable the moment a size is known, so the walk is never paid for below the floor."""
+        audience = self._measured(candidate)
+        return bool(self.floor and audience and audience.value < self.floor)
+
     def judge(self, candidate):
+        if self.too_small(candidate):
+            candidate.signals["in_band"] = False
+            return Verdict(
+                Outcome.AUDIENCE_OUT_OF_BAND, True,
+                f"{candidate.audience.value} {candidate.audience.unit} < {self.floor}",
+            )
+
         if not candidate.contacts:
             return Verdict(Outcome.NO_CONTACT, False, "no reachable address")
 
@@ -36,16 +52,11 @@ class Gate:
         if not is_on_topic(candidate):
             return Verdict(Outcome.OFF_TOPIC, False, f"no {self.subject} evidence anywhere")
 
-        audience = candidate.audience
-        measured = bool(audience and audience.unit == BAND_UNIT and audience.value)
+        audience = self._measured(candidate)
+        measured = audience is not None
         candidate.signals["in_band"] = (
             self.low <= audience.value <= self.high if measured else None
         )
-        if measured and self.floor and audience.value < self.floor:
-            return Verdict(
-                Outcome.AUDIENCE_OUT_OF_BAND, True,
-                f"{audience.value} {audience.unit} < {self.floor}",
-            )
         evidence = ", ".join(candidate.signals.get("topic_hits") or [])
         size = f"{audience.value} {audience.unit}" if measured else "规模未知"
         return Verdict(Outcome.QUALIFIED, measured, f"{size};{evidence}")

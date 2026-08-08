@@ -7,25 +7,30 @@
 两个端点,各 1 credit:
 
 ```
-GET /v1/threads/search?query=<关键词>          内容搜索
-GET /v1/threads/search/users?query=<词>        用户搜索
-GET /v1/threads/profile?handle=<username>      资料页
+GET /v1/threads/search?query=<关键词>[&start_date=&end_date=]   内容搜索
+GET /v1/threads/search/users?query=<词>                        用户搜索
+GET /v1/threads/profile?handle=<username>                      资料页
 ```
 
 **内容搜索一次约二十条帖子,去重后十几个作者。** 每条帖带作者的 `username`、`full_name`、
-`is_verified`,以及正文、回复数、转发数。**不带粉丝数,也不带 bio。**
+`is_verified`、`text_post_app_is_private`,以及正文、`like_count`、发帖时间。
+**不带粉丝数,也不带 bio。**
 
-**用户搜索一次十个账号**,字段更少 —— 只有 `username`、`full_name`、`is_verified`,
-同样没有粉丝数与 bio。
+**两个搜索端点都没有 cursor,唯一的翻页是日期窗口。** 内容搜索接受 `start_date` / `end_date`
+(`YYYY-MM-DD`),取回的帖子落在窗口内;一周一窗往回走,每窗仍是约二十条帖、
+十几个不同作者,**窗口之间几乎不重叠**。用户搜索连日期都不收,一个关键词就是一次十个账号,
+字段更少 —— 只有 `username`、`full_name`、`is_verified`,同样没有粉丝数与 bio。
 
 **资料页给全:**
 
 ```
-follower_count        粉丝数
-biography             bio 全文
-bio_links[].url       外链;lynx_url 是平台包装过的跳转版本
+follower_count            粉丝数
+biography                 bio 全文
+bio_links[].url           外链;lynx_url 是平台包装过的跳转版本
 full_name
-profile_tags.edges[]  平台给的垂类标签
+profile_tags.edges[]      平台给的垂类标签
+text_post_app_is_private  私密账号
+text_post_app_public_views 公开浏览量
 ```
 
 **筛选条件全部只在资料页里。** 搜索结果不含粉丝数、不含 bio、不含垂类标签 ——
@@ -74,6 +79,5 @@ threads.net 的帖子实测零命中;开通是自愿的且有门槛(公开账号
 
 ## 待探索
 
-- 内容搜索的翻页与结果上限:一个关键词一次约二十条,能不能往后翻未探。
-- `start_date` / `end_date` 对结果量的影响。
+- 日期窗口能往回走多远才开始空返。
 - 官方 API 的搜索权限实际能不能批下来。

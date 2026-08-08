@@ -176,3 +176,15 @@ def test_without_reuse_a_known_page_is_still_fetched(tmp_path, monkeypatch):
     )
     assert fetcher.try_get("https://shared.dev") is None
     assert calls == [1]
+
+
+def test_the_replay_fetcher_accepts_the_same_call_as_the_real_one(tmp_path):
+    """The walk calls it with reuse/persist; a narrower signature makes replay die on the first site."""
+    import inspect
+
+    from outreach.fetch import Fetcher, ReplayFetcher
+
+    for name in ("try_get", "try_json"):
+        real = set(inspect.signature(getattr(Fetcher, name)).parameters)
+        replay = set(inspect.signature(getattr(ReplayFetcher, name)).parameters)
+        assert real <= replay, f"{name}: replay is missing {real - replay}"

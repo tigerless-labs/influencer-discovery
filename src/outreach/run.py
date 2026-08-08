@@ -76,9 +76,18 @@ class Run:
                 self._park(candidate)
                 continue
             needs_signal = candidate.audience is None or candidate.audience.unit != "followers"
-            if candidate.own_site and (not candidate.email or needs_signal):
-                self.hop.walk(candidate)
-            verdict = self.gate.judge(candidate)
+            worth_walking = candidate.own_site and not self.gate.too_small(candidate)
+            try:
+                if worth_walking and (not candidate.email or needs_signal):
+                    self.hop.walk(candidate)
+                verdict = self.gate.judge(candidate)
+            except Exception as e:  # one hostile record must not discard everyone judged before it
+                self.store.record_failure(
+                    candidate.profile_url or candidate.person_key,
+                    f"{type(e).__name__}: {e}",
+                    run_id=self.run_id,
+                )
+                continue
             candidate.outcome = verdict.outcome
             candidate.signals["verdict_reason"] = verdict.reason
             candidate.signals["band_applied"] = verdict.band_applied
@@ -156,6 +165,7 @@ def rejudge(run_id, band, store=None, replay=False, floor=0):
         if candidate.outcome is None:
             continue
         before = _judgement(candidate)
+        candidate.signals.pop("topic_hits", None)
         candidate.contacts = [c for c in candidate.contacts if is_an_inbox(c.value)]
         if hop and candidate.own_site:
             for signal in DERIVED_SIGNALS:

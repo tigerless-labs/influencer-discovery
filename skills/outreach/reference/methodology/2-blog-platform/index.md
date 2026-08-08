@@ -18,7 +18,6 @@
 |---|---|---|---|
 | [WordPress.com](wordpress-com.md) | 注册即发 | 约四成 | 抽样 |
 | [Hashnode](hashnode.md) | 注册即发 | 28% | 50 |
-| [freeCodeCamp News](freecodecamp-news.md) | 有编辑审 | 28% | 501 |
 
 **编辑审筛的是稿子,不是作者有没有站。** freeCodeCamp 先前那个 12/12 来自十二个人,
 放大到两百多人就掉到与零门槛平台同一档 —— **这一档没有哪个平台能省掉第一道筛。**
@@ -27,7 +26,6 @@
 
 | 平台 | 入口 | 发现形态 |
 |---|---|---|
-| [freeCodeCamp News](freecodecamp-news.md) | sitemap 一次给全部作者 | **目录型可穷尽** |
 | [DEV.to](dev-to.md) | 公开 API 免 key,作者对象随文章内联 | 搜索型 |
 | [WordPress.com](wordpress-com.md) | 标签流免 key,用户名通向 Gravatar 的公开邮箱 | 搜索型 |
 | [Micro.blog](micro-blog.md) | 发现页背后的 JSON Feed,作者字段直接是他自己的站 | 搜索型,产出未测 |
@@ -39,7 +37,6 @@
 
 | 平台 | 卡点 |
 |---|---|
-| HackerNoon | RSS 给作者名与 handle,但**资料页对诚实 UA 返回质询页**,第二跳断在这里 |
 | Bear Blog | 发现页同样是质询页。**不绕**,这一档到此为止 |
 | Tumblr | 标签页一次 7 个博客且**无翻页**;抽样 10 个,自定义域名 0、feed 字段全空。
 唯一能翻页的路要拿页面里的匿名 token 去绕 API key 那道闸,**不走** |
@@ -71,7 +68,7 @@ sitemap 十个请求可枚举约 25 万个刊物,还免 key 给**订阅数**—�
 - **Substack** —— 归 [newsletter.md](../3-personal-site/newsletter.md),那一档有赞助入口这条捷径。
 - **Medium** —— **不做**:平台上没有联系方式,资料页对 CLI 关着门。
 - **Hacker News 与 Lobsters** —— 不承载文章,是 self-hosted.md 的发现源。
-- **多作者刊物** —— 有编辑、卖广告位、作者只是供稿的,归 [media.md](../_not-run/media.md)。
+- **多作者刊物** —— 有编辑、卖广告位、作者只是供稿的,归 [5-media/](../5-media/index.md)。
   判据是**站上给不给作者独立的资料页与外链**:给的算这一档,只给投稿信箱的算媒体。
 
 ## 过了第一道筛之后,还剩多少能联系上

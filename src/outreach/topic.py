@@ -39,12 +39,8 @@ def hits_in_page(html, subject="ai"):
 
 
 def _candidate_text(candidate):
+    """Only what the person wrote. The channel's payload holds our own query, which would self-confirm."""
     parts = [candidate.display_name, candidate.bio, candidate.own_site, candidate.profile_url]
-    for value in (candidate.payload or {}).values():
-        if isinstance(value, str):
-            parts.append(value)
-        elif isinstance(value, (list, tuple)):
-            parts.extend(v for v in value if isinstance(v, str))
     return " \n ".join(p for p in parts if p)
 
 

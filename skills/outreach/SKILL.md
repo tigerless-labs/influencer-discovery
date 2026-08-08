@@ -24,8 +24,9 @@ description: >
 不是产出。这是这套方法最大的误报源,判别见
 [seller-vs-buyer.md](reference/methodology/_shared/seller-vs-buyer.md)。
 
-**媒体也不是目标。** 多作者刊物有编辑、有版面、卖广告位,不是某个可触达的人。
-清单与理由见 [media.md](reference/methodology/_not-run/media.md),存在只为防止误当博主渠道跑。
+**媒体本身不是目标,它的作者可能是。** 多作者刊物有编辑、有版面,站上只给投稿信箱 ——
+按站建行会把几百个作者塌成一行。做法是从刊物取作者清单再顺着作者出去,
+见 [5-media/](reference/methodology/5-media/index.md)。
 
 ## 先读这些
 
