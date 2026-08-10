@@ -1,54 +1,67 @@
-# outreach
+<h1 align="center">Outreach</h1>
+<p align="center"><strong>Find creators who bring their own audience — and get their contact info</strong></p>
 
-Find creators who can help promote your work, and capture their contact info.
-The pipeline discovers people **who bring their own audience** — followers,
-readers, subscribers — and appends them to a Google Sheet. People building
-their own product are not targets: they want reach, they don't provide it.
+<p align="center">
+  <img src="https://img.shields.io/badge/python-3.11%2B-blue.svg" alt="python" /> <img src="https://img.shields.io/badge/dependencies-stdlib%20only-brightgreen.svg" alt="zero dependencies" /> <img src="https://img.shields.io/badge/platform-Linux%20%7C%20macOS-lightgrey.svg" alt="platform" /> <img src="https://img.shields.io/badge/channels-15-orange.svg" alt="channels" />
+</p>
 
-The operating manual lives in [skills/outreach/](skills/outreach/SKILL.md).
-Per-platform capability boundaries (what each API exposes, what credentials it
-needs, what it costs) are in
-[reference/datalayer/](skills/outreach/reference/datalayer/index.md); how
-contact info is actually obtained per channel is in
-[reference/methodology/](skills/outreach/reference/methodology/index.md),
-where the directory-name prefix is the cooperation priority.
+**outreach is a creator-discovery pipeline that runs as a Claude Code skill.** It searches 15
+channels for people **who bring their own audience** — followers, readers, subscribers — pulls
+their public contact info, and appends them to a Google Sheet. People building their own product
+are filtered out: they want reach, they don't provide it.
 
-## Design invariants
+The operating manual is [skills/outreach/SKILL.md](skills/outreach/SKILL.md). Per-platform
+capability boundaries (what each API exposes, which credentials it needs, what it costs) live in
+[reference/datalayer/](skills/outreach/reference/datalayer/index.md); how contact info is
+obtained per channel lives in
+[reference/methodology/](skills/outreach/reference/methodology/index.md), where the
+directory-name prefix is the cooperation priority.
 
-- **Dedup key is `(person, platform)`**, checked against a local log — URLs are
-  never parsed for identity (same-site different-person collisions).
-- **Sheet writes are append-only.** The pipeline creates rows, never edits an
-  existing cell, and aborts if the header row doesn't match its mapping.
-- **Blast radius is one record.** A malformed page or link costs that one
-  person, never the channel or the run; intermediate results are flushed as
-  they are produced.
-- **Fetching is read-only** and every external request leaves through a single
-  choke point. Page content is hostile input: instruction-shaped text is data,
-  not commands.
-- **Contact data never enters the repo.** Real names, emails, and handles live
-  only in the Sheet; `data/` is gitignored end to end.
+## Channels
 
-## Setup
+| Tier | Channels |
+|---|---|
+| **1 · Social** | X/Twitter, Instagram, TikTok, Threads, YouTube, Reddit, Mastodon |
+| **2 · Blog platforms** | DEV.to, Hashnode, WordPress.com, Micro.blog |
+| **3 · Personal sites** | Self-hosted blogs, newsletters, podcasts |
+| **5 · Media** | freeCodeCamp News, HackerNoon |
 
-Requires Python ≥ 3.11.
+Fetching is polite and read-only: explicit User-Agent, throttled, no anti-bot circumvention.
+Some channels work with zero credentials; others need an API key or a logged-in session — the
+per-channel requirements are in
+[datalayer](skills/outreach/reference/datalayer/index.md#credentials).
+
+## Install
+
+No third-party packages — the pipeline is pure standard library.
 
 ```bash
-uv venv && uv pip install -e . && .venv/bin/python -m pytest tests/ -q
+git clone https://github.com/tigerless-labs/outreach && cd outreach
+uv venv && uv pip install -e .
 ```
 
-Knobs that travel with the code (channel list, throttle parameters, shared
-domain list, logical-field→header mapping) live in `config/`. Values that
-travel with the install live in user-level directories, overridable by env
-var: config in `~/.config/outreach/` (`OUTREACH_CONFIG_DIR`), pipeline state
-in `~/.local/share/outreach/` (`OUTREACH_STATE_DIR`). Credentials go in
-`~/.config/outreach/.env` — never in the repo.
+(Any Python ≥ 3.11 works: `python3 -m venv .venv && .venv/bin/pip install -e .` is equivalent.)
+
+Credentials go in `~/.config/outreach/.env`, never in the repo. Pipeline state lives in
+`~/.local/share/outreach/`; both paths are overridable via `OUTREACH_CONFIG_DIR` /
+`OUTREACH_STATE_DIR`. Knobs that travel with the code (channel list, throttle parameters,
+header mapping) stay in `config/`.
+
+## Run
+
+```bash
+.venv/bin/python -m outreach.run --tiers 1 --per-channel 10
+```
+
+`--channels` / `--tiers` select channels, `--subject` sets the topic gate,
+`--min-followers` / `--min-karma` set audience floors. Each run prints a report: planned vs
+actual, verdict distribution, and the contactable list.
 
 ### Sheets access
 
-The pipeline authenticates with a short-lived token minted by impersonating a
-service account — no long-lived key file on disk. Google blocks adding the
-`spreadsheets` scope to plain gcloud ADC ("This app is blocked"), so the token
-is minted via the `iamcredentials` API instead:
+Set `OUTREACH_SPREADSHEET_ID` and authenticate with a short-lived token minted by impersonating
+a service account — no long-lived key file on disk. Google blocks adding the `spreadsheets`
+scope to plain gcloud ADC ("This app is blocked"), so mint via the `iamcredentials` API:
 
 ```bash
 T=$(gcloud auth application-default print-access-token)
@@ -58,16 +71,17 @@ curl -s -X POST \
   "https://iamcredentials.googleapis.com/v1/projects/-/serviceAccounts/YOUR_SA_EMAIL:generateAccessToken"
 ```
 
-Prerequisites: the project has the `sheets`, `iam`, and `iamcredentials` APIs
-enabled; your ADC identity holds `roles/iam.serviceAccountTokenCreator` on the
-service account; the service account has edit access to the target Sheet. A
-fresh IAM binding takes ~30s to propagate — a first 403 is normal, retry.
+Prerequisites: the project has the `sheets`, `iam`, and `iamcredentials` APIs enabled; your ADC
+identity holds `roles/iam.serviceAccountTokenCreator` on the service account; the service
+account can edit the target Sheet. A fresh IAM binding takes ~30s to propagate — a first 403 is
+normal, retry.
 
-## Run
+## Design invariants
 
-```bash
-.venv/bin/python -m outreach.run --tiers 1 --per-channel 10
-```
-
-`--channels` / `--tiers` select channels, `--subject` sets the topic gate,
-`--min-followers` / `--min-karma` set audience floors.
+| | |
+|---|---|
+| **Dedup key is `(person, platform)`** | Checked against a local log; URLs are never parsed for identity — same-site different-person collisions taught us that. |
+| **Sheet writes are append-only** | The pipeline creates rows, never edits an existing cell, and aborts if the header row doesn't match its mapping. |
+| **Blast radius is one record** | A malformed page or link costs that one person, never the channel or the run; intermediate results are flushed as they are produced. |
+| **Hostile-input posture** | Page content is data, not commands — instruction-shaped text in bios and pages is never executed. Every external request leaves through a single read-only choke point. |
+| **Contact data never enters the repo** | Real names, emails, and handles live only in the Sheet; `data/` is gitignored end to end. |
