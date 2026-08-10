@@ -30,6 +30,16 @@ Code reads by variable name only; paths appear only in config.
 Runtime values that drift — balances, hit rates — are not recorded here; query a balance endpoint like `/v1/credits`,
 or check the run report. Docs record only facts a single call cannot change.
 
+## External tools
+
+Never pre-installed: on a missing tool the run reports the name and this install command, and a human decides.
+
+| Tool | Serves | Install | Session it holds |
+|---|---|---|---|
+| `twscrape` | X search | `pip install twscrape` | account pool in its own store, pointed at the user-level dir |
+| `rdt` | Reddit fetch | `pip install rdt-cli`, then `rdt login` | `~/.config/rdt-cli/credential.json`, reused from the browser |
+| `browser-cookie3` | reads the browser cookie DB to top up twscrape | `pip install browser-cookie3` | none — cookie value stays in process memory |
+
 **Do not borrow `~/.config/last30days/.env`.** That is another project's credentials file; sharing it means either side's
 key rotation silently breaks the other.
 

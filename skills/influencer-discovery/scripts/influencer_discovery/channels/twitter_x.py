@@ -178,7 +178,7 @@ class TwitterX(Channel):
         try:
             proc = self._start(query, limit)
         except OSError as e:
-            self.halted = f"twscrape failed to start: {type(e).__name__}"
+            self.halted = f"twscrape failed to start: {type(e).__name__}. Install: pip install twscrape"
             return []
         cutoff = time.monotonic() + QUERY_TIMEOUT_SECONDS
         if deadline:

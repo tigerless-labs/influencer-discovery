@@ -53,7 +53,7 @@ def rdt_cookie_header():
     """Reddit hides a profile behind login; rdt already holds that session, so it is reused, not re-asked."""
     stored = rdt_credential_file()
     if not stored.exists():
-        raise NoSession("rdt has no stored cookies — run `rdt login` once")
+        raise NoSession("rdt has no stored cookies — run `rdt login` once (install: pip install rdt-cli)")
     try:
         cookies = json.loads(stored.read_text(encoding="utf-8")).get("cookies")
     except (json.JSONDecodeError, OSError):
