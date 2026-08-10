@@ -1,4 +1,5 @@
 import json
+import select
 import subprocess
 import time
 from datetime import date, timedelta
@@ -13,6 +14,7 @@ from ..topic import MAX_EVIDENCE, hits_in
 from .base import Channel, register
 
 QUERY_TIMEOUT_SECONDS = 300
+IDLE_SECONDS = 90
 ACCOUNTS_TIMEOUT_SECONDS = 60
 PER_QUERY = 60
 WINDOW_DAYS = 30
@@ -165,36 +167,55 @@ class TwitterX(Channel):
                 return True
         return False
 
+    def _start(self, query, limit):
+        return subprocess.Popen(
+            twscrape_command("search", query, "--limit", str(limit)),
+            stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True,
+        )
+
     def _search(self, query, limit, deadline=None):
         """The session is a real person's: when X asks us to wait, we leave rather than queue behind it."""
         try:
-            proc = subprocess.Popen(
-                twscrape_command("search", query, "--limit", str(limit)),
-                stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True,
-            )
+            proc = self._start(query, limit)
         except OSError as e:
             self.halted = f"twscrape 起不来:{type(e).__name__}"
             return []
         cutoff = time.monotonic() + QUERY_TIMEOUT_SECONDS
         if deadline:
             cutoff = min(cutoff, deadline)
-        lines = []
         try:
-            for line in proc.stdout:
-                if line.startswith("{"):
-                    lines.append(line)
-                elif ASKED_TO_WAIT in line:
-                    self.halted = "X 让等下一个窗口"
-                    break
-                elif any(marker in line for marker in SESSION_GONE):
-                    self.halted = "登录态没了"
-                    break
-                if time.monotonic() >= cutoff:
-                    self.halted = self.halted or "取数预算用完"
-                    break
+            lines = self._read(proc, cutoff)
         finally:
             self._close(proc)
         return self._rows_in(lines)
+
+    def _read(self, proc, cutoff):
+        """A parked account says nothing at all, so silence — not a message — is the signal to leave."""
+        idle = int(self.config.get("idle_seconds", IDLE_SECONDS))
+        lines = []
+        while True:
+            remaining = cutoff - time.monotonic()
+            if remaining <= 0:
+                self.halted = self.halted or "取数预算用完"
+                break
+            if not self._readable(proc.stdout, min(idle, remaining)):
+                self.halted = "X 让等下一个窗口"
+                break
+            line = proc.stdout.readline()
+            if not line:
+                break
+            if line.startswith("{"):
+                lines.append(line)
+            elif any(marker in line for marker in SESSION_GONE):
+                self.halted = "登录态没了"
+                break
+            elif ASKED_TO_WAIT in line:
+                self.halted = "X 让等下一个窗口"
+                break
+        return lines
+
+    def _readable(self, stream, timeout):
+        return bool(select.select([stream], [], [], timeout)[0])
 
     def _rows_in(self, lines):
         rows = []
