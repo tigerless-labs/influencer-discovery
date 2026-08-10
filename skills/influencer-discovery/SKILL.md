@@ -82,10 +82,8 @@ cost ranking); each channel writes only its own exceptions.
 **Each channel doc answers one question: how to get a blogger's email on this platform.**
 Selection reasoning, cost arguments, and vendor comparisons do not go in the channel doc — cost belongs in
 [cost-ranking.md](reference/methodology/_shared/cost-ranking.md), vendors in the data layer.
-Writing rules in [CLAUDE.md](CLAUDE.md).
 
 The data layer states the **boundary**; methodology **rules on whether to run based on it** and writes the how. Channels ruled out but still needing a guard against accidental runs are demoted to reference (`_not-run/`); channels with zero yield for the goal are deleted outright, the reason kept in methodology's index.
-Writing conventions in [CLAUDE.md](CLAUDE.md); the data layer has its own.
 
 **Credentials live in `~/.config/influencer-discovery/.env` (`chmod 600`); variable names in
 [reference/datalayer/index.md](reference/datalayer/index.md#credentials).** Not in the repo, and do not borrow from

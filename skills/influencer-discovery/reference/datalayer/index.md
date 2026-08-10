@@ -1,7 +1,7 @@
 # Data layer
 
 **Each platform's capability boundary — independent of purpose.** What you can get, what you cannot, what credentials it takes, what it costs.
-Hand it to someone doing product sourcing, sentiment monitoring, or recruiting instead, and this tier still works. Writing conventions in [CLAUDE.md](CLAUDE.md).
+Hand it to someone doing product sourcing, sentiment monitoring, or recruiting instead, and this tier still works.
 
 One file for the publicly accessible surface, one per platform for the rest; vendors are a separate axis, one file of their own.
 
