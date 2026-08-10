@@ -46,11 +46,11 @@ def select(config, names="", tiers=""):
 class Run:
     def __init__(self, run_id, per_channel, band, priority, store=None,
                  pool_factor=DEFAULT_POOL_FACTOR, total=None, subject=DEFAULT_SUBJECT,
-                 floor=0):
+                 floor=0, floors=None):
         self.run_id = run_id
         self.per_channel = per_channel
         self.pool_factor = pool_factor
-        self.gate = Gate(band, subject, floor=floor)
+        self.gate = Gate(band, subject, floor=floor, floors=floors)
         self.store = store or Store()
         self.fetcher = Fetcher(run_id, store=self.store)
         self.hop = SecondHop(self.fetcher, self.store, run_id)
@@ -152,13 +152,13 @@ def _judgement(candidate):
     )
 
 
-def rejudge(run_id, band, store=None, replay=False, floor=0):
+def rejudge(run_id, band, store=None, replay=False, floor=0, floors=None):
     """The log is a cache, not the authority: a corrected judgement supersedes the stored one."""
     from .fetch import ReplayFetcher
     from .hop import is_an_inbox
 
     store = store or Store()
-    gate = Gate(band, floor=floor)
+    gate = Gate(band, floor=floor, floors=floors)
     hop = SecondHop(ReplayFetcher(), store, run_id) if replay else None
     corrected = []
     for candidate in store.people():
@@ -209,6 +209,15 @@ def append_to_sheet(store=None):
     return staged, None
 
 
+def _floors(args):
+    """A line per unit: what counts as too small differs by what the platform can even measure."""
+    return {
+        unit: value
+        for unit, value in (("followers", args.min_followers), ("karma", args.min_karma))
+        if value
+    }
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--channels", default="")
@@ -217,6 +226,7 @@ def main():
     parser.add_argument("--total", type=int, default=None)
     parser.add_argument("--subject", default=DEFAULT_SUBJECT)
     parser.add_argument("--min-followers", type=int, default=0)
+    parser.add_argument("--min-karma", type=int, default=0)
     parser.add_argument("--run-id", default=date.today().isoformat())
     parser.add_argument("--summarise", action="store_true")
     parser.add_argument("--rejudge", action="store_true")
@@ -243,7 +253,7 @@ def main():
 
     if args.rejudge:
         for candidate in rejudge(args.run_id, DEFAULT_BAND, replay=args.replay,
-                                 floor=args.min_followers):
+                                 floors=_floors(args)):
             print(f"{candidate.channel}/{candidate.person_key} -> {candidate.outcome.value}")
         return
 
@@ -270,7 +280,7 @@ def main():
         pool_factor=config.get("pool_factor", DEFAULT_POOL_FACTOR),
         total=args.total,
         subject=args.subject,
-        floor=args.min_followers,
+        floors=_floors(args),
     )
     for name in names:
         try:

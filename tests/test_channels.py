@@ -192,13 +192,6 @@ def test_a_profile_page_gives_both_the_domain_and_the_size():
     assert channel._followers(PROFILE_HTML) == 33882
 
 
-def test_a_profile_with_no_follower_line_reports_nothing_rather_than_zero():
-    """A silent zero would be judged as below any floor and drop a real person."""
-    from outreach.channels.reddit import Reddit
-
-    assert Reddit(None, {})._followers("<html><body>no numbers here</body></html>") is None
-
-
 def test_a_shortened_follower_count_is_read_at_its_real_scale():
     from outreach.channels.reddit import Reddit
 
@@ -206,14 +199,6 @@ def test_a_shortened_follower_count_is_read_at_its_real_scale():
     assert channel._followers("<span>12.4k followers</span>") == 12400
     assert channel._followers("<span>1,204 followers</span>") == 1204
     assert channel._followers("<span>2m followers</span>") == 2_000_000
-
-
-def test_two_different_follower_figures_leave_the_size_unknown():
-    """Post bodies quote other people's counts; guessing which one is his invents a number."""
-    from outreach.channels.reddit import Reddit
-
-    html = "<p>my friend has 900000 followers</p><span>4210 followers</span>"
-    assert Reddit(None, {})._followers(html) is None
 
 
 def test_the_same_figure_repeated_is_still_a_size():
@@ -236,3 +221,39 @@ def test_a_dump_does_not_re_offer_people_the_log_already_holds(tmp_path):
     channel = Reddit(None, dump(tmp_path))
     channel.already_have = lambda key: key == "blogger"
     assert "blogger" not in by_key(channel._from_dumps(50))
+
+
+def test_a_page_with_no_follower_widget_means_zero_not_unknown():
+    """Reddit only renders the count above zero, so absence is the number, not a gap."""
+    from outreach.channels.reddit import Reddit
+
+    assert Reddit(None, {})._followers("<html><body>a profile with no widget</body></html>") == 0
+    assert Reddit(None, {})._followers(PROFILE_HTML) == 33882
+
+
+def test_two_different_figures_still_leave_it_unknown():
+    from outreach.channels.reddit import Reddit
+
+    html = "<p>my friend has 900000 followers</p><span>4210 followers</span>"
+    assert Reddit(None, {})._followers(html) is None
+
+
+def test_karma_is_read_from_the_user_record():
+    from outreach.channels.reddit import Reddit
+
+    payload = {"data": {"total_karma": 4321, "link_karma": 1, "comment_karma": 2}}
+    assert Reddit(None, {})._karma(payload) == 4321
+    assert Reddit(None, {})._karma({"data": {}}) is None
+    assert Reddit(None, {})._karma(None) is None
+
+
+def test_karma_stands_in_only_when_nobody_follows_him():
+    """A real follower count is the audience; karma is only a proxy for platforms without one."""
+    from outreach.channels.reddit import Reddit
+    from outreach.record import Audience
+
+    channel = Reddit(None, {})
+    assert channel._audience(followers=5400, karma=90).unit == "followers"
+    assert channel._audience(followers=0, karma=9000) == Audience(9000, "karma", channel._today)
+    assert channel._audience(followers=0, karma=None) == Audience(0, "followers", channel._today)
+    assert channel._audience(followers=None, karma=None) is None

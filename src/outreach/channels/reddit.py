@@ -76,8 +76,7 @@ class Reddit(Channel):
             links = self._social_links(page)
             candidate = self._person(author, self._own_domain(links), {"social_links": links})
             followers = self._followers(page)
-            if followers is not None:
-                candidate.audience = Audience(followers, "followers", date.today().isoformat())
+            candidate.audience = self._audience(followers, self._user_karma(author) if followers == 0 else None)
             candidate.mark_checked("profile")
             people.append(candidate)
         return people
@@ -127,17 +126,39 @@ class Reddit(Channel):
                 links.append({"type": link.get("type"), "url": url})
         return links
 
+    _today = date.today().isoformat()
+
     @staticmethod
     def _followers(html):
-        """Two different figures on one page means we cannot tell which is his, so neither is."""
+        """The count is only rendered above zero, so a page without it states a zero.
+        Two different figures mean we cannot tell which is his, and then neither is."""
+        if html is None:
+            return None
         found = set()
-        for number, suffix in FOLLOWER_LINE.findall(html or ""):
+        for number, suffix in FOLLOWER_LINE.findall(html):
             try:
                 value = float(number.replace(",", ""))
             except ValueError:
                 continue
             found.add(int(value * SCALE.get((suffix or "").lower(), 1)))
+        if not found:
+            return 0
         return found.pop() if len(found) == 1 else None
+
+    @staticmethod
+    def _karma(record):
+        value = ((record or {}).get("data") or {}).get("total_karma")
+        return value if isinstance(value, int) else None
+
+    def _audience(self, followers, karma):
+        """Karma is not an audience; it stands in only where nobody can follow him at all."""
+        if followers:
+            return Audience(followers, "followers", self._today)
+        if followers == 0 and karma:
+            return Audience(karma, "karma", self._today)
+        if followers == 0:
+            return Audience(0, "followers", self._today)
+        return None
 
     @staticmethod
     def _own_domain(links):
@@ -166,6 +187,11 @@ class Reddit(Channel):
                 ],
             },
         )
+
+    def _user_karma(self, author):
+        """Cheap next to the profile page, and only asked for when nobody follows him."""
+        record = self._json(["user", author])
+        return self._karma(record)
 
     def _from_subreddits(self, limit):
         if limit <= 0:
@@ -204,16 +230,22 @@ class Reddit(Channel):
                 )
         return list(found.values())
 
-    def _listing(self, argv):
-        proc = subprocess.run(
-            ["rdt", *argv, "--json"],
-            capture_output=True, text=True, timeout=120,
-        )
-        if proc.returncode != 0:
-            return []
+    @staticmethod
+    def _json(argv):
         try:
-            data = json.loads(proc.stdout)
+            proc = subprocess.run(
+                ["rdt", *argv, "--json"], capture_output=True, text=True, timeout=120,
+            )
+        except (OSError, subprocess.SubprocessError):
+            return None
+        if proc.returncode != 0:
+            return None
+        try:
+            return json.loads(proc.stdout)
         except json.JSONDecodeError:
-            return []
+            return None
+
+    def _listing(self, argv):
+        data = self._json(argv)
         listing = ((data or {}).get("data") or {}).get("data") or {}
         return [child.get("data") or {} for child in listing.get("children") or []]

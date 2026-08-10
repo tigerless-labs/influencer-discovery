@@ -129,3 +129,39 @@ def test_being_too_small_outranks_having_no_address():
     """Otherwise the log says we looked for an address we deliberately never went after."""
     c = cand(audience=followers(800))
     assert Gate(BAND, floor=1000).judge(c).outcome is Outcome.AUDIENCE_OUT_OF_BAND
+
+
+def karma(n):
+    return Audience(value=n, unit="karma", as_of="2026-08-07")
+
+
+def test_a_floor_applies_to_the_unit_it_was_given_for():
+    g = Gate(BAND, floors={"followers": 1000, "karma": 1000})
+    assert g.judge(with_email(cand(audience=karma(2000)))).outcome is Outcome.QUALIFIED
+    assert g.judge(with_email(cand(audience=karma(40)))).outcome is Outcome.AUDIENCE_OUT_OF_BAND
+
+
+def test_a_unit_with_no_floor_is_never_rejected_for_size():
+    """A proxy nobody set a line for is not evidence that the person is too small."""
+    g = Gate(BAND, floors={"followers": 1000})
+    assert g.judge(with_email(cand(audience=karma(3)))).outcome is Outcome.QUALIFIED
+
+
+def test_a_measured_zero_is_a_size_not_a_gap():
+    """Platforms where following is optional report a real zero; it must reject like any low number."""
+    g = Gate(BAND, floors={"followers": 1000})
+    c = with_email(cand(audience=Audience(0, "followers", "2026-08-07")))
+    assert g.judge(c).outcome is Outcome.AUDIENCE_OUT_OF_BAND
+
+
+def test_the_plain_floor_still_means_followers():
+    assert Gate(BAND, floor=1000).judge(with_email(cand(audience=followers(800)))).outcome \
+        is Outcome.AUDIENCE_OUT_OF_BAND
+
+
+def test_only_followers_are_ranked_against_the_band():
+    """Karma and followers are not comparable, so a karma number never claims a band position."""
+    g = Gate(BAND, floors={"followers": 1000, "karma": 1000})
+    c = with_email(cand(audience=karma(50_000)))
+    g.judge(c)
+    assert c.signals["in_band"] is None

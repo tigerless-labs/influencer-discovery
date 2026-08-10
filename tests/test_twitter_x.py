@@ -325,6 +325,86 @@ def test_one_active_row_is_enough():
     assert TwitterX(None, {})._has_active_account(table) is True
 
 
+class Pipe:
+    """A pipe delivers one line at a time; buffering the whole stream would hide the wait notice."""
+
+    def __init__(self, lines):
+        self.lines = list(lines)
+
+    def __iter__(self):
+        raise AssertionError("read the pipe a line at a time, not in buffered chunks")
+
+    def readline(self):
+        return self.lines.pop(0) if self.lines else ""
+
+    def close(self):
+        pass
+
+
+class FakeProc:
+    def __init__(self, lines):
+        self.stdout = Pipe(lines)
+        self.terminated = False
+
+    def terminate(self):
+        self.terminated = True
+
+    def wait(self, timeout=None):
+        return 0
+
+
+def reading(lines, silent_after=None):
+    x = TwitterX(None, {"idle_seconds": 1})
+    proc = FakeProc(lines)
+    x._start = lambda query, limit: proc
+    spoken = {"left": len(lines) if silent_after is None else silent_after}
+
+    def readable(stream, timeout):
+        if spoken["left"] <= 0:
+            return False
+        spoken["left"] -= 1
+        return True
+
+    x._readable = readable
+    return x, proc
+
+
+def test_the_wait_notice_is_read_as_it_arrives_not_after_the_stream_ends():
+    x, proc = reading(["INFO | starting\n", 'No account available for queue "SearchTimeline"\n',
+                       json.dumps(tweet()) + "\n"])
+    rows = x._search("llm", 60)
+    assert x.halted
+    assert rows == []
+    assert proc.terminated
+
+
+def test_rows_before_the_wait_notice_are_kept():
+    x, _ = reading([json.dumps(tweet()) + "\n", 'No account available for queue "SearchTimeline"\n'])
+    assert len(x._search("llm", 60)) == 1
+    assert x.halted
+
+
+def test_a_session_that_died_mid_stream_halts_the_walk():
+    x, _ = reading(["No accounts available\n"])
+    x._search("llm", 60)
+    assert x.halted
+
+
+def test_an_account_parked_in_silence_is_left_rather_than_queued_behind():
+    """A parked session emits nothing at all, so only the silence itself can be the signal."""
+    x, proc = reading([json.dumps(tweet()) + "\n", json.dumps(tweet()) + "\n"], silent_after=1)
+    rows = x._search("llm", 60)
+    assert len(rows) == 1
+    assert x.halted == "X 让等下一个窗口"
+    assert proc.terminated
+
+
+def test_silence_from_the_very_first_read_still_ends_the_query():
+    x, _ = reading([json.dumps(tweet()) + "\n"], silent_after=0)
+    assert x._search("llm", 60) == []
+    assert x.halted
+
+
 def test_output_that_is_not_a_row_is_skipped_not_parsed():
     lines = ["INFO | starting\n", "{bad json}\n", json.dumps(tweet()) + "\n", "\n"]
     assert len(TwitterX(None, {})._rows_in(lines)) == 1
