@@ -34,6 +34,14 @@ with thirty million karma, still zero — the field exists with no real value, a
 text**, on the same page as the links, so that half megabyte buys both things at once. **This is the only place where a criterion must be read from visible text**,
 because the platform put it in no structured location.
 
+**A page without that text states a zero.** The widget renders only above zero, verified against the modal endpoint on 28 accounts: every page missing it
+returned zero, every page carrying it matched to the digit. Following is opt-in and hardly used — over two thousand profiles, two thirds had nobody at all,
+so a zero here is a value, not a gap.
+
+**The followers modal answers for anyone, at about 290 KB.** It is the endpoint the profile page lazy-loads, it needs the same session, and it returns the
+count even for accounts whose page shows no widget. Cheaper than the profile page but far dearer than the user resource, so it is worth a call only when the
+count is wanted without the links.
+
 **This gate too requires login to cross.** Anonymous user-resource fetches are refused; anonymous profile-page fetches get a JS challenge shell;
 the legacy interface returns a block page; only the same address fetched with login state is the real page.
 

@@ -55,17 +55,23 @@ class Reddit(Channel):
                     break
         return names
 
-    def _from_profiles(self, limit):
-        """The declared domain and the follower count live on the same page, behind the same login."""
+    def _from_profiles(self, limit, cookie=None):
+        """Size first because it is cheap, then the page that holds the domain, for whoever is left."""
         if limit <= 0 or not self.fetcher:
             return []
-        try:
-            cookie = rdt_cookie_header()
-        except NoSession as e:
-            self.unavailable = str(e)
-            return []
+        if cookie is None:
+            try:
+                cookie = rdt_cookie_header()
+            except NoSession as e:
+                self.unavailable = str(e)
+                return []
         people = []
         for author in self._authors(limit):
+            candidate = self._person(author, None, {})
+            candidate.audience = self._audience(self._user_karma(author))
+            if self.too_small(candidate):
+                people.append(candidate)
+                continue
             page = self.fetcher.try_get(
                 f"https://www.reddit.com/user/{author}/",
                 headers={"Cookie": cookie},
@@ -74,9 +80,10 @@ class Reddit(Channel):
             if page is None:
                 continue
             links = self._social_links(page)
-            candidate = self._person(author, self._own_domain(links), {"social_links": links})
-            followers = self._followers(page)
-            candidate.audience = self._audience(followers, self._user_karma(author) if followers == 0 else None)
+            candidate.own_site = self._own_domain(links)
+            candidate.payload["declared_links"] = [
+                link.get("url") for link in links if isinstance(link, dict)
+            ]
             candidate.mark_checked("profile")
             people.append(candidate)
         return people
@@ -150,15 +157,11 @@ class Reddit(Channel):
         value = ((record or {}).get("data") or {}).get("total_karma")
         return value if isinstance(value, int) else None
 
-    def _audience(self, followers, karma):
-        """Karma is not an audience; it stands in only where nobody can follow him at all."""
-        if followers:
-            return Audience(followers, "followers", self._today)
-        if followers == 0 and karma:
-            return Audience(karma, "karma", self._today)
-        if followers == 0:
-            return Audience(0, "followers", self._today)
-        return None
+    def _audience(self, karma):
+        """Following is optional here and almost nobody uses it, so karma is the only size on offer.
+        It counts upvotes, not people who chose to receive him: a proxy, and the run says so by
+        setting a line for it."""
+        return Audience(karma, "karma", self._today) if karma is not None else None
 
     @staticmethod
     def _own_domain(links):
@@ -189,7 +192,7 @@ class Reddit(Channel):
         )
 
     def _user_karma(self, author):
-        """Cheap next to the profile page, and only asked for when nobody follows him."""
+        """A few KB against the profile page's six hundred, so it is what decides who is worth one."""
         record = self._json(["user", author])
         return self._karma(record)
 

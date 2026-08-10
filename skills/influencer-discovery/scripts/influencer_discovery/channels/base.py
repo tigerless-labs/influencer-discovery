@@ -24,6 +24,10 @@ class Channel:
         self.fetcher = fetcher
         self.config = config or {}
 
+    def too_small(self, candidate):
+        """The run owns the line; a channel asks so it can skip what it would otherwise pay to fetch."""
+        return False
+
     def already_have(self, person_key):
         """A directory channel that cannot skip what it has seen never gets past its first page."""
         return False

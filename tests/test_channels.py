@@ -247,13 +247,36 @@ def test_karma_is_read_from_the_user_record():
     assert Reddit(None, {})._karma(None) is None
 
 
-def test_karma_stands_in_only_when_nobody_follows_him():
-    """A real follower count is the audience; karma is only a proxy for platforms without one."""
+
+def test_reddit_measures_a_person_by_karma():
+    """Following is optional there and almost nobody uses it, so karma is the only size on offer."""
     from influencer_discovery.channels.reddit import Reddit
     from influencer_discovery.record import Audience
 
     channel = Reddit(None, {})
-    assert channel._audience(followers=5400, karma=90).unit == "followers"
-    assert channel._audience(followers=0, karma=9000) == Audience(9000, "karma", channel._today)
-    assert channel._audience(followers=0, karma=None) == Audience(0, "followers", channel._today)
-    assert channel._audience(followers=None, karma=None) is None
+    assert channel._audience(4321) == Audience(4321, "karma", channel._today)
+    assert channel._audience(0) == Audience(0, "karma", channel._today)
+    assert channel._audience(None) is None
+
+
+def test_a_person_below_the_floor_never_costs_a_profile_page(tmp_path):
+    """The cheap call answers the size, so the expensive one is only spent on people who pass."""
+    from influencer_discovery.channels.reddit import Reddit
+
+    fetched = []
+
+    class Fetcher:
+        def try_get(self, url, **kw):
+            fetched.append(url)
+            return "<html></html>"
+
+    channel = Reddit(Fetcher(), {})
+    channel._authors = lambda limit: ["small", "big"]
+    channel._user_karma = lambda user: 50 if user == "small" else 5000
+    channel.too_small = lambda c: (c.audience.value or 0) < 1000
+    people = {c.person_key: c for c in channel._from_profiles(10, cookie="k=v")}
+
+    assert set(people) == {"small", "big"}
+    assert people["small"].audience.value == 50
+    assert not any("small" in url for url in fetched)
+    assert any("big" in url for url in fetched)
