@@ -1,32 +1,27 @@
-# 成本排序:选哪条路
+# Cost ranking: choosing a path
 
-**这不是渠道方法。** 它是在多条已跑通的路之间做选择的依据 ——
-**渠道那几份不写成本,成本推理全部住这里。**
+**This is not a channel method.** It is the basis for choosing among the paths already proven to work — **the channel files carry no cost content; all cost reasoning lives here.**
 
-各家的能力与收费方式住
-[datalayer/providers.md](../../datalayer/providers.md),那份不换算、不排序。
+Each provider's capabilities and pricing model live in [datalayer/providers.md](../../datalayer/providers.md); that file does no conversion and no ranking.
 
-## 结论
+## Conclusion
 
-**免费的排在所有付费路径之前。** Podcast、YouTube、GitHub、Blog、Newsletter、Mastodon
-全程只是普通 HTTP 或官方免费接口,不烧 credit。
+**Free paths rank ahead of all paid ones.** Podcast, YouTube, GitHub, Blog, Newsletter, Mastodon run entirely on plain HTTP or official free endpoints, burning no credit.
 
-**付费的三条按每人开销排:**
+**The three paid paths, ranked by per-person cost:**
 
 ```
-Instagram   0.149 credit/人      搜索结果直接带 bio、外链、粉丝数,一步到位
-TikTok      1.14  credit/人      搜索带粉丝数与播放量,能先筛再查 profile
-Threads     2.2   credit/人      粉丝数只在资料页里,筛选在查完之后
+Instagram   0.149 credit/person      search results carry bio, external links, follower count in one step
+TikTok      1.14  credit/person      search carries follower count and view counts, filter before profile lookup
+Threads     2.2   credit/person      follower count only on the profile page, filtering comes after the lookup
 ```
 
-**主力走 Instagram,供应商取当时单价最低的一家。**
+**Instagram is the main line; pick whichever provider has the lowest unit price at the time.**
 
-它赢在一次调用返回十个人的完整数据,这个差距压过任何一家的单价差 ——
-**所以这个排序不随价格表变动**。单价只在同一条路径的多家之间分胜负。
+It wins because one call returns complete data for ten people, a gap that dwarfs any provider's price difference — **so this ranking does not move with price lists**. Unit price only settles ties among providers on the same path.
 
-## 什么时候不按这个排
+## When not to rank this way
 
-- **目标人群只在某个平台上** —— 便宜的路上没人,再便宜也没用。这一条压过其余全部。
-- **要受众画像,或要中文平台** —— 这类能力只有个别供应商有,没有替代品时价格不参与排序。
-- **门槛提得很高时,Threads 会比上表更贵** —— 它筛掉的人已经付过费,
-  另外两条筛掉的人不产生调用。
+- **The target population exists only on one platform** — no people on the cheap path means cheap is worthless. This clause overrides everything else.
+- **Audience demographics needed, or Chinese platforms needed** — only certain providers have these capabilities; with no substitute, price does not enter the ranking.
+- **With a high enough bar, Threads gets pricier than the table shows** — the people it filters out have already been paid for; the people the other two filter out generate no calls.

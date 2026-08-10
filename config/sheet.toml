@@ -1,7 +1,8 @@
-# 逻辑字段 → 表头文字。随代码走。
-# 目标表标识与凭据随安装走,住 ~/.config/outreach/.env:
+# Logical field → header text. Travels with the code.
+# The target sheet id and credentials travel with the install and live in ~/.config/outreach/.env:
 #   OUTREACH_SPREADSHEET_ID
-# tab 的 gid 运行时向 API 查,不在这里存 —— 存了会随改名与挪位静默指错表。
+# The tab's gid is looked up from the API at runtime, not stored here — storing it would
+# silently point at the wrong tab after a rename or a move.
 
 tab = "Target List"
 

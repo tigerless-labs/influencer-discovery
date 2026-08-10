@@ -1,65 +1,65 @@
-# 数据层
+# Data layer
 
-**每个平台的能力边界 —— 与用途无关。** 能取到什么、取不到什么、要什么凭据、代价多少。
-换个人拿它去做选品、做舆情、做招聘,这一档照样能用。写法见 [CLAUDE.md](CLAUDE.md)。
+**Each platform's capability boundary — independent of purpose.** What you can get, what you cannot, what credentials it takes, what it costs.
+Hand it to someone doing product sourcing, sentiment monitoring, or recruiting instead, and this tier still works. Writing conventions in [CLAUDE.md](CLAUDE.md).
 
-一份公开可访问的,其余每个平台一份;供应商是另一个轴,单独一份。
+One file for the publicly accessible surface, one per platform for the rest; vendors are a separate axis, one file of their own.
 
-- [public.md](public.md) —— 免认证:纯 HTTP 或官方免费接口
-- [providers.md](providers.md) —— 第三方供应商名录:能力、网址、收费方式、实验记录
-- [instagram.md](instagram.md) —— 第三方 API,**已跑通**
-- [tiktok.md](tiktok.md) —— 第三方 API,**已跑通**
-- [mastodon.md](mastodon.md) —— **无认证**,发现与取数都免 key
-- [threads.md](threads.md) —— 匿名到资料页;发现要过审的官方 API 或第三方
-- [linkedin.md](linkedin.md) —— cookie,发现这一步不存在
-- [twitter-x.md](twitter-x.md) —— cookie,匿名只到 bio
-- [reddit.md](reddit.md) —— cookie,`rdt` CLI,已验证
+- [public.md](public.md) — no auth: plain HTTP or official free APIs
+- [providers.md](providers.md) — third-party vendor directory: capabilities, URLs, pricing model, experiment records
+- [instagram.md](instagram.md) — third-party API, **verified working**
+- [tiktok.md](tiktok.md) — third-party API, **verified working**
+- [mastodon.md](mastodon.md) — **no auth**; discovery and fetching both key-free
+- [threads.md](threads.md) — anonymous reaches the profile page; discovery needs the approval-gated official API or a third party
+- [linkedin.md](linkedin.md) — cookie; the discovery step does not exist
+- [twitter-x.md](twitter-x.md) — cookie; anonymous gets only the bio
+- [reddit.md](reddit.md) — cookie, `rdt` CLI, verified
 
-## 凭据
+## Credentials
 
-**全部住 `~/.config/outreach/.env`,`chmod 600`。** 不进 repo、不进日志、不进 reference。
-代码只按变量名读,路径只出现在配置里。
+**All live in `~/.config/outreach/.env`, `chmod 600`.** Not in the repo, not in logs, not in reference.
+Code reads by variable name only; paths appear only in config.
 
-| 变量名 | 供应商 | 状态 |
+| Variable | Vendor | Status |
 |---|---|---|
-| `SCRAPECREATORS_API_KEY` | ScrapeCreators | 已跑通 |
-| `SOCIAVAULT_API_KEY` | SociaVault | 已跑通 |
-| `LAMATOK_API_KEY` | LamaTok | 未跑通,待充值 |
-| `BRIGHTDATA_API_TOKEN` | Bright Data | 未跑通,待建 zone |
+| `SCRAPECREATORS_API_KEY` | ScrapeCreators | verified working |
+| `SOCIAVAULT_API_KEY` | SociaVault | verified working |
+| `LAMATOK_API_KEY` | LamaTok | not verified; awaiting top-up |
+| `BRIGHTDATA_API_TOKEN` | Bright Data | not verified; zone not yet created |
 
-余额、命中率这类会漂的运行时数值不写在这里 —— 查 `/v1/credits` 一类的余额端点,
-或看运行报告。文档只写不随一次调用改变的事实。
+Runtime values that drift — balances, hit rates — are not recorded here; query a balance endpoint like `/v1/credits`,
+or check the run report. Docs record only facts a single call cannot change.
 
-**不要借用 `~/.config/last30days/.env`。** 那是另一个项目的凭据文件;共用会让任何一方的
-key 轮换静默打断另一方。
+**Do not borrow `~/.config/last30days/.env`.** That is another project's credentials file; sharing it means either side's
+key rotation silently breaks the other.
 
-## 三条共同事实
+## Three shared facts
 
-**cookie 不落盘** —— 要用时现从浏览器 cookie DB 读,值只在进程内存里活。
-落盘就得自己管过期、加密、同步、泄漏面。本机 Chrome 可直接解密,无 keyring 阻塞。
+**Cookies never touch disk** — read them from the browser cookie DB at use time; the value lives only in process memory.
+Persisting means owning expiry, encryption, sync, and leak surface yourself. This machine's Chrome decrypts directly, no keyring blocking.
 
-**浏览器可用,但取数不靠它。** 本机 Chrome 扩展已配对,能开标签页、读页面文本。
-实测它的用途是**分清「爬虫看不到」和「真的没有」** —— 对被拒的站点,
-它买回的是访问权,不是页面上原本就没有的东西。按域名逐个授权,只能串行。
+**The browser is available, but fetching does not rely on it.** This machine's Chrome extension is paired; it can open tabs and read page text.
+Its tested use is **telling "the crawler cannot see it" apart from "it really is not there"** — for sites that refuse us,
+what it buys back is access, not things that were never on the page. Authorization is per domain, so it can only run serially.
 
-**服务端 filter 普遍不存在** —— 粉丝数、地区、垂类都没有服务端筛选。但搜索结果自带
-`follower_count`,**客户端筛不额外花钱**。唯一的例外是 Instagram:
-它的检索词吃 bio 文本本身,筛选条件可以写进 query。
+**Server-side filters generally do not exist** — no server-side filtering on follower count, region, or niche. But search results carry
+`follower_count`, so **client-side filtering costs nothing extra**. The one exception is Instagram:
+its query consumes the bio text itself, so filter conditions can be written into the query.
 
-## 一条排除规则
+## One exclusion rule
 
-**有月费的一律不用。** Modash、HypeAuditor、CreatorDB、Janney AI 全部排除。
-只接受按量付费、官方免费接口、自建。
+**Anything with a monthly fee is out.** Modash, HypeAuditor, CreatorDB, Janney AI — all excluded.
+Only pay-as-you-go, official free APIs, or self-built.
 
-## 两类凭据,来路不同
+## Two kinds of credentials, different origins
 
-**买来的 key** 住 env 文件,人填一次,过期要人换。
+**Purchased keys** live in the env file; a human fills them in once and replaces them on expiry.
 
-**登录态不落 env。** 它是用户浏览器里已经有的东西,现取现用:X 的会话 token 要从浏览器
-读出来交给取数工具;Reddit 的 CLI 自己就从浏览器取,存进它自己的凭据文件。
-**两者都不写进本项目的任何文件、不进日志。**
+**Login state never lands in env.** It is something the user's browser already has, fetched at use time: X's session token is read from the browser
+and handed to the fetcher; Reddit's CLI fetches from the browser itself and stores it in its own credentials file.
+**Neither is written into any file of this project, and neither is logged.**
 
-**登录态不是配置项,是用户当下的状态** —— 浏览器里有就有,没有就没有,填不进 env。
+**Login state is not a config item; it is the user's current state** — the browser either has it or it does not; it cannot be typed into env.
 
-**从 Chrome 的 cookie 库里读值要 `browser-cookie3`**,标准库做不到 —— 值是加密的。
-CLI 自带登录的平台不需要它,它只用在没有 CLI 那几条路上。
+**Reading values out of Chrome's cookie store requires `browser-cookie3`** — the standard library cannot; the values are encrypted.
+Platforms whose CLI handles login itself do not need it; it is used only on the routes without a CLI.

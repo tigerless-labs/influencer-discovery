@@ -1,60 +1,50 @@
 # Hashnode
 
-**API 已经不是免费的了,这条路改走 HTML。** GraphQL 端点对任何请求都 301 到一份
-公告页 —— **带不带 token 都一样**,不是鉴权失败,是端点整体撤了。旧的 `api.hashnode.com` 404。
+**The API is no longer free; this path now goes through HTML.** The GraphQL endpoint 301s every request to an announcement page — **with or without a token**. This is not an auth failure; the endpoint has been withdrawn entirely. The old `api.hashnode.com` 404s.
 
-平台自己的说法是读写都要刊物开 Pro。**不为发现付这笔钱** —— 下面这条免 key 的路够用。
+The platform's own position is that both reads and writes require the publication to be on Pro. **We do not pay that for discovery** — the key-free path below is sufficient.
 
-## 用标签页发现人,资料页给社交
+## Discover people via tag pages; profile pages give socials
 
-### ① 标签页
+### ① Tag page
 
 ```
 GET https://hashnode.com/n/<tag>   → 301 https://hashnode.com/tag/<tag>
 ```
 
-服务端渲染,handle 以 `href="/@<handle>"` 的形式直接在 HTML 里,不需要执行 JS。
-**跨标签重复很重**,铺量要靠换标签,且收益递减。
+Server-side rendered; handles sit directly in the HTML as `href="/@<handle>"`, no JS execution needed. **Cross-tag overlap is heavy** — scale by switching tags, with diminishing returns.
 
-### ② 资料页取 schema.org 的 Person
+### ② Profile page: schema.org Person
 
 ```
 GET https://hashnode.com/@<handle>
 ```
 
-**要的东西不在普通的 ld+json script 标签里。** 页面顶部那两块是平台自己的 WebSite 与
-Organization;**人的那块 `ProfilePage` 藏在 Next 的转义 payload 里**,`mainEntity` 就是
-Person,给姓名与他自己声明的外链(`sameAs`)。
+**What you need is not in the ordinary ld+json script tags.** The two blocks at the top of the page are the platform's own WebSite and Organization; **the person's `ProfilePage` block is buried in Next's escaped payload** — its `mainEntity` is the Person, giving the name and their self-declared external links (`sameAs`).
 
-**自有域名有两个来源,要合起来看**:`sameAs`,以及 `og:description` 那条简介里的裸链接。
-只读简介会漏掉大半 —— 实测只读简介 72 个人里只剩 2 个。
+**Own domains have two sources; combine them**: `sameAs`, plus bare links in the `og:description` bio. Reading only the bio misses most of them — measured: bio-only left 2 out of 72 people.
 
-**不要从页面里通配抓外链。** 侧栏挂着平台自己的推广位和**别人**的账号,
-通配抓会把不相干的人当成他的。
+**Do not wildcard-scrape external links from the page.** The sidebar carries the platform's own promo slots and **other people's** accounts; wildcard scraping attributes unrelated people to the profile owner.
 
-**页面上唯一的 mailto 是平台自己的支持信箱**,属于职能地址,不算数
-(见 [landing-page-two-hop.md](../_shared/landing-page-two-hop.md))。
+**The only mailto on the page is the platform's own support inbox** — a role address, does not count (see [landing-page-two-hop.md](../_shared/landing-page-two-hop.md)).
 
-## 赞助通道是另一回事
+## The sponsorship channel is a separate matter
 
-平台官方有创作者赞助通道。**它不产出联系方式**,是发信侧的付款路径,
-不属于这份文档 —— 但它推翻了「赞助位市场那一类都没有公开目录」这个印象,
-留在这里提醒:要验的是**它有没有公开的创作者目录**,还没验。
+The platform has an official creator-sponsorship channel. **It does not produce contact info** — it is a payment path on the sending side and outside this document's scope — but it overturns the impression that "sponsorship-marketplace things never have a public directory". Kept here as a reminder: what needs verifying is **whether it has a public creator directory**; not yet verified.
 
-## 停止语义
+## Stop semantics
 
-搜索型 —— **连续无新**。标签之间重复重,收敛会比 DEV.to 快。
+Search-type — **consecutive rounds with no new results**. Cross-tag overlap is heavy, so convergence comes faster than on DEV.to.
 
-## 去重的键
+## Dedup key
 
-`(handle, Hashnode)`。
+`(handle, Hashnode)`.
 
-## 实测
+## Measured
 
-五个标签一轮拿到八十来个 handle,**两成八有自有域名,其中两成六走完第二跳拿到邮箱** ——
-合起来一轮出五个可联系的人。**标签之间重复重,一轮就见底**,铺量得靠换标签。
+One round of five tags yielded about eighty handles; **28% have an own domain, and 26% of those completed the second hop to an email** — net, one round produces five contactable people. **Cross-tag overlap is heavy and a single round hits bottom**; scale requires switching tags.
 
-## 待验证
+## To verify
 
-- 赞助通道有没有公开可翻的创作者目录 —— 有的话它比标签页强,因为**列在那里的人本身就是卖方**。
-- 标签页能不能翻页,一个标签的总量是多少。
+- Whether the sponsorship channel has a publicly browsable creator directory — if so it beats the tag pages, because **people listed there are sellers by definition**.
+- Whether tag pages paginate, and the total volume per tag.

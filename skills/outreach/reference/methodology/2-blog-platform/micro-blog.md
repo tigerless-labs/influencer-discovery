@@ -1,27 +1,23 @@
 # Micro.blog
 
-**入口已验证,产出未测。** 平台的发现页是 JS 模板,真正可取的是它背后的 JSON Feed,
-免 key、免登录:
+**Entry verified, yield unmeasured.** The platform's discover page is a JS template; what is actually fetchable is the JSON Feed behind it, no key, no login:
 
 ```
 GET https://micro.blog/posts/discover
 ```
 
-一次 50 条,`items[].author` 给 `name`、`url`、`_microblog.username`。
-50 条里有 40 个不同作者。
+50 items per call; `items[].author` gives `name`, `url`, `_microblog.username`. 50 items contained 40 distinct authors.
 
-**`author.url` 就是他自己的站**,平台不用猜归属 —— 这一档里少见的确定性绑定。
-其中一部分是自定义域名,其余落在 `*.micro.blog` 子域上;
-两者都按[第二跳](../_shared/landing-page-two-hop.md)走。
+**`author.url` is the person's own site** — no guessing at ownership; a rare deterministic binding in this tier. Some are custom domains, the rest sit on `*.micro.blog` subdomains; both go through the [second hop](../_shared/landing-page-two-hop.md).
 
-平台上没有邮箱字段,这条路的产出全部来自第二跳。
+The platform has no email field; all yield on this path comes from the second hop.
 
-## 去重的键
+## Dedup key
 
-`(_microblog.username, Micro.blog)`。
+`(_microblog.username, Micro.blog)`.
 
-## 待验证
+## To verify
 
-- **翻页与话题。** 只取过一次首屏 50 条,能不能往回翻、能不能按 tagmoji 或话题取,没试。
-- 自定义域名的占比,以及走完第二跳的邮箱命中率。
-- 这批人的卖买比例 —— 整档共同的缺口,见 [index.md](index.md)。
+- **Pagination and topics.** Only the first screen of 50 has been fetched once; whether it pages back, and whether it can be queried by tagmoji or topic, untried.
+- The share of custom domains, and the email hit rate after completing the second hop.
+- The seller/buyer ratio of this cohort — the tier-wide gap, see [index.md](index.md).

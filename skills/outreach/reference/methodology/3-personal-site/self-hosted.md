@@ -1,77 +1,60 @@
-# 自建博客
+# Self-hosted blog
 
-**自有域名、站是他自己的、不挂在任何平台下。** 这一档没有平台入口可用 ——
-发现只能靠目录站与技术社区,联系方式在他自己的页面上。
+**Own domain, their own site, hanging under no platform.** This tier has no platform entry to use — discovery runs only through directory sites and tech communities; contact info lives on their own pages.
 
-**个人站比公司博客更不留邮箱** —— 目标表里那批(偏公司博客)六成有邮箱,
-从零发现的真·个人站只有四成。别拿前者的数字估后者。
+**Personal sites publish emails less than company blogs do** — the batch already in the target sheet (skewed toward company blogs) has emails 60% of the time; genuinely personal sites discovered from scratch only 40%. Do not estimate the latter from the former's numbers.
 
-## 入口
+## Entries
 
-**四个免 key 的源,没有一个挡诚实爬虫。要交叉用,因为它们的偏性正好互补:**
+**Four key-free sources, none of which blocks an honest crawler. Use them crosswise, because their biases complement each other:**
 
-- **个人站目录**(personalsit.es、blogroll.org、indieblog.page)—— 给「个人」,
-  但**不筛技术**。一轮就能出上千个域名。
-- **技术社区**(Hacker News 的 Algolia 接口、Lobsters 的 JSON feed)—— 给「技术」,
-  但**不筛个人**。靠**同域名的投稿频次**过滤:只投过一两次的基本是个人博客,
-  高频的是媒体。两个社区之间几乎不重叠,不是彼此的子集。
+- **Personal-site directories** (personalsit.es, blogroll.org, indieblog.page) — select for "personal", but **not for technical**. One round can produce a thousand-plus domains.
+- **Tech communities** (Hacker News' Algolia endpoint, Lobsters' JSON feed) — select for "technical", but **not for personal**. Filter by **per-domain submission frequency**: one or two submissions is usually a personal blog, high frequency is media. The two communities barely overlap; neither is a subset of the other.
 
-Lobsters 的 story JSON 里有一个字段直接标注「投稿人就是作者」 ——
-**这是整条链上唯一确定性的「站点 → 人」绑定**,不用猜。
+Lobsters' story JSON has a field that directly marks "submitter is the author" — **the only deterministic site→person binding in the whole chain**; no guessing.
 
-从 blogroll 往外走要克制 —— 那是图遍历,设计文档已排除无边界扩散。
+Walking outward from blogrolls takes restraint — that is graph traversal, and the design docs have ruled out unbounded expansion.
 
-### 还没跑但已确认可达的源
+### Confirmed reachable, not yet run
 
-免 key、对诚实爬虫开着,**只验过取得回,没验过产出**:
+Key-free, open to honest crawlers; **only fetchability verified, yield not**:
 
-- **Kagi 的 Small Web feed** —— 专收个人小站的机器可读源,一次返回上百个域名。
-  偏性和个人站目录相同,是那一类里体量最大的一个。
-- **ooh.directory** —— 分类目录,首页只挂当日更新,要按分类翻;以非技术博客为主。
-- **垂类榜单站**(某某领域 Top 100 博客那种)—— 一页给上百个域名,
-  但它们是**名录页**,要按名录源单独跑,不能当第二跳落点,
-  理由见 [landing-page-two-hop.md](../_shared/landing-page-two-hop.md)。
+- **Kagi's Small Web feed** — a machine-readable source dedicated to small personal sites, returning a hundred-plus domains per call. Same bias as personal-site directories, and the largest of that class.
+- **ooh.directory** — categorized directory; the homepage shows only the day's updates, so browse by category; predominantly non-tech blogs.
+- **Vertical list sites** (the "Top 100 blogs in X" kind) — one page gives a hundred-plus domains, but they are **roster pages**: run them as standalone roster sources, never treat one as a second-hop landing point — reason in [landing-page-two-hop.md](../_shared/landing-page-two-hop.md).
 
-## 拿联系方式
+## Getting contact info
 
-发现之后落在他自己的站上,**走的就是通用的那条阶梯**,这里不复述:
-[landing-page-two-hop.md](../_shared/landing-page-two-hop.md)。
-①–⑥ 那六档的命中率正是在这一档的站上测出来的。
+After discovery you land on their own site; **the path is the shared ladder**, not restated here: [landing-page-two-hop.md](../_shared/landing-page-two-hop.md). The hit rates for tiers ①–⑥ were measured precisely on this tier's sites.
 
-## RSS 给人名,不给邮箱
+## RSS gives names, not emails
 
-**邮箱位是死的** —— `managingEditor` 与 `webMaster` 在两批完全不同的个人站上各验一次,
-仍然是零。
+**The email slots are dead** — `managingEditor` and `webMaster`, verified once each on two entirely disjoint batches of personal sites, are still zero.
 
-**但人名位是全链最好的。** `<author>` / `<dc:creator>` 有七成带作者姓名,
-覆盖率远高于 `<meta name="author">` 和 JSON-LD 的 `Person` 节点。
-这正是去重键缺的那一半。
+**But the name slot is the best in the chain.** `<author>` / `<dc:creator>` carries the author's name 70% of the time — coverage far above `<meta name="author">` and JSON-LD `Person` nodes. That is exactly the missing half of the dedup key.
 
-同理,JSON-LD 作为**邮箱**来源没有价值(命中的都和首页重复),作为**身份**来源有价值。
+Likewise, JSON-LD is worthless as an **email** source (every hit duplicated the homepage) and valuable as an **identity** source.
 
-## 停止语义
+## Stop semantics
 
-搜索型 —— **连续无新**。
+Search-type — **consecutive rounds with no new results**.
 
-## 去重的键
+## Dedup key
 
-`(作者显示名, Blog)`。
+`(author display name, Blog)`.
 
-**显示名按覆盖率排,优先取 RSS 的 `<author>` / `<dc:creator>`**,其次 `<meta name="author">`、
-JSON-LD 的 `Person`,最后用 GitHub 账号的真名兜底。要从页面抓,不是从域名猜。
+**Rank display-name sources by coverage: RSS `<author>` / `<dc:creator>` first**, then `<meta name="author">`, then JSON-LD `Person`, with the GitHub account's real name as last resort. Scrape it from the page; never guess it from the domain.
 
-**同一个域名下可能有多个作者**(团队博客、公司工程博客),按域名判重会把他们塌成一个 ——
-这正是设计文档说的按 URL 去重的误杀。**多作者站不归这里**:媒体见 [5-media/](../5-media/index.md),
-公司工程博客属于产品站,不进表。
+**One domain may house multiple authors** (team blogs, company engineering blogs); deduping by domain collapses them into one — exactly the URL-dedup false merge the design docs describe. **Multi-author sites do not belong here**: media goes to [5-media/](../5-media/index.md); company engineering blogs are product sites and stay out of the sheet.
 
-## 边界
+## Boundaries
 
-- 静态站居多,没有 CDN,礼貌间隔要足;查域名注册信息要串行。
-- 第三方的订阅/联系/预约组件**不泄漏站主邮箱**,收件地址在服务端,别去解析它们。
-- 有的博客只有社交没有邮箱,那就只能记社交 handle 作为联系方式形态。
-- 个人博客的域名会换,历史链接会死 —— 死链进运行报告,不进 log。
+- Mostly static sites without CDNs; polite intervals must be generous; domain-registration lookups must be serial.
+- Third-party subscribe/contact/booking widgets **do not leak the owner's email** — the recipient address lives server-side; do not parse them.
+- Some blogs have only socials and no email; then the social handle is the recorded contact form.
+- Personal-blog domains change and historical links die — dead links go in the run report, not the log.
 
-## 待验证
+## To verify
 
-- 发现入口产出的域名还没过卖买判别,也没验和目标表现有行的重合度。
-- Lobsters 的资料页接口限流较紧,礼貌间隔要多大还没测出来。
+- Domains produced by the discovery entries have passed neither the seller-vs-buyer test nor an overlap check against existing sheet rows.
+- Lobsters' profile endpoint rate-limits tightly; the required polite interval is unmeasured.

@@ -1,15 +1,15 @@
 # LinkedIn
 
-**认证能进,但发现这一步不存在。** 本机 Chrome 有 `li_at`(已登录),技术上走得通。
+**Auth gets you in, but the discovery step does not exist.** This machine's Chrome has `li_at` (logged in); technically the route works.
 
-## 能力边界
+## Capability boundary
 
-- **没有公开的人物检索**,官方 API partner-gated —— 无法从条件找到人,只能按已知
-  profile URL 取。
-- **「联系信息」只对一度人脉可见。** 认证解决的是能不能看到资料页,
-  不解决能不能看到其中的联系信息。
-- **自动化检测最严,封号不可逆**,而账号是本人的真实职业身份。
+- **No public people search**; the official API is partner-gated — cannot find people from criteria, only fetch by known
+  profile URL.
+- **"Contact info" is visible only to first-degree connections.** Auth solves whether you can see the profile page,
+  not whether you can see the contact info on it.
+- **Automation detection is the strictest anywhere, and bans are irreversible**, while the account is the person's real professional identity.
 
-## 不经过取数层的那一点
+## The one bit that bypasses the fetch layer
 
-profile URL 本身。它从别处顺过来,不需要登录也不需要解析页面。
+The profile URL itself. It comes along from elsewhere; it needs neither login nor page parsing.

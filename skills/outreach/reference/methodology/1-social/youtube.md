@@ -1,62 +1,76 @@
 # YouTube
 
-目标表里最大的一个渠道,也是设计文档说的「已验证的两条路」之一。
-取数见 [datalayer/public.md](../../datalayer/public.md)。
+The largest channel on the target sheet, and one of the "two proven paths" named in the design
+docs. Data access: [datalayer/public.md](../../datalayer/public.md).
 
-## 入口
+## Entry point
 
-**搜索型。** 从关键词搜频道或搜视频,两者产出不同:
+**Search-type.** Keyword search for channels or for videos; the two yield different things:
 
-- **搜频道** —— 匹配频道名,容易命中名字里带关键词的空壳号。
-- **搜视频** —— 匹配内容,再从视频反推作者。同一个人在结果里**重复出现本身就是垂类
-  相关度的信号**,搜频道拿不到这个。
+- **Channel search** — matches channel names; easily hits hollow accounts with the keyword in the
+  name.
+- **Video search** — matches content, then works back from videos to the authors. **The same
+  person recurring in the results is itself a signal of niche relevance**; channel search cannot
+  provide that.
 
-优先搜视频。这个判断来自上一轮在别的平台上的实测,在 YouTube 上还没验。
+Prefer video search. This judgment comes from last round's runs on other platforms; unverified on
+YouTube.
 
-也可以从已有目标的频道页出发,但**不做图遍历扩散**——「相关频道」没有边界,会漂到
-不相关领域,设计文档已排除。
+Starting from an existing target's channel page is also possible, but **no graph-traversal
+expansion** — "related channels" has no boundary and drifts into unrelated fields; already ruled
+out by the design docs.
 
-## 拿联系方式
+## Getting contact info
 
-**频道的 about 页一次给全:简介正文和链接区都在初始 HTML 里,不需要浏览器。**
+**The channel's about page gives everything at once: the description text and the links section
+are both in the initial HTML; no browser needed.**
 
-按优先级:
+By priority:
 
-1. **频道简介正文** —— 创作者自己写的「Business inquiries: …」。免费、直接可用,
-   但**只有不到一成的频道这么写**。
-2. **频道的链接区** —— **本渠道产量的主要来源**,超过八成的频道有,平均三四条。
-   但过半指向别的社交平台,**只有指向自有域名的那些才是第二跳的起点**,
-   见 [landing-page-two-hop.md](../_shared/landing-page-two-hop.md)。约七成的频道至少有一个。
-3. ~~About 页的「查看电子邮件地址」按钮~~ —— **这条路不存在**,
-   理由见 [datalayer/public.md](../../datalayer/public.md)。
+1. **Channel description text** — the creator's own "Business inquiries: …". Free and directly
+   usable, but **fewer than one in ten channels write this**.
+2. **The channel's links section** — **this channel's main source of yield**; over eighty percent
+   of channels have one, averaging three or four links. But more than half point to other social
+   platforms; **only those pointing to own domains are second-hop starting points**, see
+   [landing-page-two-hop.md](../_shared/landing-page-two-hop.md). About seventy percent of
+   channels have at least one.
+3. ~~The about page's "view email address" button~~ — **this path does not exist**, rationale in
+   [datalayer/public.md](../../datalayer/public.md).
 
-所以 YouTube 这条链的实际形状是:**能从简介文本直接读到的就要,读不到的顺自有域名出去,
-拿不到就放弃这个人。** 自有域名那一跳的命中约四成。
+So the actual shape of the YouTube chain: **take whatever the description text gives directly;
+otherwise go out through the own domain; failing that, give up on the person.** The own-domain
+hop hits about forty percent.
 
-**聚合页在这批人群里几乎不出现** —— 和 Instagram 相反,那边是压倒性的 linktr.ee。
-不要把 Instagram 的形态套过来。
+**Aggregator pages barely appear in this population** — the opposite of Instagram, where
+linktr.ee is overwhelming. Don't project Instagram's shape onto this.
 
-## 停止语义
+## Stop semantics
 
-搜索型——靠**连续无新**收手,没有天然边界。翻到底不是这里的停止条件。
+Search-type — stop on **consecutive no-new**; there is no natural boundary. Paging to the end is
+not a stop condition here.
 
-## 去重的键
+## Dedup key
 
-`(频道显示名, YouTube)`。显示名由机器从频道页抓,不是人手打的——这是判重前提成立的条件。
+`(channel display name, YouTube)`. The display name is machine-scraped from the channel page, not
+hand-typed — that is the condition under which the dedup premise holds.
 
-注意 `youtube.com/@handle` 和 `youtube.com/channel/UC…` 是同一个人的两个地址;
-判重不看链接,所以这不构成问题,但**第二跳的地址条目会重复走一遍**。
+Note that `youtube.com/@handle` and `youtube.com/channel/UC…` are two addresses for the same
+person; dedup doesn't look at links, so this is not a problem, but **the second hop will walk the
+address entry twice**.
 
-## 边界
+## Boundaries
 
-- 简介文本会被列表页截断,拿全文要进频道页。
-- 两条被取数层封死的路(商务邮箱按钮、官方 API 的邮箱字段)见
-  [datalayer/public.md](../../datalayer/public.md)。**这里唯一的产出是简介文本与链接区。**
-- 链接区里混着支付/打赏、课程社群、日程预约这类第三方托管地址。
-  **它们不是自有域名**,当成第二跳起点会抓到平台而不是人。
+- Description text gets truncated on list pages; the full text requires the channel page.
+- Two paths sealed off at the data layer (the business-email button, the official API's email
+  field): see [datalayer/public.md](../../datalayer/public.md).
+  **The only yield here is the description text and the links section.**
+- The links section mixes in payment/tip-jar, course-community, and scheduling links hosted by
+  third parties. **They are not own domains**; used as second-hop starting points they fetch a
+  platform, not a person.
 
-## 待验证
+## To verify
 
-- 搜视频 vs 搜频道的质量差距在 YouTube 上有多大(判断来自别的平台的实测)。
-  搜视频这条路 CLI 走得通,同一人在结果里重复出现的现象也出现了,但两条路没做对照。
-- 频道显示名的稳定性——判重前提依赖它。
+- How big the video-search vs channel-search quality gap is on YouTube (the judgment comes from
+  runs on other platforms). The video-search path works via CLI, and the same-person recurrence
+  phenomenon does appear, but the two paths haven't been compared head-to-head.
+- Stability of channel display names — the dedup premise depends on it.

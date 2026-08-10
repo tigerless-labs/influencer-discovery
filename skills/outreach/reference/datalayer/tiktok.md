@@ -1,36 +1,36 @@
 # TikTok
 
-第三方 API:ScrapeCreators 或 SociaVault,两家端点等价(见 [providers.md](providers.md))。
-**bio 在 profile 里,不在搜索结果里** —— 每个人都要单独再查一次,换供应商消不掉这一次。
-**profile 不含任何结构化联系字段**,对外线索只有 `signature` 文本与 `bioLink`。
+Third-party API: ScrapeCreators or SociaVault; the two vendors' endpoints are equivalent (see [providers.md](providers.md)).
+**The bio is in the profile, not in search results** — every person needs a separate extra lookup; switching vendors will not remove it.
+**The profile contains no structured contact field**; the only outward leads are the `signature` text and `bioLink`.
 
-## 发现:两个端点,差一个量级
+## Discovery: two endpoints, an order of magnitude apart
 
-**`/v1/tiktok/search/users`** —— 参数只有 `query` / `cursor` / `trim`。
-1 credit → 30 个 handle:
+**`/v1/tiktok/search/users`** — parameters are only `query` / `cursor` / `trim`.
+1 credit → 30 handles:
 
 ```
-signature(bio)     一律为空
-search_user_desc   只是昵称,不是 bio
-follower_count     有值
+signature (bio)    always empty
+search_user_desc   just the nickname, not the bio
+follower_count     populated
 ```
 
-**匹配的是用户名/昵称,不是资料内容** —— 检索词只会命中名字里带那些字的账号。
-这一档能用的字段只有 `follower_count`。
+**It matches usernames/nicknames, not profile content** — the search term only hits accounts with those words in their names.
+The only usable field at this tier is `follower_count`.
 
-**`/v1/tiktok/search/keyword`** —— 同样 1 credit → 30 条视频,**按内容匹配**,
-从视频反推作者。带播放/点赞/评论数,同一个作者可重复出现。
+**`/v1/tiktok/search/keyword`** — likewise 1 credit → 30 videos, **matched on content**,
+working back to authors from videos. Carries play/like/comment counts; the same author can appear repeatedly.
 
-作者的 `signature` 在这里同样是空的。
+The author's `signature` here is empty as well.
 
-## 富化:`/v1/tiktok/profile`
+## Enrichment: `/v1/tiktok/profile`
 
-**1 credit 一个人**,给 `signature`(bio,80 字符上限)和
-`bioLink`(`{link, risk}`,risk 是 TikTok 自己的风险评分)。
+**1 credit per person**; gives `signature` (the bio, 80-character cap) and
+`bioLink` (`{link, risk}`; risk is TikTok's own risk score).
 
-**没有 Instagram 那组商务字段** —— 资料里的对外线索只有 `bioLink` 一个。
+**None of Instagram's set of business fields** — the only outward lead in the profile is `bioLink`.
 
-## 单次消耗
+## Per-call cost
 
-搜索、profile 各 1 credit。**搜索不带 bio,所以每个候选都要多付一次 profile** ——
-这是它和 Instagram 唯一的成本差异来源。单价见 [providers.md](providers.md)。
+Search and profile are 1 credit each. **Search carries no bio, so every candidate costs one extra profile call** —
+the sole source of the cost difference vs. Instagram. Unit prices in [providers.md](providers.md).

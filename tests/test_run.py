@@ -67,27 +67,27 @@ def test_it_stops_the_moment_the_target_is_met(runner):
     block = runner(FakePool(good), per_channel=3)
     assert len(block["qualified"]) == 3
     assert block["crawled"] == 3
-    assert block["stop"] == "凑够"
+    assert block["stop"] == "quota met"
 
 
 def test_a_dry_search_pool_stops_as_no_new_rather_than_met(runner):
     block = runner(FakePool([person(f"dud{i}", on_topic=False) for i in range(5)]), per_channel=3)
     assert len(block["qualified"]) == 0
-    assert block["stop"] == "连续无新"
+    assert block["stop"] == "no new results"
 
 
 def test_a_dry_directory_pool_stops_as_exhausted(runner):
     pool = FakePool([person(f"dud{i}", on_topic=False) for i in range(5)], form="directory")
     block = runner(pool, per_channel=3)
-    assert block["stop"] == "翻到底"
+    assert block["stop"] == "paged to the end"
 
 
 def test_a_shortfall_says_whether_people_or_evidence_ran_out(runner):
     thin = runner(FakePool([person("only", on_topic=False)]), per_channel=3)
-    assert thin["shortfall"] == "候选不足"
+    assert thin["shortfall"] == "too few candidates"
 
     plenty = runner(FakePool([person(f"d{i}", on_topic=False) for i in range(30)]), per_channel=3)
-    assert plenty["shortfall"] == "闸门卡住"
+    assert plenty["shortfall"] == "stuck at the gate"
 
 
 def test_a_met_target_has_no_shortfall(runner):

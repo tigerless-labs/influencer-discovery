@@ -1,72 +1,82 @@
 # X / Twitter
 
-**做。** 能力边界见 [datalayer/twitter-x.md](../../datalayer/twitter-x.md) ——
-匿名只给显示名与 bio,**发现和外链都要登录态**。
+**Run it.** Capability boundary: [datalayer/twitter-x.md](../../datalayer/twitter-x.md) —
+anonymous access only gives display name and bio; **both discovery and external links require a
+logged-in session**.
 
-它和 [linkedin.md](../_not-run/linkedin.md) 的根本区别就在这里:**这里有发现能力** ——
-搜索能从话题找到人。那边打通了也没有这一步。
+The fundamental difference from [linkedin.md](../_not-run/linkedin.md) is exactly here:
+**this platform has discovery** — search can find people from topics. Over there, even fully
+unlocked, that step doesn't exist.
 
-## 这里没有邮箱字段
+## No email field here
 
-能拿到的是 bio 文本和一个外链。联系方式要么是创作者自己写在 bio 里的,
-要么在外链的落点 —— **这个平台是第二跳的又一个起点**,
-见 [landing-page-two-hop.md](../_shared/landing-page-two-hop.md)。
+What's obtainable is bio text and one external link. Contact info is either written into the bio
+by the creator or sits at the link's landing — **this platform is another starting point for the
+second hop**, see [landing-page-two-hop.md](../_shared/landing-page-two-hop.md).
 
-## 入口
+## Entry point
 
-**搜索型。** 从话题搜内容再收敛到作者,不搜用户 —— 和别处一样,
-搜用户匹配的是名字,出来的多是空壳号;**同一个人在内容结果里重复出现本身就是垂类相关度的信号**。
+**Search-type.** Search content by topic and converge on the authors; don't search users — same
+as everywhere else, user search matches names and mostly returns hollow accounts;
+**the same person recurring in content results is itself a signal of niche relevance**.
 
-## 拿联系方式
+## Getting contact info
 
 ```
-① 话题搜索 → 作者(带 bio、外链、粉丝数)
-② bio 里抠邮箱
-③ 抠不到就顺外链走第二跳
+① topic search → authors (with bio, external link, follower count)
+② extract email from bio
+③ if nothing, follow the external link into the second hop
 ```
 
-**bio 外链是单条,不是链接区** —— 和 YouTube 那种一次给三四条不同,这里只有一个位置,
-所以那一条是不是自有域名格外要紧。**先过排除名单**(聚合页、打赏页、课程社群),
-清单见 [landing-page-two-hop.md](../_shared/landing-page-two-hop.md)。
+**The bio link is a single slot, not a links section** — unlike YouTube's three or four at a
+time, there is only one position here, so whether that one link is an own domain matters all the
+more. **Pass the exclusion list first** (aggregator pages, tip-jar pages, course communities),
+list in [landing-page-two-hop.md](../_shared/landing-page-two-hop.md).
 
-**粉丝数是公开的**,客户端筛不额外花请求 —— 这一点和 Mastodon、YouTube 一样,
-优于 Blog / Newsletter / Podcast 那三档。
+**Follower count is public**; client-side filtering costs no extra request — same as Mastodon and
+YouTube, and better than the Blog / Newsletter / Podcast tiers.
 
-## 节流按风险来,不按礼貌来
+## Throttle by risk, not by politeness
 
-取数复用的是**用户本人的真实账号**,被判定自动化的后果落在那个账号上。
+Data access reuses **the user's own real account**; the consequences of being flagged as
+automation land on that account.
 
-**串行、低频、不做深翻页。** 这条压过任何产量考虑。
+**Serial, low-frequency, no deep pagination.** This overrides any yield consideration.
 
-## 停止语义
+## Stop semantics
 
-搜索型 —— **连续无新**。
+Search-type — **consecutive no-new**.
 
-## 去重的键
+## Dedup key
 
-`(handle, X)`。handle 唯一且稳定,判重前提扎实。
+`(handle, X)`. Handles are unique and stable; the dedup premise is solid.
 
-## 边界
+## Boundaries
 
-- 不发帖、不回复、不点赞、不关注、不私信。
-- 匿名那条路只够补身份,**补不了第二跳的起点** —— 拿不到外链。
-- 短链要展开一次才知道落点,展开算一跳。
+- No posting, no replying, no liking, no following, no DMs.
+- The anonymous path only suffices for identity backfill; **it cannot supply the second-hop
+  starting point** — no external links.
+- Short links need one expansion to learn the landing; the expansion counts as a hop.
 
-## 待验证
+## To verify
 
-**这一档的方法是照着别的渠道的形状写的,数字一个都还没测。** 用之前先跑一轮:
+**This tier's method is written in the shape of other channels; not a single number has been
+measured.** Run one round before relying on it:
 
-- bio 里写明邮箱的比例。经验上技术垂类高于生活垂类,未在本项目人群上测过。
-- 外链里自有域名的占比(对照 YouTube 的七成)。
-- 从话题搜到的人与现有渠道的重合度。
-- 什么频率不触发自动化检测 —— **这条要最先摸清楚**,它决定这一档能不能常态跑。
+- Share of bios stating an email. Anecdotally higher in technical niches than lifestyle ones;
+  unmeasured on this project's population.
+- Share of external links that are own domains (versus YouTube's seventy percent).
+- Overlap between topic-searched people and the existing channels.
+- What frequency avoids triggering automation detection — **figure this out first**; it decides
+  whether this tier can run routinely.
 
-## 开跑前
+## Before running
 
-**优先走浏览器 cookie,没有第二条路可选** —— 匿名 API 通道早已封,
-发现与外链两样都在登录态后面。
+**Prefer browser cookies; there is no second option** — the anonymous API path has long been
+closed; discovery and external links are both behind login.
 
-**账号池空了就从浏览器补一次**,不需要人手动加账号。浏览器里没登录 x.com 时,
-这个渠道整轮跳过并在报告里说明缺什么 —— 不阻断其余渠道。
+**When the account pool is empty, refill once from the browser**; no manual account adding
+needed. If the browser isn't logged into x.com, skip this channel for the whole round and state
+in the report what is missing — without blocking the other channels.
 
-取数边界见 [datalayer/twitter-x.md](../../datalayer/twitter-x.md)。
+Data-access boundary: [datalayer/twitter-x.md](../../datalayer/twitter-x.md).

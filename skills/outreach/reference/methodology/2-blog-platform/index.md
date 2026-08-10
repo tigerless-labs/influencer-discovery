@@ -1,81 +1,66 @@
-# 大 blog 平台
+# Major blog platforms
 
-**文章发在平台上,站不是他的。** 这就是与自建博客的分界:页脚没有他的邮箱,
-联系方式只能从平台的作者字段,或从他自己的域名走
-[第二跳](../_shared/landing-page-two-hop.md)。
+**The articles live on the platform; the site is not theirs.** That is the boundary with self-hosted blogs: no email of theirs in the footer, so contact info comes only from the platform's author fields, or from their own domain via the [second hop](../_shared/landing-page-two-hop.md).
 
-## 门槛决定第一道筛要多狠
+## The barrier to entry sets how hard the first filter must be
 
-**注册就能发的平台上,多数人不是博主。** 自建站要花钱花力气维护,
-**肯付这个成本的人才会接商单**;零门槛平台上那道筛子不存在,得我们自己补。
+**On platforms where registering is enough to publish, most people are not bloggers.** A self-hosted site costs money and upkeep; **people willing to pay that cost are the ones who take sponsored deals**. On zero-barrier platforms that filter does not exist, so we supply it ourselves.
 
-所以第一道筛统一是:**他在平台之外还养着一个站吗。** `canonical` 指向站外、
-作者字段里的自有域名、资料页上的外链 —— 哪个平台给什么各写在各自那份,判据是同一个。
+The first filter is therefore uniform: **do they maintain a site outside the platform?** A `canonical` pointing off-site, an own domain in the author fields, external links on the profile page — which platform exposes what is documented per platform; the criterion is the same one.
 
-**门槛不是这道筛的镜像。** 大样本一测就散了:
+**The barrier is not a mirror of this filter.** It falls apart at sample size:
 
-| 平台 | 门槛 | 有自有域名 | 样本 |
+| Platform | Barrier | Has own domain | Sample |
 |---|---|---|---|
-| [WordPress.com](wordpress-com.md) | 注册即发 | 约四成 | 抽样 |
-| [Hashnode](hashnode.md) | 注册即发 | 28% | 50 |
+| [WordPress.com](wordpress-com.md) | register-to-publish | ~40% | sampled |
+| [Hashnode](hashnode.md) | register-to-publish | 28% | 50 |
 
-**编辑审筛的是稿子,不是作者有没有站。** freeCodeCamp 先前那个 12/12 来自十二个人,
-放大到两百多人就掉到与零门槛平台同一档 —— **这一档没有哪个平台能省掉第一道筛。**
+**Editorial review filters manuscripts, not whether the author has a site.** freeCodeCamp's earlier 12/12 came from twelve people; scaled to two-hundred-plus it drops to the same tier as zero-barrier platforms — **no platform in this tier gets to skip the first filter.**
 
-## 跑得通的
+## Working
 
-| 平台 | 入口 | 发现形态 |
+| Platform | Entry | Discovery shape |
 |---|---|---|
-| [DEV.to](dev-to.md) | 公开 API 免 key,作者对象随文章内联 | 搜索型 |
-| [WordPress.com](wordpress-com.md) | 标签流免 key,用户名通向 Gravatar 的公开邮箱 | 搜索型 |
-| [Micro.blog](micro-blog.md) | 发现页背后的 JSON Feed,作者字段直接是他自己的站 | 搜索型,产出未测 |
-| [Hashnode](hashnode.md) | 标签页 HTML,**GraphQL 已转收费** | 搜索型 |
+| [DEV.to](dev-to.md) | public API no key, author object inlined with articles | search-type |
+| [WordPress.com](wordpress-com.md) | tag feed no key, username leads to Gravatar's public email | search-type |
+| [Micro.blog](micro-blog.md) | JSON Feed behind the discover page, author field is their own site | search-type, yield unmeasured |
+| [Hashnode](hashnode.md) | tag-page HTML, **GraphQL now paid** | search-type |
 
-## 跑不通的,各自卡在哪
+## Not working, and where each is stuck
 
-**每条都是实测的结论。**
+**Every line is a measured conclusion.**
 
-| 平台 | 卡点 |
+| Platform | Blocker |
 |---|---|
-| Bear Blog | 发现页同样是质询页。**不绕**,这一档到此为止 |
-| Tumblr | 标签页一次 7 个博客且**无翻页**;抽样 10 个,自定义域名 0、feed 字段全空。
-唯一能翻页的路要拿页面里的匿名 token 去绕 API key 那道闸,**不走** |
+| Bear Blog | The discover page is itself a challenge page. **No bypassing** — this tier ends here |
+| Tumblr | Tag page gives 7 blogs at a time with **no pagination**; sampled 10: custom domains 0, feed fields all empty.
+The only paginating path requires lifting an anonymous token from the page to skirt the API-key gate — **not taken** |
 
-**Mirror 已被 Paragraph 收购**,是一个平台不是两个;`mirror.xyz` 只剩一个 301,
-其余路径全是质询页。
+**Mirror has been acquired by Paragraph** — one platform, not two; `mirror.xyz` is down to a single 301, every other path is a challenge page.
 
-## 取得到,但不该取
+## Fetchable, but should not be fetched
 
-**这两个否决的是准入,不是抓取难度** —— 见[准入闸门](../../../../../docs/design/index.md)。
+**These two are vetoed on admission, not on scraping difficulty** — see the [admission gate](../../../../../docs/design/index.md).
 
-**Paragraph 是整档取数最开放的平台,而我们的垂类在上面是空的。** 公开 REST API 免鉴权,
-sitemap 十个请求可枚举约 25 万个刊物,还免 key 给**订阅数**——这一档唯一直接可读的受众指标。
-但按垂类搜:「artificial intelligence」8 个结果、订阅数个位数,「machine learning」1 个、
-「developer tools」0 个。**有受众的那批全是加密。**
+**Paragraph is the most open platform in the tier for data access, and our vertical on it is empty.** Public REST API without auth, sitemap enumerable in ten requests for ~250k publications, and it gives **subscriber counts** key-free — the tier's only directly readable audience metric. But searching the vertical: "artificial intelligence" 8 results with single-digit subscribers, "machine learning" 1, "developer tools" 0. **Everyone with an audience is crypto.**
 
-**别被 `q=ai` 骗了。** 那个搜索是模糊匹配,`ai` 会把 Babylon、ink、Mail3 这类名字捞出来,
-返回 20 个全部上千订阅 —— 看着像金矿,逐个看名字全是加密刊物。**这是这份文档存在的唯一理由。**
+**Do not be fooled by `q=ai`.** That search is fuzzy: `ai` matches names like Babylon, ink, Mail3, returning 20 results all with thousands of subscribers — looks like a gold mine, but checking names one by one they are all crypto publications. **This is the only reason this section exists.**
 
-**write.as 取得到,但受众不够。** 阅读页的 feed 一次给 49 个博客,
-四成挂着自定义域名 —— 入口是通的。**否决它的是受众与垂类**:整个公开面只有约 150 篇的
-滚动窗口,不是存档;抽到的终身浏览量在三位数;88 条标题里日记、诗歌、灵修占绝大多数,
-沾技术的不到十条且其中有 SEO 垃圾。**这一条按[准入闸门](../../../../../docs/design/index.md)落,
-不是按抓取难度落。**
+**write.as is fetchable, but the audience falls short.** The read-page feed gives 49 blogs at a time, 40% on custom domains — the entry works. **What vetoes it is audience and vertical**: the entire public surface is a rolling window of ~150 posts, not an archive; sampled lifetime view counts are in the three digits; of 88 titles, the vast majority are journals, poetry, and devotionals, fewer than ten touch tech and some of those are SEO spam. **This verdict falls under the [admission gate](../../../../../docs/design/index.md), not scraping difficulty.**
 
-## 不归这一档的
+## Not in this tier
 
-- **自建博客**(自有域名、页脚是他的)—— 见 [self-hosted.md](../3-personal-site/self-hosted.md)。
-- **Substack** —— 归 [newsletter.md](../3-personal-site/newsletter.md),那一档有赞助入口这条捷径。
-- **Medium** —— **不做**:平台上没有联系方式,资料页对 CLI 关着门。
-- **Hacker News 与 Lobsters** —— 不承载文章,是 self-hosted.md 的发现源。
-- **多作者刊物** —— 有编辑、卖广告位、作者只是供稿的,归 [5-media/](../5-media/index.md)。
-  判据是**站上给不给作者独立的资料页与外链**:给的算这一档,只给投稿信箱的算媒体。
+- **Self-hosted blogs** (own domain, their footer) — see [self-hosted.md](../3-personal-site/self-hosted.md).
+- **Substack** — belongs to [newsletter.md](../3-personal-site/newsletter.md); that tier has the sponsorship-entry shortcut.
+- **Medium** — **not run**: no contact info on the platform, profile pages closed to CLI.
+- **Hacker News and Lobsters** — carry no articles; they are discovery sources for self-hosted.md.
+- **Multi-author publications** — with editors, ad slots, authors as mere contributors — belong to [5-media/](../5-media/index.md). The criterion is **whether the site gives authors standalone profile pages with external links**: yes means this tier, submission-inbox-only means media.
 
-## 过了第一道筛之后,还剩多少能联系上
+## After the first filter, how many remain contactable
 
-**实测:三个搜索型入口的第二跳命中率差五倍。**
+**Measured: second-hop hit rates across three search-type entries differ 5x.**
 
-| 平台 | 有自有域名的样本 | 走完第二跳拿到邮箱 |
+| Platform | Sample with own domain | Second hop completed to email |
 |---|---|---|
 | Micro.blog | 16 | 56% |
 | freeCodeCamp News | 144 | 34% |
@@ -83,15 +68,11 @@ sitemap 十个请求可枚举约 25 万个刊物,还免 key 给**订阅数**—�
 | DEV.to | 175 | 24% |
 | WordPress.com | 67 | 10% |
 
-**Micro.blog 的样本小但命中最高**,因为它的 `author.url` 本身就是那个人自己的站,
-不是一条要再判一次的外链。WordPress.com 那一成与它「只有时间序、混着垃圾账号」是同一件事。
+**Micro.blog's sample is small but hits highest**, because its `author.url` is directly the person's own site, not an external link needing another judgment. WordPress.com's 10% and its "latest-only ordering, mixed with junk accounts" are the same fact.
 
-**这一档没有一个平台给受众数字。** 拿到邮箱之后规模仍然无从核实,
-闸门只能退到自有站上有没有招商证据 —— 这是这一档产出低的真正原因,不是抓不到人。
+**No platform in this tier gives audience numbers.** Even with an email in hand, scale remains unverifiable; the gate can only fall back to sponsorship evidence on the own site — this, not failure to capture people, is the real reason the tier's yield is low.
 
-## 待验证
+## To verify
 
-- **卖买比例。** 有自有域名不等于是卖方 —— 自己做产品的人也有域名,
-  那道筛只过滤「连站都没有」的。
-- **样本质量。** DEV.to 之外的搜索型入口默认都是最新流,
-  DEV.to 上已证实按时间取会拿到七成零互动的作者,另两个还没找到对应的排序开关。
+- **Seller/buyer ratio.** Having an own domain does not make someone a seller — people building their own product also have domains; that filter only removes "doesn't even have a site".
+- **Sample quality.** The search-type entries other than DEV.to all default to latest-first feeds. DEV.to has proven that time-ordered fetching yields 70% zero-engagement authors; the corresponding sort switch on the other two has not been found.

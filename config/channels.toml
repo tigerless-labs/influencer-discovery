@@ -1,10 +1,12 @@
-# 渠道清单与抓取参数。随代码走。
-# 随安装走的值(目标表标识、凭据)住 ~/.config/outreach/,不在这里。
+# Channel list and crawl parameters. Travels with the code.
+# Per-install values (target sheet id, credentials) live in ~/.config/outreach/, not here.
 #
-# `methodology` 指向 skills/outreach/reference/methodology/ 下的那份文档。
-# 档位由这条路径推出 —— 目录名是档位的唯一权威源,这里不存第二份档位号。
+# `methodology` points at the document under skills/outreach/reference/methodology/.
+# The tier is derived from that path — the directory name is the sole authority on tier;
+# no second copy of the tier number is stored here.
 
-# 候选池取目标数的多少倍。判不合格的人不消耗目标数,池子要够深才凑得够。
+# How many times the target count the candidate pool holds. People judged unqualified do
+# not consume the target, so the pool must be deep enough to fill it.
 pool_factor = 25
 
 [podcast]
@@ -62,7 +64,8 @@ terms = [
   "ai automation", "vibe coding", "claude code", "self hosted", "devops",
   "open source", "developer tools", "saas", "indie dev", "web development",
 ]
-# 早先实验已抓好的资料页外链。抓过的不再抓第二遍,见 docs/design/records.md。
+# Profile outlinks already fetched by an earlier experiment. What was fetched once is not
+# fetched again; see docs/design/records.md.
 profile_dumps = ["data/experiments/2026-08-06/reddit-raw/profiles.jsonl"]
 
 [instagram]

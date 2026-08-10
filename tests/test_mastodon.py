@@ -361,4 +361,4 @@ def test_the_run_limit_still_bounds_the_result():
 
 def test_the_channel_reports_itself_as_a_directory():
     assert Mastodon.form == "directory"
-    assert adapter().stop_reason() == "翻到底"
+    assert adapter().stop_reason() == "paged to the end"

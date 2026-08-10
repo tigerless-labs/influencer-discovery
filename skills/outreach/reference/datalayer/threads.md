@@ -1,83 +1,83 @@
 # Threads
 
-**发现存在,但免费那条路没有;拿人要走第三方接口,两步。**
+**Discovery exists, but there is no free route; getting people takes a third-party API, in two steps.**
 
-## 第三方接口:已跑通
+## Third-party API: verified working
 
-两个端点,各 1 credit:
-
-```
-GET /v1/threads/search?query=<关键词>[&start_date=&end_date=]   内容搜索
-GET /v1/threads/search/users?query=<词>                        用户搜索
-GET /v1/threads/profile?handle=<username>                      资料页
-```
-
-**内容搜索一次约二十条帖子,去重后十几个作者。** 每条帖带作者的 `username`、`full_name`、
-`is_verified`、`text_post_app_is_private`,以及正文、`like_count`、发帖时间。
-**不带粉丝数,也不带 bio。**
-
-**两个搜索端点都没有 cursor,唯一的翻页是日期窗口。** 内容搜索接受 `start_date` / `end_date`
-(`YYYY-MM-DD`),取回的帖子落在窗口内;一周一窗往回走,每窗仍是约二十条帖、
-十几个不同作者,**窗口之间几乎不重叠**。用户搜索连日期都不收,一个关键词就是一次十个账号,
-字段更少 —— 只有 `username`、`full_name`、`is_verified`,同样没有粉丝数与 bio。
-
-**资料页给全:**
+Two endpoints, 1 credit each:
 
 ```
-follower_count            粉丝数
-biography                 bio 全文
-bio_links[].url           外链;lynx_url 是平台包装过的跳转版本
+GET /v1/threads/search?query=<keyword>[&start_date=&end_date=]   content search
+GET /v1/threads/search/users?query=<term>                        user search
+GET /v1/threads/profile?handle=<username>                        profile page
+```
+
+**Content search returns about twenty posts per call, a dozen-odd authors after dedup.** Each post carries the author's `username`, `full_name`,
+`is_verified`, `text_post_app_is_private`, plus the body, `like_count`, and post time.
+**No follower count, and no bio.**
+
+**Neither search endpoint has a cursor; the only pagination is date windows.** Content search accepts `start_date` / `end_date`
+(`YYYY-MM-DD`); returned posts fall inside the window. Walking back one week per window, each window still yields about twenty posts and
+a dozen-odd distinct authors, **with almost no overlap between windows**. User search does not even take dates: one keyword is one batch of ten accounts,
+with even fewer fields — only `username`, `full_name`, `is_verified`, again no follower count or bio.
+
+**The profile page gives everything:**
+
+```
+follower_count            follower count
+biography                 full bio text
+bio_links[].url           external links; lynx_url is the platform-wrapped redirect version
 full_name
-profile_tags.edges[]      平台给的垂类标签
-text_post_app_is_private  私密账号
-text_post_app_public_views 公开浏览量
+profile_tags.edges[]      platform-assigned niche tags
+text_post_app_is_private  private account
+text_post_app_public_views public view count
 ```
 
-**筛选条件全部只在资料页里。** 搜索结果不含粉丝数、不含 bio、不含垂类标签 ——
-**要按这三样中的任何一样筛人,都得先为那个人付一次资料页的钱。**
+**Every filter criterion lives only in the profile page.** Search results carry no follower count, no bio, no niche tags —
+**to filter people on any of those three, you first pay one profile-page fee for that person.**
 
-**这一条换供应商消不掉** —— 两家的搜索响应是同一条底层数据,详见
-[providers.md](providers.md)。认证方式与计费也在那份。
+**Switching vendors cannot remove this** — both vendors' search responses are the same underlying data; details in
+[providers.md](providers.md). Auth method and billing are in that file too.
 
-**`bio_links` 的容器形状两家不同**,一家是数组、一家是以 `"0"` 为键的字典,
-解析要按家适配。
+**The `bio_links` container shape differs between the two vendors** — one is an array, the other a dict keyed by `"0"`;
+parsing must adapt per vendor.
 
-## 匿名:能到资料页,但拿不到外链
+## Anonymous: reaches the profile page, but no external links
 
-**一次普通 HTTP 拿到显示名、handle、粉丝数、bio 全文**,全在页面的 Open Graph 标签里,
-不需要执行 JS。**粉丝数和 bio 是拼在一句描述文本里的**,要自己切开。
+**One plain HTTP request gets display name, handle, follower count, and full bio**, all in the page's Open Graph tags,
+no JS execution needed. **The follower count and bio are joined into one description string** — split them yourself.
 
-**外链不在初始 HTML 里** —— 匿名拿不到 `bio_links` 那一层。
+**External links are not in the initial HTML** — anonymous access cannot reach the `bio_links` layer.
 
-**没有邮箱字段。**
+**No email field.**
 
-**匿名没有发现。** 搜索、话题、探索三个页面都返回 200,但只给聚合数字,
-**页面里一个 handle 都没有**。
+**Anonymous has no discovery.** The search, topic, and explore pages all return 200 but give only aggregate numbers —
+**not a single handle in the page**.
 
-`threads.net` 与 `threads.com` 返回同一份内容。
+`threads.net` and `threads.com` return the same content.
 
-## 官方 API:有关键词搜索,但要过审
+## Official API: has keyword search, but approval-gated
 
-关键词搜索端点能搜公开内容,支持按媒体类型与话题标签检索。
+The keyword-search endpoint can search public content, filterable by media type and hashtag.
 
-- **权限要单独申请**;没拿到时,**搜索只在自己账号的帖子里执行** ——
-  看起来能调,返回的却不是公开内容。
-- **配额是滚动七天 500 次查询**,属于「按周配给」而不是「按秒限流」那一类。
+- **The permission requires a separate application**; without it, **search runs only within your own account's posts** —
+  it looks callable, but what returns is not public content.
+- **The quota is 500 queries per rolling seven days** — the "weekly ration" kind, not the "per-second throttle" kind.
 
-## 联邦:能解析,不能发现
+## Federation: can resolve, cannot discover
 
-Threads 通过 ActivityPub 与 Mastodon 互通,**开通了联邦分享的账号可以从任意 Mastodon 实例
-匿名解析到**,拿到粉丝数与 bio,不需要任何凭据。
+Threads interoperates with Mastodon via ActivityPub; **accounts that have enabled federated sharing can be resolved anonymously from any Mastodon
+instance**, yielding follower count and bio, no credentials needed.
 
-**但这是解析,不是发现:** 要先知道 handle;联邦公共时间线与话题时间线里
-threads.net 的帖子实测零命中;开通是自愿的且有门槛(公开账号、成年、粉丝量下限),
-未开通的账号解析会直接查无此人。
+**But this is resolution, not discovery:** the handle must be known first; posts from threads.net in federated public and topic timelines
+measured zero hits; enabling is voluntary and gated (public account, adult, follower-count minimum);
+resolving an account that has not enabled it returns not-found outright.
 
-## 与 Instagram 的关系
+## Relationship to Instagram
 
-**handle 与 Instagram 同源** —— 账号建立在 Instagram 账号之上,两边是同一个 handle。
+**Handles are shared with Instagram** — accounts are built on top of Instagram accounts; both sides use the same handle.
 
-## 待探索
+## To explore
 
-- 日期窗口能往回走多远才开始空返。
-- 官方 API 的搜索权限实际能不能批下来。
+- How far back the date windows go before returns come up empty.
+- Whether the official API's search permission can actually be granted.

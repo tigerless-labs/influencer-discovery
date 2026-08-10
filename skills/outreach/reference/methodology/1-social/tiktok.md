@@ -1,80 +1,85 @@
 # TikTok
 
-取数见 [datalayer/tiktok.md](../../datalayer/tiktok.md),选不选这条路见
-[cost-ranking.md](../_shared/cost-ranking.md)。
+Data access: [datalayer/tiktok.md](../../datalayer/tiktok.md); whether to take this path:
+[cost-ranking.md](../_shared/cost-ranking.md).
 
-搜索端点不返回 bio,联系方式在 bio 里 —— 必须两步:先拿 handle,再逐个查 profile。
+The search endpoint does not return bios, and contact info lives in the bio — two steps are
+mandatory: get handles first, then fetch profiles one by one.
 
-## 全链路
-
-```
-① 内容搜索          1 credit    → 30 条视频,去重约 29 个作者(无 bio)
-② 客户端筛          0 credit    → 按累计播放降序取前 N
-③ 逐个查 profile    1 credit/人 → signature + bioLink
-④ 从 bio 抠邮箱     0 credit
-⑤ 无邮箱者走第二跳   0 credit
-```
-
-**筛必须在 ③ 之前** —— 搜索结果自带粉丝数与播放量,足够筛。
-
-### ① 内容搜索
+## Full chain
 
 ```
-GET /v1/scrape/tiktok/search/keyword?query=<关键词>&sort_by=most-liked
+① content search           1 credit         → 30 videos, deduped to ~29 authors (no bio)
+② client-side filter       0 credit         → top N by cumulative play count, descending
+③ per-person profile       1 credit/person  → signature + bioLink
+④ extract email from bio   0 credit
+⑤ no email → second hop    0 credit
 ```
 
-端点契约(参数名、header)见 [datalayer/tiktok.md](../../datalayer/tiktok.md)。
+**Filtering must happen before ③** — search results carry follower and play counts, which is
+enough to filter on.
 
-从 `data.search_item_list` 取三个字段:
+### ① content search
+
+```
+GET /v1/scrape/tiktok/search/keyword?query=<keyword>&sort_by=most-liked
+```
+
+Endpoint contract (parameter names, headers): [datalayer/tiktok.md](../../datalayer/tiktok.md).
+
+From `data.search_item_list` take three fields:
 
 ```
 aweme_info.author.unique_id        handle
-aweme_info.author.follower_count   粉丝数
-aweme_info.statistics.play_count   播放量
+aweme_info.author.follower_count   follower count
+aweme_info.statistics.play_count   play count
 ```
 
-按 `unique_id` 去重并累加播放量。**同一作者重复出现是垂类相关度的信号。**
+Dedup by `unique_id` and accumulate play counts. **The same author recurring is a signal of niche
+relevance.**
 
-`author.signature` 在这里是空的。
+`author.signature` is empty here.
 
-不用 `search/users`:它匹配用户名/昵称而非内容,出来的多是空壳号。
+Don't use `search/users`: it matches usernames/nicknames rather than content, and mostly returns
+hollow accounts.
 
-### ② 客户端筛
+### ② client-side filter
 
-按累计播放量降序。**播放量比粉丝数更能反映当下活跃度** —— 几千粉的账号可以有十几万播放。
+Descending by cumulative play count. **Play count reflects current activity better than follower
+count** — an account with a few thousand followers can have over a hundred thousand plays.
 
-### ③ 逐个查 profile
+### ③ per-person profile
 
 ```
 GET /v1/scrape/tiktok/profile?handle=<unique_id>
 ```
 
 ```
-data.user.signature        bio,80 字符上限
-data.user.bioLink.link     外链;bioLink 是 {link, risk} 对象,不是字符串
+data.user.signature        bio, 80-character cap
+data.user.bioLink.link     external link; bioLink is a {link, risk} object, not a string
 ```
 
-### ④⑤ 抠邮箱与第二跳
+### ④⑤ email extraction and second hop
 
-正则从 `signature` 抠。抠不到就顺 `bioLink.link` 走
-[landing-page-two-hop.md](../_shared/landing-page-two-hop.md)。
+Regex over `signature`. If nothing, follow `bioLink.link` into
+[landing-page-two-hop.md](../_shared/landing-page-two-hop.md).
 
-bio 里的联系方式不一定是邮箱 —— WhatsApp 号、Instagram handle **都算可触达**。
+Contact info in a bio is not necessarily an email — a WhatsApp number or an Instagram handle
+**both count as reachable**.
 
-## 可预期的命中
+## Expected hits
 
 ```
-bio 非空        约 100%
-bio 有邮箱      约 53%      ← 高于 Instagram 一倍多
-有 bioLink      约 93%
-可触达          约 93%
+bio non-empty     ~100%
+email in bio      ~53%      ← more than double Instagram's
+has bioLink       ~93%
+reachable         ~93%
 ```
 
-## 解析上的坑
+## Parsing pitfalls
 
-- **`search_item_list` 与 `user_list` 是 dict 不是 list**,键是 `"0"`…`"29"`。
-  直接下标取 `[0]` 会 KeyError,要先 `.values()`。
-- **`bioLink` 是对象**,取 `.link`。
-- **空 bio 是真的空。** 百万粉账号也可能 `signature` 为空、`bioLink` 为 `None`,
-  那是本人没填,不是端点坏了。
-
+- **`search_item_list` and `user_list` are dicts, not lists**, keyed `"0"`…`"29"`.
+  Indexing `[0]` directly raises KeyError; call `.values()` first.
+- **`bioLink` is an object**; take `.link`.
+- **An empty bio is genuinely empty.** Even a million-follower account can have an empty
+  `signature` and a `None` `bioLink`; the person didn't fill it in — the endpoint isn't broken.

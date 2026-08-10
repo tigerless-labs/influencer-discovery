@@ -49,14 +49,14 @@ def test_qualified_rows_come_first(store):
 
 def test_a_row_carries_its_address_and_verdict():
     row = dict(zip(HEADERS, row_for(person("alice", followers=50_000, in_band=True))))
-    assert row["邮箱"] == "alice@alice.dev"
-    assert row["邮箱来源"] == "site_root"
-    assert row["粉丝数"] == 50_000
-    assert row["判定"] == "合格"
+    assert row["Email"] == "alice@alice.dev"
+    assert row["Email Source"] == "site_root"
+    assert row["Followers"] == 50_000
+    assert row["Verdict"] == "qualified"
 
 
 def test_the_band_is_used_for_order_but_is_not_a_column(store):
-    assert "带内" not in HEADERS
+    assert "In Band" not in HEADERS
     store.record(person("small", followers=100, in_band=False), run_id="r")
     store.record(person("right", followers=50_000, in_band=True), run_id="r")
     order = [c.person_key for c in contactable(store, BAND)["blog"]]
@@ -65,7 +65,7 @@ def test_the_band_is_used_for_order_but_is_not_a_column(store):
 
 def test_an_unmeasured_audience_shows_no_number():
     row = dict(zip(HEADERS, row_for(person("alice"))))
-    assert row["粉丝数"] == ""
+    assert row["Followers"] == ""
 
 
 def test_the_workbook_has_a_summary_then_one_tab_per_channel(store):
@@ -83,7 +83,7 @@ def test_the_summary_totals_match_the_tabs(store):
     by_channel = contactable(store, BAND)
     book = to_workbook(by_channel)
     total = book[SUMMARY_TAB].max_row
-    assert book[SUMMARY_TAB].cell(row=total, column=1).value == "合计"
+    assert book[SUMMARY_TAB].cell(row=total, column=1).value == "Total"
     assert book[SUMMARY_TAB].cell(row=total, column=2).value == sum(
         len(p) for p in by_channel.values()
     )

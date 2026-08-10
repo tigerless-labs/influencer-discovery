@@ -1,112 +1,94 @@
 # Newsletter
 
-目标表里第二大的渠道。**先认托管方 —— 它决定用哪条路,差别是一次请求和五次请求。**
+Second-largest channel in the target sheet. **Identify the host first — it decides which path to take; the difference is one request versus five.**
 
-认托管方**不能只看根页字符串**,会误判;拿托管方自己的接口证伪(打一次 Substack 的
-`/api/v1/archive`,不是 200 就不是 Substack)。
+Identifying the host **cannot rely on root-page string matching**, which misclassifies; falsify with the host's own endpoint (hit Substack's `/api/v1/archive` once — anything but 200 means not Substack).
 
-## 入口
+## Entries
 
-**Substack 自己开着两个免费入口,都不需要种子以外的东西。**
+**Substack itself keeps two free entries open, neither needing anything beyond a seed.**
 
-### 类目接口 —— 冷启动,目录型
-
-```
-substack.com/api/v1/categories                     全部类目与 id
-substack.com/api/v1/category/public/<id>/all?page=N  每页 25 个刊物,带 more 翻页标志
-```
-
-每条记录直接带刊物名、subdomain、自定义域、**作者真名与 handle**、bio。
-按类目定向,不需要任何种子。
-
-**邮箱字段形同虚设** —— 记录里那两个邮箱字段几乎全空,地址要靠下面 feed 那一跳。
-
-### 推荐图 —— 定向扩张,搜索型
+### Category API — cold start, directory-type
 
 ```
-<刊物域名>/api/v1/recommendations/from/<publication_id>
+substack.com/api/v1/categories                     all categories with ids
+substack.com/api/v1/category/public/<id>/all?page=N  25 publications per page, with a more flag for paging
 ```
 
-返回的不是链接,是**被推荐刊物的完整对象**。实测一跳扩张七倍多,每个都带作者真名与 handle。
-只覆盖 Substack 内部,跨托管方不成图。
+Each record carries the publication name, subdomain, custom domain, **author's real name and handle**, and bio directly. Targeted by category, no seed required.
 
-### 赞助位市场这条入口是死的
+**The email fields are dead weight** — the two email fields in the records are almost always empty; addresses come from the feed hop below.
 
-验过二十家,**「有公开目录」与「给联系方式」从不同时出现**。
-Passionfroot 的目录要账号,handle 只有历史链接一个来源,而那批六成已 404。
-
-## 拿联系方式
-
-### Substack:平台上拿不到邮箱,只能走自定义域名
-
-**feed 里已经没有 `<webMaster>` 了。**(2026-08-06 复验,十个刊物零命中。)
-它的 JSON 接口也一个邮箱字段都不给。**这个平台上不存在直接取邮箱的路。**
-
-那些接口给的是**身份**:作者真名与 handle 可以直接取,不必从页面猜。
-判重的键 `(人, 平台)` 因此在这个平台上最扎实。
-
-拿邮箱只剩一条:**记录里的自定义域名走[第二跳](../_shared/landing-page-two-hop.md)**,
-没有自定义域名的刊物到此为止。
-
-### Ghost:Content API 的 settings 端点
-
-Ghost 的 Content API key 明文写在首页源码里,**这是给前端用的公开只读 key**。
+### Recommendation graph — targeted expansion, search-type
 
 ```
-/ghost/api/content/settings/?key=<key>    support / members / default 三个地址
-/ghost/api/content/authors/?key=<key>     作者的 name / bio / website,email 恒为 null
+<publication domain>/api/v1/recommendations/from/<publication_id>
 ```
 
-**成色比 Substack 差一档,必须按值过滤**:`noreply@` 直接丢,`@ghost.io` 按平台转发地址
-同等对待。样本还太小,当作补充路径而不是主路。
+Returns not links but **full objects of the recommended publications**. Measured: one hop expands 7x+, each carrying the author's real name and handle. Covers only Substack internally; the graph does not cross hosts.
 
-### beehiiv 与其余
+### The sponsorship-marketplace entry is dead
 
-**beehiiv 的 `<webMaster>` 填的是它自己的支持地址**,有值但不算数 ——
-不能因为字段非空就采信。它的 API 要 key,页面里不明文带,没有 Ghost 那样的公开镜像。
+Verified across twenty of them: **"has a public directory" and "gives contact info" never co-occur**. Passionfroot's directory requires an account; handles have historical links as their only source, and 60% of that batch already 404s.
 
-WordPress、Buttondown、静态站生成器在 feed 里一个都不填。这些退回到站点本身:
-和 Blog 相反,**newsletter 的邮箱更多在子页而不是首页**。`/advertise` 这类招商入口
-只有零星几个站有,拿到之后还要过 [seller-vs-buyer.md](../_shared/seller-vs-buyer.md)。
+## Getting contact info
 
-再拿不到就退回第二跳,见 [landing-page-two-hop.md](../_shared/landing-page-two-hop.md)。
-**第二跳的发射台优先用结构化字段**:Substack 作者 profile 的外链数组、
-Ghost 作者的 `website` —— 都比解析页面便宜。
+### Substack: no email on the platform; custom domains are the only way
 
-**每封邮件的页脚**也带联系方式,但那要求订阅 —— **不订阅**,那是写操作,
-且会把本项目的身份暴露给目标。
+**`<webMaster>` is gone from the feeds.** (Re-verified 2026-08-06; ten publications, zero hits.) Its JSON endpoints give no email field either. **A direct email path does not exist on this platform.**
 
-## 判断:个人 newsletter 还是媒体产品
+What those endpoints give is **identity**: the author's real name and handle can be taken directly, no page guessing. The dedup key `(person, platform)` is therefore at its most solid on this platform.
 
-这个区分决定拿到的地址算不算数:
+Only one email path remains: **the custom domain in the record goes through the [second hop](../_shared/landing-page-two-hop.md)**; publications without a custom domain end here.
 
-- **个人 newsletter** —— 作者本人的地址,算数。
-- **媒体化 newsletter**(有编辑部、有 rate card)—— 拿到的是面向职能的地址。
-  **对赞助投放有用,对个人 outreach 不算数**,见
-  [landing-page-two-hop.md](../_shared/landing-page-two-hop.md) 的「不算数的东西」。
+### Ghost: the Content API settings endpoint
 
-## 停止语义
+Ghost's Content API key sits in plaintext in the homepage source — **it is a public read-only key meant for the frontend**.
 
-**两种,按入口分开记。** 类目接口是**目录型**——翻到 `more` 为假就是枚举完了,是事实边界;
-推荐图和站点搜索是**搜索型**,靠连续无新。混在一起记就看不出哪一路还值得投。
+```
+/ghost/api/content/settings/?key=<key>    the support / members / default addresses
+/ghost/api/content/authors/?key=<key>     author name / bio / website, email always null
+```
 
-## 去重的键
+**A grade below Substack; must be filtered by value**: drop `noreply@` outright, treat `@ghost.io` as a platform forwarding address. The sample is still too small; treat as a supplementary path, not the main one.
 
-`(newsletter 名, Newsletter)`。
+### beehiiv and the rest
 
-注意同一个人可能既有 newsletter 又有 YouTube 频道 —— 那会落成**两行**,这是设计接受的
-代价(方向安全,人看得见),不是 bug。
+**beehiiv fills `<webMaster>` with its own support address** — non-empty but does not count; a field being non-empty is not grounds to trust it. Its API requires a key, the page carries none in plaintext, and there is no public mirror like Ghost's.
 
-## 边界
+WordPress, Buttondown, and static-site generators fill none of the feed fields. These fall back to the site itself: unlike blogs, **newsletter emails live more often on subpages than the homepage**. `/advertise`-style sponsorship entries exist on only a scattering of sites, and anything found must still pass [seller-vs-buyer.md](../_shared/seller-vs-buyer.md).
 
-- 大牌 newsletter 的 rate card 常要填表单才给,**不填表单**——那是写操作。
-- 不猜测个人邮箱 —— 目标表里已有的 contact note 自己写着这句。
-- **公开接口并发一高就限流**,串行加间隔;被限流的返回长得不像 404,别误判成「没有」。
-- **历史链接不能直接复用。** 表里指向赞助位市场的那批已经大面积失效。
+Failing all that, fall back to the second hop; see [landing-page-two-hop.md](../_shared/landing-page-two-hop.md). **Prefer structured fields as second-hop launch pads**: the external-links array in Substack author profiles, Ghost authors' `website` — both cheaper than parsing pages.
 
-## 待验证
+**Every email's footer** also carries contact info, but that requires subscribing — **do not subscribe**: it is a write operation, and it exposes this project's identity to the target.
 
-- Ghost 那条路的实际命中率 —— 样本太小,写进主路之前要补。
-- beehiiv 刊物页有没有固定的作者落点。
-- 推荐图第二跳的新增率与饱和点 —— 「连续无新」的阈值现在还没有实测依据。
-- 类目接口的翻页上限与各类目总量。
+## Judgment: personal newsletter or media product
+
+This distinction decides whether the captured address counts:
+
+- **Personal newsletter** — the author's own address; counts.
+- **Media-ized newsletter** (editorial staff, rate card) — what you get is a role-facing address. **Useful for sponsorship placement, does not count for personal outreach**; see "What does not count" in [landing-page-two-hop.md](../_shared/landing-page-two-hop.md).
+
+## Stop semantics
+
+**Two kinds, tracked separately per entry.** The category API is **directory-type** — paging until `more` is false means enumeration is complete, a factual boundary. The recommendation graph and site search are **search-type**, stopping on consecutive no-new-results. Mixing the two in one record hides which path is still worth investing in.
+
+## Dedup key
+
+`(newsletter name, Newsletter)`.
+
+Note the same person may have both a newsletter and a YouTube channel — that lands as **two rows**, a cost the design accepts (direction-safe, human-visible), not a bug.
+
+## Boundaries
+
+- Big-name newsletters often gate the rate card behind a form; **do not fill forms** — that is a write operation.
+- No guessing personal emails — the existing contact notes in the target sheet say so themselves.
+- **The public endpoints rate-limit at any real concurrency**; go serial with intervals. A rate-limited response does not look like a 404 — do not misread it as "absent".
+- **Historical links cannot be reused directly.** The batch in the sheet pointing at sponsorship marketplaces has rotted at scale.
+
+## To verify
+
+- The Ghost path's actual hit rate — sample too small; must be topped up before promoting it to a main path.
+- Whether beehiiv publication pages have a fixed author landing spot.
+- The recommendation graph's second-hop new-yield rate and saturation point — the "consecutive no-new" threshold currently has no measured basis.
+- The category API's paging ceiling and per-category totals.

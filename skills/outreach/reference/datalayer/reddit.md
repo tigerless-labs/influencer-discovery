@@ -1,43 +1,43 @@
 # Reddit
 
-**`rdt` CLI,已验证可用。** 匿名 `.json` 接口 2026-05-28 废弃,免认证那条路没了;
-`rdt` 复用浏览器 session,**cookie 由它自己从浏览器取、存进它自己的凭据文件**,
-不需要 `browser-cookie3`。它另有一个状态入口,能问出当前登没登录。
+**`rdt` CLI, verified working.** The anonymous `.json` API was retired 2026-05-28; the no-auth route is gone.
+`rdt` reuses the browser session; **it fetches the cookie from the browser itself and stores it in its own credentials file** —
+no `browser-cookie3` needed. It also has a status entry point that reports whether you are currently logged in.
 
-**它的子命令覆盖不到资料页。** 那一跳只能自己发请求,cookie 从上面那个凭据文件里取 ——
-**登录态到了调用方手里,不再只在 CLI 内部。**
+**Its subcommands do not cover profile pages.** That hop requires issuing requests yourself, cookie taken from that credentials file —
+**the login state reaches the caller's hands; it no longer stays inside the CLI.**
 
-**登录态同时带读写能力。** 搜索、版块列表、用户资料、用户发帖是读的四个入口;
-评论、投票、收藏、订阅是写。取数只需要读的那四个。
+**The login state carries read and write capability alike.** Search, subreddit listings, user profiles, and user posts are the four read entries;
+commenting, voting, saving, subscribing are writes. Fetching needs only the four reads.
 
-## 能取到什么
+## What you can get
 
-**搜索能从话题找到人**,全站或限定版块,可按时间窗与热度排序,返回结构化字段。
-这是真发现能力,和只能按已知账号取数的平台不同。
+**Search finds people from topics** — site-wide or scoped to a subreddit, sortable by time window and popularity, returning structured fields.
+This is true discovery capability, unlike platforms that can only fetch by known account.
 
-**帖子**带作者、版块、分数、评论数、正文。**正文里的外链只在这里能拿到** ——
-用户资源不含它们。
+**Posts** carry author, subreddit, score, comment count, body. **External links in the body are obtainable only here** —
+user resources do not include them.
 
-**存盘输出比屏幕输出字段全。** 默认打印的是精简结构;存盘存的是平台原始的列表结构,
-多出发帖人 flair 文本、是自帖还是链接帖、是否置顶等字段。
-**区分自帖与链接帖只有存盘那份能做到。**
+**Saved output has more fields than screen output.** The default print is a trimmed structure; what is saved to disk is the platform's raw listing structure,
+adding poster flair text, self-post vs. link-post, pinned status, and more.
+**Only the saved copy can distinguish self posts from link posts.**
 
-**用户**带简介文本、karma、注册时间、是否接受私信、邮箱是否验证过。
-`has_verified_email` 只是个布尔值,**响应里没有地址本身**。
+**Users** carry bio text, karma, registration date, whether they accept DMs, and whether their email is verified.
+`has_verified_email` is just a boolean; **the response contains no address itself**.
 
-**用户的外链只在资料页 HTML 里,用户资源取不到。** 资料页上那组用户自填的社交链接
-是结构化数据 —— 每条带类型、地址、名称、位置,不必解析可见文本。
-**它们不出现在用户资源的任何字段里**,要单独取一次资料页,一次约半兆。
+**A user's external links exist only in the profile-page HTML; the user resource cannot fetch them.** The set of user-filled social links
+on the profile page is structured data — each with type, address, name, position; no parsing of visible text needed.
+**They appear in no field of the user resource** — fetch the profile page separately, about half a megabyte per fetch.
 
-**粉丝数同理,而且用户资源里那个同名字段是假的。** 它对每个账号都返回零,拿三千万 karma
-的头部账号对照过也是零 —— 有字段、无真值,不能当「没有粉丝」读。真值在资料页的**可见
-文本**里,和外链同页,所以那半兆一次买两样东西。**这是唯一一处判据要读可见文本的地方**,
-因为平台没把它放进任何结构化位置。
+**Follower counts likewise — and the same-named field in the user resource is fake.** It returns zero for every account; checked against a top account
+with thirty million karma, still zero — the field exists with no real value, and must not be read as "no followers". The real value is in the profile page's **visible
+text**, on the same page as the links, so that half megabyte buys both things at once. **This is the only place where a criterion must be read from visible text**,
+because the platform put it in no structured location.
 
-**这一道也要登录才跨得过去。** 匿名取用户资源被拒,匿名取资料页拿到的是 JS 挑战壳,
-旧版界面返回拦截页;带登录态取同一个地址才是真页面。
+**This gate too requires login to cross.** Anonymous user-resource fetches are refused; anonymous profile-page fetches get a JS challenge shell;
+the legacy interface returns a block page; only the same address fetched with login state is the real page.
 
-## 一条取数口径
+## One fetching convention
 
-**同一篇会跨版块重发,同一人也会换写法反复发。** 列表和搜索结果里的重复必须在取数层就按
-作者收敛,否则下游看到的是同一个人的 N 个身份。
+**The same post gets reposted across subreddits, and the same person reposts with varied phrasing.** Duplicates in listings and search results must be
+collapsed by author at the fetch layer, or downstream sees N identities of the same person.

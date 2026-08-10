@@ -1,81 +1,97 @@
 # Mastodon
 
-**唯一一个「自有域名」不用推断的渠道** —— 平台自己做了归属校验。
-能力边界见 [datalayer/mastodon.md](../../datalayer/mastodon.md)。
+**The only channel where "own domain" requires no inference** — the platform does attribution
+verification itself. Capability boundary: [datalayer/mastodon.md](../../datalayer/mastodon.md).
 
-别处认自有域名靠统计(Reddit 的「只被一人贴过」)或靠排除名单(YouTube 的打赏页),
-这里靠 `rel="me"` 双向确认:**只有站点链回账号,平台才盖验证戳**。
-带戳的那条链接就是他的站,零歧义。
+Elsewhere, own-domain attribution relies on statistics (Reddit's "posted by only one person") or
+on exclusion lists (YouTube's tip-jar pages); here it relies on `rel="me"` mutual confirmation:
+**the platform only stamps verification when the site links back to the account**.
+The stamped link is their site, zero ambiguity.
 
-## 入口
+## Entry points
 
-两个都不需要种子,交叉用:
+Neither needs a seed; use them crosswise:
 
-- **账号目录** —— 按活跃度翻页,一次一页账号,**直接带 bio、链接和粉丝数**,
-  不用逐个查资料页。
-- **话题时间线** —— 按标签取帖子再收敛到作者。这条筛垂类,目录那条不筛。
+- **Account directory** — paginated by activity, one page of accounts at a time, **carrying bio,
+  links, and follower count directly**; no per-profile lookups needed.
+- **Topic timeline** — fetch posts by hashtag and converge on the authors. This path filters for
+  the niche; the directory path doesn't.
 
-**要跨多个实例跑。** 联邦没有全站视图,单个实例只看得到它认识的那部分网络。
+**Run across multiple instances.** Federation has no global view; a single instance only sees the
+part of the network it knows.
 
-## 拿联系方式
+## Getting contact info
 
 ```
-① 目录或标签 → 账号(自带 bio + fields + 粉丝数)
-② 取 fields 里带验证戳的链接 = 他的自有域名
-③ 走第二跳挖邮箱
+① directory or hashtag → accounts (with bio + fields + follower count)
+② take the verified-stamp link in fields = their own domain
+③ second hop to dig out the email
 ```
 
-**bio 里直接写邮箱的极少**,别指望这一步 —— 这个渠道的价值在第二跳的起点质量,
-不在直接命中。落点处理见 [landing-page-two-hop.md](../_shared/landing-page-two-hop.md)。
+**Emails written directly in bios are rare**; don't count on that step — this channel's value is
+the quality of its second-hop starting points, not direct hits. Landing handling:
+[landing-page-two-hop.md](../_shared/landing-page-two-hop.md).
 
-**没有验证戳的链接不要当自有域名**,退回通用排除名单再判。
+**Do not treat unverified links as own domains**; fall back to the general exclusion list and
+judge from there.
 
-**量在退回那条路上。** 带验证戳的账号是少数,过了排除名单的链接是多数 ——
-只收验证戳会把四分之三的可走站点扔掉。两条都收,把验证与否记在候选身上。
+**The volume is on the fallback path.** Verified-stamp accounts are a minority; links that pass
+the exclusion list are the majority — accepting only verified stamps throws away three quarters
+of the walkable sites. Accept both, and record verification status on the candidate.
 
-**`fields` 里直接挂邮箱的和 bio 里写邮箱的一样多**,两处都要扫。
+**Emails hung directly in `fields` are as common as emails in bios**; scan both.
 
-**bio 里的 `@用户名@实例域名` 不是邮箱。** 长得像地址,是联邦 handle,抠邮箱时必须排掉。
+**`@username@instance.domain` in a bio is not an email.** It looks like an address; it is a
+fediverse handle and must be excluded during email extraction.
 
-## 粉丝数是免费的
+## Follower count is free
 
-`followers_count` 在目录返回里就有,**客户端筛不额外花一次请求**。
-这是它相对 Blog / Newsletter / Podcast 的优势 —— 那三档都没有公开的受众规模。
+`followers_count` is already in the directory response; **client-side filtering costs no extra
+request**. That is its advantage over Blog / Newsletter / Podcast — none of those three tiers
+have a public audience size.
 
-**所以规模门槛要在发现阶段就用掉**,不要留到第二跳之后。翻页不花钱,走站点花时间,
-先按粉丝数排序再决定走谁,把有限的走站次数投给受众最大的那批。
+**So spend the scale threshold at the discovery stage**; don't defer it past the second hop.
+Paging is free, walking sites costs time; sort by follower count first, then decide whom to walk,
+and spend the limited site visits on the biggest audiences.
 
-## 停止语义
+## Stop semantics
 
-目录那条是**目录型**,翻到底即完;标签那条是**搜索型**,靠连续无新。
-**两条分开记**,否则看不出哪一路还值得投。
+The directory path is **directory-type**: done when paged to the end. The hashtag path is
+**search-type**: stop on consecutive no-new.
+**Track the two separately**, otherwise you can't see which path is still worth the spend.
 
-## 去重的键
+## Dedup key
 
-`(用户名@实例域名, Mastodon)`。
+`(username@instance.domain, Mastodon)`.
 
-**必须带实例域名。** 单看用户名会跨实例撞车,同名不同人是常态。
-同一个人在多个实例上有账号时,靠他 fields 里那个已验证的域名收敛。
+**The instance domain is mandatory.** Username alone collides across instances; same name,
+different person is the norm. When one person has accounts on multiple instances, converge on the
+verified domain in their fields.
 
-## 边界
+## Boundaries
 
-- **账号可以自己关掉曝光**,目录不是全量 —— 翻到底不等于翻完了所有人。
-- bio 是 HTML 片段,抠邮箱前先解码,理由见
-  [landing-page-two-hop.md](../_shared/landing-page-two-hop.md)。
-- 不关注、不转发、不私信。
+- **Accounts can opt out of discovery**; the directory is not exhaustive — paging to the end does
+  not mean seeing everyone.
+- Bios are HTML fragments; decode before email extraction, rationale in
+  [landing-page-two-hop.md](../_shared/landing-page-two-hop.md).
+- No following, no boosting, no DMs.
 
-## 规模是翻得不够深,不是这里没有人
+## Scale means not paging deep enough, not an empty platform
 
-早先「四个实例翻到底、只有三个人过五千」的结论作废 —— 那是翻得太浅得出的。
-铺开到二十多个实例、每个实例翻到两千位之后,**目录账号里约五分之一粉丝过千**。
+The earlier conclusion "four instances paged to the end, only three people over five thousand" is
+void — it came from paging too shallow. After expanding to twenty-plus instances and paging two
+thousand accounts deep on each, **about one in five directory accounts has over a thousand
+followers**.
 
-## 两个入口给的东西不一样
+## The two entry points return different things
 
-- **目录**:每次请求带回的人多,但 bio 里能看出 AI 相关的不到二十分之一。
-- **话题时间线**:每次请求带回的人少一半有余,bio 里 AI 相关的约四分之一。
+- **Directory**: more people per request, but fewer than one in twenty bios read as AI-related.
+- **Topic timeline**: less than half as many people per request, but about a quarter of bios are
+  AI-related.
 
-主题证据不必来自 bio —— 第二跳的站点页面同样算数,所以目录那条不因为 bio 不相关就作废。
+Topic evidence need not come from the bio — the second-hop site page counts just as well, so the
+directory path is not voided by irrelevant bios.
 
-## 待验证
+## To verify
 
-- 要跑多少个实例才算够。
+- How many instances count as enough.

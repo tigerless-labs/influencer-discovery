@@ -395,7 +395,7 @@ def test_an_account_parked_in_silence_is_left_rather_than_queued_behind():
     x, proc = reading([json.dumps(tweet()) + "\n", json.dumps(tweet()) + "\n"], silent_after=1)
     rows = x._search("llm", 60)
     assert len(rows) == 1
-    assert x.halted == "X 让等下一个窗口"
+    assert x.halted == "X asked us to wait for the next window"
     assert proc.terminated
 
 

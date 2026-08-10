@@ -1,158 +1,110 @@
-# 第二跳:平台页 → 本人站点 → 联系页
+# Second hop: platform page → their own site → contact page
 
-**这不是一个渠道。** 它是几乎所有渠道的共同后半段,写在这里一次,各渠道引用不复述。
+**This is not a channel.** It is the shared back half of nearly every channel, written once here and referenced — never restated — by each channel.
 
-联系方式常常不在平台页上。平台页给的是**一个链接**,联系方式在链接的落点。目标表里
-`Contact Method` 最多的两类是 `Website` 和 `Contact Form`,不是 `Email`——这就是证据:
-多数人的联系方式本来就不是一个邮箱地址。
+Contact info is often not on the platform page. The platform page gives **a link**; the contact info lives at the link's landing point. The two most common `Contact Method` values in the target sheet are `Website` and `Contact Form`, not `Email` — that is the evidence: most people's contact info was never an email address in the first place.
 
-## 四种落点,处理方式不同
+## Four landing-point types, handled differently
 
-**聚合页**(linktr.ee、beacons.ai、stan.store、bio.link 之类)——本身没有联系方式,
-是一层跳板,要再展开一次。**链接在初始 HTML 里,不需要浏览器。**
+**Aggregator pages** (linktr.ee, beacons.ai, stan.store, bio.link and kin) — carry no contact info themselves; they are a springboard needing one more expansion. **The links are in the initial HTML; no browser needed.**
 
-**本人站点**——目标是 `/about`、`/contact`、`/work-with-me`、`/sponsor`、页脚。
-四个渠道实测下来**首页都是产出最多的单页**,先抠首页再决定进不进子页。
+**Their own site** — targets are `/about`, `/contact`, `/work-with-me`, `/sponsor`, and the footer. Measured across four channels, **the homepage is the highest-yield single page every time**; mine the homepage first, then decide whether to enter subpages.
 
-**公司站点**——个人博主指向公司站时,拿到的往往是 `info@` / `support@` / `sales@`
-这类面向职能的地址。**它们不是这个人的联系方式**,见下面「不算数的东西」。
+**Company sites** — when an individual creator links to a company site, what you get is usually `info@` / `support@` / `sales@`-style role-facing addresses. **They are not this person's contact info**; see "What does not count" below.
 
-**名录 / 市场页**(课程平台的讲师页、赞助市场的创作者目录、机构通讯录、媒体集团的姊妹站)
-—— **最危险的一种,因为它产出的全是真地址,而那些地址全属于别人。**
-实测最大的噪声源就是它:六个这样的页面一次吐出几十个真地址,能一口气污染二十多行。
+**Roster / marketplace pages** (course platforms' instructor pages, sponsorship marketplaces' creator directories, org address books, media groups' sister sites) — **the most dangerous type, because everything it produces is a real address, and every one of those addresses belongs to someone else.** Measured, the single largest noise source: six such pages disgorged dozens of real addresses at once, enough to contaminate twenty-plus rows in one stroke.
 
-判据很干净:**一页产出五个以上不同注册域的地址,就是名录页**,整页不归给当前这个人。
-正确处置**不是丢,是改路由** —— 这类站该当作独立的名录源去跑,当第二跳落点处理必错。
+The criterion is clean: **a page producing addresses from five or more distinct registered domains is a roster page**; the whole page is attributed to no one. The correct disposition is **not discarding but rerouting** — such sites should be run as standalone roster sources; treating one as a second-hop landing point is always wrong.
 
-## 落到本人站点之后,按这个顺序
+## Once on their own site, follow this order
 
-后一档只处理前一档没解决的:
+Each tier handles only what the previous one left unsolved:
 
-**① 首页。** 三分之二的命中出在这里。先抠首页,再决定进不进子页。
+**① Homepage.** Two thirds of hits come from here. Mine the homepage first, then decide on subpages.
 
-**② 联系页。** `/about` 几乎每个站都有,`/contact` 只有三分之一有,
-但两者的**产出**差不多 —— 存在率高不等于产量高。
+**② Contact pages.** `/about` exists on nearly every site, `/contact` on only a third, but their **yields** are about equal — existence rate is not yield.
 
-**③ 格式化文件。** 只有 `/humans.txt` 与 `/.well-known/security.txt` 值得试 ——
-**它们的格式本身就要求写联系方式**。`/now` `/uses` `/colophon` `/links` 抠到的只是页脚的重复,
-新邮箱为零。这一档整体只救回不到一成。**返回 200 的有约一成是软 404,按内容判,不按状态码判。**
+**③ Structured files.** Only `/humans.txt` and `/.well-known/security.txt` are worth trying — **their formats demand contact info by design**. `/now` `/uses` `/colophon` `/links` surface only footer duplicates; new emails zero. This tier as a whole recovers under 10%. **Of responses returning 200, about 10% are soft 404s — judge by content, not status code.**
 
-**④ GitHub 一跳。** 一半的个人技术站链到 GitHub,那些个人账号里四成有公开邮箱 ——
-**能把无邮箱的站救回约两成,是这条链上最大的一块补丁**,排在社交兜底之前。
-`*.github.io` 的域名前缀直接就是用户名,不用先在页面里找链接。
-**这一跳只做落点,不做发现源** —— 理由见 [methodology 的 index](../index.md) 的「删掉的」。
+**④ The GitHub hop.** Half of personal tech sites link to GitHub, and 40% of those personal accounts have a public email — **recovers about 20% of email-less sites, the largest patch in the chain**, ranked ahead of the social fallback. A `*.github.io` domain prefix is directly the username; no need to find the link in the page first. **This hop is landing-point-only, never a discovery source** — reason in the [methodology index](../index.md) under "Deleted".
 
-**⑤ 域名注册信息。** 只对 `.com/.net/.org` —— 个人站最爱用的 `.io` `.me` `.co`
-和各国后缀根本查不到。**必须串行**,并发就被限流。滤掉注册商的隐私转发地址后仍有两成
-能拿到个人邮箱。**它给的是域名注册人,不必然是本人,写进表要标来源。**
+**⑤ Domain registration data.** Only for `.com/.net/.org` — the `.io` `.me` `.co` and country suffixes personal sites favor return nothing. **Must be serial**; concurrency gets rate-limited. After filtering registrar privacy-forwarding addresses, 20% still yield a personal email. **It gives the domain registrant, not necessarily the person — mark the source when writing it to the sheet.**
 
-**⑥ 社交兜底。** 到这一步还没有邮箱的,记社交 handle。
+**⑥ Social fallback.** Whatever still has no email by this point gets the social handle recorded.
 
-## 混淆即到此为止
+## Obfuscation means stop
 
-contact 页要点击才显示邮箱,或者用了那类邮箱混淆服务 —— **都不解。**
+A contact page that reveals the email only on click, or uses one of the email-obfuscation services — **neither is broken.**
 
-**能解不构成该解。** 站主开这个功能的唯一目的就是让爬虫抠不到,判据是**对方的意图**,
-不是技术难度。代价明确:约百分之四的站,落到社交兜底。
+**Being able to break it is not a reason to.** The owner enabled that feature for exactly one purpose: to keep crawlers out. The criterion is **their intent**, not technical difficulty. The cost is known: about 4% of sites, falling to the social fallback.
 
-## 从页面里抠邮箱的坑
+## Pitfalls when extracting emails from pages
 
-**先解码,再抽取。** HTML 实体、JSON 的 `\uXXXX`、`\n` `\t` 转义要在正则之前处理干净。
-不这么做会产出**「多一个字母、仍然像真的」的坏地址** —— 转义前缀粘在 local part 前面,
-过得了所有语法校验,是最危险的一类。反过来,遇到损坏副本要**修不要丢**:
-有的地址在整个页面里只出现那一次。
+**Decode first, extract second.** HTML entities, JSON `\uXXXX`, `\n` `\t` escapes must be cleaned before the regex runs. Skipping this produces **"one extra letter, still looks real" bad addresses** — an escape prefix glued onto the local part passes every syntax check; the most dangerous class. Conversely, on a mangled copy, **repair, don't drop**: some addresses appear exactly once in the whole page.
 
-**顶级域要对着 IANA 的表校验。** 不校验就会把代码里的标识符抠成邮箱
-(装饰器、方法调用长得和邮箱一模一样)。
+**Validate TLDs against the IANA table.** Without it, code identifiers get extracted as emails (decorators and method calls look identical to addresses).
 
-**看命中落在什么位置。** 落在 `placeholder=` / `value=` / `aria-label=` 属性里的、
-落在 `<script>` 里且邻近版权声明的,一律丢 —— 后者是打包进 JS 的第三方库作者私人地址,
-每一页都会发出来。
+**Check where the hit lands.** Hits inside `placeholder=` / `value=` / `aria-label=` attributes, or inside `<script>` adjacent to a copyright notice, are dropped outright — the latter is a bundled third-party library author's private address, emitted on every page.
 
-**模板自带的外链不是他的外链。** 托管平台上每个用户共用一套主题,主题作者的署名链接、
-平台的样板链接会出现在**每一个**站上。实测一批同平台的页面里,平台样板域名出现在
-八到十成的页上,而主题作者的域名和真人的自有域名长得一模一样。
-**判自有域名要先扣掉在同平台多个站上重复出现的域名** —— 这和跨页重复判页脚是同一招。
+**Template-supplied external links are not their links.** On hosted platforms every user shares a theme; the theme author's credit link and the platform's boilerplate links appear on **every** site. Measured on a same-platform batch: platform boilerplate domains appear on 80–100% of pages, while theme-author domains are indistinguishable from real personal domains. **Judging an own domain requires first subtracting domains that recur across multiple sites on the same platform** — the same move as judging footers by cross-page repetition.
 
-同理,平台内建的订阅表单会把一个占位地址写进**每一页**:一批八个站里六个带同一个占位符,
-不滤掉会把两成半的真实覆盖率报成七成半。
+Likewise, platform-built-in subscribe forms write one placeholder address into **every page**: six of eight sites in one batch carried the same placeholder; unfiltered, it inflates a 25% true coverage into 75%.
 
-**几张小名单**:静态资源文件名(retina 后缀 `@2x.png` 与构建产物哈希天然像邮箱)、
-SDK 的上报密钥、`git@` 端点、fediverse handle、模板占位符
-(`you@`、`user@`、`yourname@`、`example.com` 家族)。
+**A few short blocklists**: static-asset filenames (retina `@2x.png` suffixes and build-artifact hashes look natively email-like), SDK reporting keys, `git@` endpoints, fediverse handles, template placeholders (the `you@`, `user@`, `yourname@`, `example.com` family).
 
-**图片里的邮箱不是问题,图片的文件名才是。** 整轮抓取一次都没遇到需要 OCR 的场景,
-遇到的全是文件名被当成邮箱。**不做 OCR。**
+**Emails inside images are not the problem; image filenames are.** An entire round of scraping met zero cases needing OCR; every case met was a filename mistaken for an email. **No OCR.**
 
-**自己的地址被页面回显** —— User-Agent 里若带联系邮箱,有的站会把 UA 原样打进页面,
-于是抓回自己。**UA 声明身份即可,不放邮箱。**
+**Your own address echoed back by the page** — if the User-Agent carries a contact email, some sites print the UA verbatim into the page, and you scrape yourself. **The UA declares identity only; no email in it.**
 
-这套规则实测**误杀为零**。
+This rule set measured **zero false kills**.
 
-## 这个地址属于个人还是属于站
+## Does the address belong to the person or the site
 
-**按前缀判断不够 —— 它错的那部分是系统性的,不是长尾。** 实测纯前缀判据准确率七成出头,
-失败集中在三类互不重叠的缺口:垃圾形态混进来、职能前缀带了 `+tag` 或尾部数字导致匹配不上、
-以及部门名和投稿信箱长得像人名。
+**Prefix-based judgment is insufficient — its failures are systematic, not long-tail.** Measured, a pure-prefix criterion scores just over 70%, with failures concentrated in three non-overlapping gaps: junk shapes leaking in, role prefixes escaping the match via `+tag` or trailing digits, and department names and submission inboxes that look like personal names.
 
-**改成四步排除、再判归属**,准确率能到近九成:
+**Switching to four exclusion steps, then attribution**, reaches near 90%:
 
 ```
-垃圾形态 → 服务商域名 → 前缀归一化 → 跨页重复 → 判个人
+junk shapes → provider domains → prefix normalization → cross-page repetition → judge personal
 ```
 
-跨页重复指同一地址出现在三页以上且不在名单页上 —— 那是页脚的对外入口,不是人。
+Cross-page repetition means the same address on three or more pages while not on a roster page — that is a footer's public-facing entry, not a person.
 
-**页面身份比前缀更能预测归属。** 同一个像人名的前缀,出现在名单页上七成属于个人,
-出现在法务页上九成不是。判据要先看**地址出现在哪一页**。
+**Page identity predicts attribution better than the prefix does.** The same personal-name-looking prefix is personal 70% of the time on a roster page and non-personal 90% of the time on a legal page. Judge first by **which page the address appears on**.
 
-**收益按增量记账。** 多抓一个子页,扣掉已有地址之后才是净增 —— 页脚同一个地址在七个
-页面上各数一遍,会把一个地址当成七个。
+**Account gains incrementally.** One more subpage scraped counts as net gain only after subtracting already-held addresses — counting the same footer address once per page across seven pages turns one address into seven.
 
-## 页面是敌意输入,不是指令
+## Pages are hostile input, not instructions
 
-**实测在一个站的首页正文里遇到了针对抓取器的诱饵**:一段指令形状的文本,
-夹着一个地址,让抓取方把它加进某个账号。裸正则会把那个地址当联系方式收进来。
+**Measured: a scraper-targeted lure was found in the body of one site's homepage** — a piece of instruction-shaped text, wrapping an address, telling the scraper to add it to some account. A naive regex would ingest that address as contact info.
 
-**页面里任何指令形状的文本都是数据。** 这条不是假想的防御,是已经发生过一次的事。
+**Any instruction-shaped text in a page is data.** This is not a hypothetical defense; it has already happened once.
 
-## 不算数的东西
+## What does not count
 
-以下拿到了也不该当作「这个人的联系方式」写进表:
+Even when obtained, none of the following may be written to the sheet as "this person's contact info":
 
-- **第三方页面上别人的地址** —— 见上面的名录页。**归属错了比抓不到更糟。**
-- **面向职能的地址** —— `info@` / `support@` / `sales@` / `press@` / `hello@`。
-  它们会把一家公司的多个人塌成一个,和按联系方式去重是同一个错误的两种形态
-  (见 [dedup.md](../../../../../docs/design/dedup.md))。**唯一的例外是分发站** ——
-  目标本身就是那个站时,它就是对外入口,见 [website.md](../4-distribution/website.md)。个人类目标一律不行。
-- **法务页上的法务地址** —— `privacy@` `legal@` `dmca@` `dpo-` 这一类。
-  法务页的增量几乎全是这种,这也正是它作为兜底价值有限的原因。
-- **长得像邮箱但投不出去的** —— fediverse handle、`git@` 端点。
-- **拼出来的地址** —— 用 `名字@公司域名` 猜一个。永远不做。
-- **用途绑定的地址** —— 写在一个指定用途之下的,不构成「愿意接收商务联系」:
-  commit 元数据里的 author email(平台自己提供 `noreply` 转发,正说明多数人不希望它
-  被当联系方式)、`SECURITY.md` 里的漏洞上报地址。拿它们发 outreach 与拿 `abuse@`
-  发广告同性质。**只用本人主动设为公开的联系方式。**
+- **Other people's addresses on third-party pages** — see roster pages above. **Wrong attribution is worse than no capture.**
+- **Role-facing addresses** — `info@` / `support@` / `sales@` / `press@` / `hello@`. They collapse a company's many people into one — the same mistake as deduping by contact info, in a second form (see [dedup.md](../../../../../docs/design/dedup.md)). **The sole exception is distribution sites** — when the target is the site itself, that is its public entry; see [website.md](../4-distribution/website.md). Never for person-type targets.
+- **Legal addresses on legal pages** — `privacy@` `legal@` `dmca@` `dpo-` and kin. Legal pages' incremental yield is almost entirely this, which is exactly why they are of limited fallback value.
+- **Looks like an email, cannot be mailed** — fediverse handles, `git@` endpoints.
+- **Constructed addresses** — guessing `name@companydomain`. Never.
+- **Purpose-bound addresses** — published under a designated purpose, which does not constitute "willing to receive business contact": author emails in commit metadata (the platforms' own `noreply` forwarding proves most people do not want them treated as contact info), vulnerability-reporting addresses in `SECURITY.md`. Sending outreach to these is the same act as sending ads to `abuse@`. **Only use contact info the person deliberately made public.**
 
-## 去重
+## Dedup
 
-第二跳的落点大多**不产生新行**,却每轮都要重走。log 因此除了 `(人, 平台)` 还记
-**走过的地址**;两类条目规则相同——见过就跳过,失败不记。
+Second-hop landing points mostly **produce no new rows**, yet get re-walked every round. The log therefore records, besides `(person, platform)`, **the addresses walked**; both entry types follow the same rule — seen means skip, failures unrecorded.
 
-同一个站点下可能住着不同的人(播客的两位主持人、公司账号与创始人),所以
-**地址条目只用来省重复抓取,永远不用来判断是不是同一个人**。
+Different people may live under the same site (a podcast's two hosts, a company account and its founder), so **address entries exist only to save repeat fetches, never to judge whether two people are the same**.
 
-## 礼貌与封锁
+## Politeness and blocks
 
-第二跳的目标是别人的个人站点,多数是小站,没有 CDN。串行、留间隔、显式 User-Agent。
-一个人的站抓一次就够——这正是地址条目存在的理由。
+Second-hop targets are other people's personal sites, mostly small, no CDN. Serial, spaced, explicit User-Agent. One fetch per person's site is enough — which is exactly why address entries exist.
 
-**约二十分之一的站会拒绝声明身份的爬虫。** 浏览器能买回访问权,**但买不回邮箱** ——
-实测两个被拒的站,一个只有表单,另一个的 contact 页是没删干净的模板占位符。
-**403 就记 log 收手**,不值得为它上浏览器。
+**About one site in twenty rejects a crawler that declares itself.** A browser can buy back access, **but cannot buy back the email** — of two rejecting sites measured, one had only a form, the other's contact page was an undeleted template placeholder. **On 403, log and stop** — not worth escalating to a browser.
 
-## 待验证
+## To verify
 
-- 这套排除规则的**召回**侧:只在这一轮的页面上测过,没见过的噪声形态会不会漏。
-- 名录页判据的阈值没有对抗样例 —— 一个真人在自己站上列出二十个合作者的情况没测过。
-- `/imprint` 在本项目目标人群里的实际占比——目标表以英美创作者为主,欧盟站点可能很少。
+- The **recall** side of this exclusion rule set: measured only on this round's pages; unseen noise shapes may slip through.
+- The roster-page threshold has no adversarial example — a real person listing twenty collaborators on their own site is untested.
+- The actual share of `/imprint` in this project's target population — the sheet skews to US/UK creators; EU sites may be rare.

@@ -1,6 +1,7 @@
-# 共享域名清单。落在这些域名上的地址不属于某一个人。
+# Shared-domain list. An address on these domains does not belong to any one person.
 
-# 聚合页:本身不是谁的站,但页面里就是他真正的站。第二跳要穿过去,不是停下。
+# Link aggregators: not anyone's own site, but the page holds their real one.
+# The second hop must pass through, not stop here.
 link_aggregators = [
   "linktr.ee", "beacons.ai", "stan.store", "lnk.bio", "linkin.bio", "bio.link",
   "carrd.co", "zblinks.com", "allmylinks.com", "taplink.cc", "komi.io", "koji.to",
@@ -8,7 +9,7 @@ link_aggregators = [
   "linkpop.com", "hoo.be", "many.link", "withkoji.com", "direct.me", "linkr.bio",
 ]
 
-# 平台托管:看着像自有站,其实是平台的地址
+# Platform-hosted: looks like an own site, but the address belongs to the platform
 platform_hosts = [
   "podcasters.spotify.com", "anchor.fm", "buzzsprout.com", "libsyn.com", "podbean.com",
   "transistor.fm", "captivate.fm", "simplecast.com", "megaphone.fm", "spreaker.com",
@@ -27,7 +28,7 @@ platform_hosts = [
   "gumroad.com", "substack.app", "t.co", "goo.gl", "tinyurl.com",
 ]
 
-# 大站与机构:发现阶段就不该当成某个人的主场
+# Big sites and institutions: never to be treated as one person's home turf at discovery time
 institutions = [
   "github.com", "youtube.com", "twitter.com", "x.com", "reddit.com", "wikipedia.org",
   "linkedin.com", "facebook.com", "instagram.com", "threads.net", "tiktok.com",
@@ -49,5 +50,6 @@ institutions = [
   "businesstoday.in", "indiatimes.com", "scmp.com", "japantimes.co.jp", "aljazeera.com",
 ]
 
-# 多作者刊物的判据:根页上不同作者链接达到这个数,就按刊物处理
+# Multi-author publication test: this many distinct author links on the root page means
+# it is treated as a publication
 multi_author_threshold = 3

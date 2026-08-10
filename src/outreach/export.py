@@ -3,18 +3,18 @@ from .paths import memory_dir
 from .record import Outcome
 
 HEADERS = [
-    "名字", "邮箱", "邮箱来源", "粉丝数", "主题证据",
-    "判定", "平台主页", "自有站", "渠道", "入库时间",
+    "Name", "Email", "Email Source", "Followers", "Topic Evidence",
+    "Verdict", "Profile", "Own Site", "Channel", "Added",
 ]
 VERDICT = {
-    Outcome.QUALIFIED: "合格",
-    Outcome.NO_CONTACT: "无联系方式",
-    Outcome.BUYER: "买方",
-    Outcome.AUDIENCE_OUT_OF_BAND: "规模不在带内",
-    Outcome.AUDIENCE_UNVERIFIED: "规模未核实",
-    Outcome.OFF_TOPIC: "主题不符",
+    Outcome.QUALIFIED: "qualified",
+    Outcome.NO_CONTACT: "no contact",
+    Outcome.BUYER: "buyer",
+    Outcome.AUDIENCE_OUT_OF_BAND: "audience out of band",
+    Outcome.AUDIENCE_UNVERIFIED: "audience unverified",
+    Outcome.OFF_TOPIC: "off topic",
 }
-SUMMARY_TAB = "汇总"
+SUMMARY_TAB = "Summary"
 
 
 def row_for(candidate):
@@ -73,14 +73,14 @@ def to_workbook(by_channel):
     book = Workbook()
     summary = book.active
     summary.title = SUMMARY_TAB
-    summary.append(["渠道", "有邮箱", "其中合格"])
+    summary.append(["Channel", "With Email", "Qualified"])
     for channel, people in by_channel.items():
         summary.append([
             channel, len(people),
             sum(1 for c in people if c.outcome is Outcome.QUALIFIED),
         ])
     summary.append([
-        "合计",
+        "Total",
         sum(len(p) for p in by_channel.values()),
         sum(1 for p in by_channel.values() for c in p if c.outcome is Outcome.QUALIFIED),
     ])

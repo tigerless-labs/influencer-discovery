@@ -67,7 +67,7 @@ class Gate:
             self.low <= audience.value <= self.high if measured else None
         )
         evidence = ", ".join(candidate.signals.get("topic_hits") or [])
-        size = f"{audience.value} {audience.unit}" if measured else "规模未知"
+        size = f"{audience.value} {audience.unit}" if measured else "size unknown"
         return Verdict(Outcome.QUALIFIED, measured, f"{size};{evidence}")
 
     def rank(self, candidates):

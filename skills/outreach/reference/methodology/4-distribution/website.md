@@ -1,56 +1,45 @@
 # Website
 
-**做分发的站** —— 工具推荐站、目录站、榜单站、导航站。判据只有一条:
-**它的产出是把别人的东西推给读者**。
+**Sites that do distribution** — tool-recommendation sites, directories, list sites, link hubs. One criterion only: **its output is pushing other people's work to its readers**.
 
-**公司站与产品站不归这里,也不进表。** 他们要的是流量,不会替我们分发,
-见 [seller-vs-buyer.md](../_shared/seller-vs-buyer.md)。这一档从「有地址的站」收窄为
-「有分发能力的站」——收窄的是准入,不是抓法。
+**Company sites and product sites do not belong here and do not enter the sheet.** They want traffic and will not distribute for us; see [seller-vs-buyer.md](../_shared/seller-vs-buyer.md). This tier narrows from "sites with an address" to "sites with distribution capability" — the narrowing is in admission, not in scraping method.
 
-目标表里这一档大量是 `Contact Method = Contact Form`,不是 `Email`——这不是抓取失败,
-是这类站点本来就只提供表单。
+In the target sheet this tier is mostly `Contact Method = Contact Form`, not `Email` — that is not a scraping failure; these sites simply only offer forms.
 
-## 入口
+## Entry
 
-**搜索型。** 从「best X tools」「X alternatives」「awesome X」这类检索式进,
-落点自称榜单、目录或导航的进候选。
+**Search-type.** Enter through queries like "best X tools", "X alternatives", "awesome X"; landing pages that self-describe as lists, directories, or hubs become candidates.
 
-历史上这一档的行大多是从别的渠道顺过来的落点。**收窄之后那条路不再产出本渠道的行** ——
-第二跳落在公司站或产品站上只记 log 的地址条目,不建行。
+Historically most rows in this tier were landing points carried over from other channels. **After the narrowing, that route no longer produces rows for this channel** — a second hop landing on a company or product site records only an address entry in the log, never a row.
 
-## 要投递入口,不要人
+## Want the submission entry, not a person
 
-**这一档的产出不是某个具体的人**,是**怎么把作品投进去**:收录表单、`submit@`、
-「suggest a tool」页。
+**This tier's output is not a specific person** but **how to submit work**: an inclusion form, `submit@`, a "suggest a tool" page.
 
-**面向职能的地址在这里算数。** `info@` / `submit@` / `contact@` 通则上不算数
-(见 [landing-page-two-hop.md](../_shared/landing-page-two-hop.md)),**本渠道是唯一的例外** ——
-目标本身就是这个站,那本来就是它的对外入口。
+**Role-facing addresses count here.** `info@` / `submit@` / `contact@` do not count as a general rule (see [landing-page-two-hop.md](../_shared/landing-page-two-hop.md)); **this channel is the sole exception** — the target is the site itself, and that is its public-facing entry.
 
-**contact 表单** —— 记下表单 URL 作为联系方式,**不填**。填表单是写操作,不在范围内。
+**Contact forms** — record the form URL as the contact method, **do not fill it**. Filling a form is a write operation, out of scope.
 
-**awesome 清单不归这里** —— 它的投递入口是 PR,不是邮箱。
+**awesome lists do not belong here** — their submission entry is a PR, not an email.
 
-## 停止语义
+## Stop semantics
 
-搜索型 —— **连续无新**。
+Search-type — **consecutive rounds with no new results**.
 
-## 去重的键
+## Dedup key
 
-`(站点名, Website)`。
+`(site name, Website)`.
 
-**一个站一行。** 这一档的行不是人,投递入口只有一个,不存在「同站住着不同人」——
-这正是它和 [self-hosted.md](../3-personal-site/self-hosted.md) 的分界:博客的键是作者,这里的键是站。
+**One site, one row.** Rows in this tier are not people; there is one submission entry and no "different people at the same site" — precisely the boundary with [self-hosted.md](../3-personal-site/self-hosted.md): a blog's key is the author, here the key is the site.
 
-## 边界
+## Boundaries
 
-- 表单不填。
-- 反爬邮箱(图片、JS 拼接)不破。
-- **付费收录要标出来。**「投得进去」和「免费投得进去」是两件事,别在表上混成一格。
-- **名录页要防串味**:一页列出五个以上不同注册域的地址就不是这个站自己的,
-  见 [landing-page-two-hop.md](../_shared/landing-page-two-hop.md)。
+- Forms are not filled.
+- Obfuscated emails (images, JS assembly) are not broken.
+- **Paid inclusion must be flagged.** "Can be submitted to" and "can be submitted to for free" are two different things — do not blend them into one cell.
+- **Guard against roster-page contamination**: a page listing addresses from five or more distinct registered domains is not the site's own; see [landing-page-two-hop.md](../_shared/landing-page-two-hop.md).
 
-## 待验证
+## To verify
 
-- 从零跑一轮检索式能出多少个真分发站,付费收录占多少。
-- 目标表现有 62 行 Website 有多少符合收窄后的定义。历史行不清洗,但要知道比例。
+- How many genuine distribution sites one round of queries yields from scratch, and what share is paid inclusion.
+- How many of the sheet's existing 62 Website rows fit the narrowed definition. Historical rows are not cleaned, but the ratio should be known.

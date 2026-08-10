@@ -1,28 +1,22 @@
 # LinkedIn
 
-**不做。** 能力边界见
-[datalayer/linkedin.md](../../datalayer/linkedin.md) —— 那三条边界任一条
-单独就足以否掉它;这里是裁决本身,以及不做之后这条链长什么样。
+**Not run.** Capability boundaries in [datalayer/linkedin.md](../../datalayer/linkedin.md) — any one of those three boundaries alone is enough to kill it; this file is the verdict itself, plus what the chain looks like after not running it.
 
-## 打通认证也不会变高产
+## Solving auth would not make it productive
 
-这是它和 [twitter-x.md](../1-social/twitter-x.md) 的根本区别,值得单独说清:
+This is its fundamental difference from [twitter-x.md](../1-social/twitter-x.md), worth spelling out:
 
-- **没有发现这一步。** X 打通后搜索能从话题找到人;这里没有对应的东西。
-- **「联系信息」只对一度人脉可见。** 认证解决的是能不能看到资料页,
-  **不解决能不能看到联系方式** —— 建立连接是社交动作,不是技术问题。
+- **There is no discovery step.** On X, once auth works, search finds people from topics; here there is no counterpart.
+- **"Contact info" is visible only to first-degree connections.** Auth solves whether the profile page is viewable, **not whether the contact info is** — building a connection is a social act, not a technical problem.
 
-也就是说取数层就算将来放行,这条链的形状也不会变:仍然只能记 URL。
+Which means even if the data layer someday clears it, the chain's shape does not change: still URL-recording only.
 
-## 现在的实际角色:第二跳的落点
+## Its actual role today: second-hop landing point
 
-目标表里的 LinkedIn 行是从个人站、GitHub、文章署名顺过来的,不是在 LinkedIn 上发现的。
-**记下 profile URL 作为联系方式形态,不解析页面** —— 这一路不需要取数层。
+The LinkedIn rows in the target sheet were carried over from personal sites, GitHub, and article bylines — not discovered on LinkedIn. **Record the profile URL as the contact form; do not parse the page** — this path needs no data layer.
 
-`Contact Method = LinkedIn Message`,`Contact Info` 是 profile URL。
-和 X 一样,是一条路径,不是已验证可达的地址。
+`Contact Method = LinkedIn Message`, `Contact Info` is the profile URL. Like X, it is a path, not a verified-deliverable address.
 
-## 待验证
+## To verify
 
-- 目标表里的 LinkedIn 行是否全部是第二跳落点。若有真正在 LinkedIn 上发现的,
-  上面「没有发现这一步」的前提要重估。
+- Whether every LinkedIn row in the sheet is a second-hop landing point. If any were genuinely discovered on LinkedIn, the "no discovery step" premise above needs re-examining.

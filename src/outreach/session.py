@@ -3,7 +3,7 @@ import subprocess
 from pathlib import Path
 
 MISSING_READER = (
-    "缺 browser-cookie3,登录态取不到。装:pip install browser-cookie3"
+    "browser-cookie3 is missing, so the session cannot be read. Install: pip install browser-cookie3"
 )
 
 
@@ -12,7 +12,7 @@ class NoSession(Exception):
 
 
 def browser_cookies(domain):
-    """Reads the登录态 the user already has. Values never leave this process except to that domain."""
+    """Reads the login session the user already has. Values never leave this process except to that domain."""
     try:
         import browser_cookie3
     except ImportError:
@@ -20,7 +20,7 @@ def browser_cookies(domain):
     try:
         jar = browser_cookie3.chrome(domain_name=domain)
     except Exception as e:
-        raise NoSession(f"{domain} 的浏览器 cookie 读不出来:{type(e).__name__}") from None
+        raise NoSession(f"browser cookies for {domain} could not be read: {type(e).__name__}") from None
     return {c.name: c.value for c in jar}
 
 
@@ -37,11 +37,11 @@ def x_session_ready(label="browser"):
     jar = browser_cookies("x.com")
     missing = [k for k in ("auth_token", "ct0") if not jar.get(k)]
     if missing:
-        raise NoSession(f"浏览器里没有 x.com 的 {'、'.join(missing)} —— 先在 Chrome 里登录 x.com")
+        raise NoSession(f"browser has no {', '.join(missing)} for x.com — log in to x.com in Chrome first")
 
     added = _twscrape("add_cookie", label, f"auth_token={jar['auth_token']}; ct0={jar['ct0']}")
     if added.returncode != 0:
-        raise NoSession("twscrape 收不下这份 cookie")
+        raise NoSession("twscrape refused the cookie")
     return True
 
 
@@ -53,11 +53,11 @@ def rdt_cookie_header():
     """Reddit hides a profile behind login; rdt already holds that session, so it is reused, not re-asked."""
     stored = rdt_credential_file()
     if not stored.exists():
-        raise NoSession("rdt 没存过 cookie —— 跑一次 `rdt login`")
+        raise NoSession("rdt has no stored cookies — run `rdt login` once")
     try:
         cookies = json.loads(stored.read_text(encoding="utf-8")).get("cookies")
     except (json.JSONDecodeError, OSError):
-        raise NoSession("rdt 的凭据文件读不出来 —— 重跑一次 `rdt login`") from None
+        raise NoSession("rdt credential file could not be read — rerun `rdt login`") from None
     if isinstance(cookies, dict):
         pairs = list(cookies.items())
     elif isinstance(cookies, list):
@@ -66,7 +66,7 @@ def rdt_cookie_header():
         pairs = []
     header = "; ".join(f"{k}={v}" for k, v in pairs if k and v)
     if not header:
-        raise NoSession("rdt 的凭据文件里没有 cookie —— 重跑一次 `rdt login`")
+        raise NoSession("rdt credential file holds no cookies — rerun `rdt login`")
     return header
 
 
@@ -74,7 +74,7 @@ def rdt_session_ready():
     try:
         status = subprocess.run(["rdt", "status"], capture_output=True, text=True, timeout=60)
     except FileNotFoundError:
-        raise NoSession("缺 rdt CLI。装好后跑一次 `rdt login` 让它接管浏览器 cookie") from None
+        raise NoSession("rdt CLI is missing. Install it, then run `rdt login` once so it takes over the browser cookies") from None
     if "true" not in status.stdout.lower():
-        raise NoSession("rdt 未登录 —— 跑一次 `rdt login`,它会自己从浏览器取 cookie")
+        raise NoSession("rdt is not logged in — run `rdt login` once; it pulls cookies from the browser itself")
     return True

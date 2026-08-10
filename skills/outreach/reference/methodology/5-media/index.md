@@ -1,54 +1,46 @@
-# 媒体
+# Media
 
-**有编辑审的多作者刊物。** 判据是**多作者 + 有编辑 + 卖广告位**。
+**Multi-author publications with editorial review.** Criterion: **multi-author + has editors + sells ad slots**.
 
-**目标是它的作者,不是刊物本身。** 刊物给的是 `editors@` 或投稿信箱 —— 那是版面的入口,
-不是人的地址,按[通则](../_shared/landing-page-two-hop.md)不算数;按站建行还会把几百个作者
-塌成一行,正是 [dedup.md](../../../../../docs/design/dedup.md) 说的误合并。
+**The targets are its authors, not the publication itself.** The publication offers `editors@` or a submissions inbox — an entry to the page space, not a person's address, and it does not count by the [general rule](../_shared/landing-page-two-hop.md); building rows per site would also collapse hundreds of authors into one row — exactly the false merge [dedup.md](../../../../../docs/design/dedup.md) describes.
 
-所以这一档的做法统一是:**从刊物拿到作者清单,再顺着作者出去找他自己的站。**
-键是 `(作者, 这个刊物)`,不是域名。
+The uniform method for this tier is therefore: **get the author list from the publication, then follow each author out to their own site.** The key is `(author, this publication)`, not the domain.
 
-## 排在最后是因为跳数最多
+## Last in order because it has the most hops
 
-前四档拿到的是人和他的主场,这一档拿到的是**署名**——还要再走一跳才到人,
-中途断掉的比例最高。它值得跑的唯一理由是**作者清单往往是目录型可穷尽的**,
-而前四档多是搜索型。
+The first four tiers yield a person and their home base; this tier yields a **byline** — one more hop to reach the person, with the highest mid-chain breakage rate. The only reason it is worth running: **author lists are often directory-type and exhaustible**, while the first four tiers are mostly search-type.
 
-## 有自己一份的
+## Have their own file
 
-| 平台 | 入口 |
+| Platform | Entry |
 |---|---|
-| [freeCodeCamp News](freecodecamp-news.md) | sitemap 一次给全部作者,**目录型可穷尽** |
-| [HackerNoon](hackernoon.md) | RSS 给作者名与 handle;**第二跳断在资料页** |
+| [freeCodeCamp News](freecodecamp-news.md) | sitemap gives all authors in one shot, **directory-type, exhaustible** |
+| [HackerNoon](hackernoon.md) | RSS gives author names and handles; **second hop severed at the profile page** |
 
-## 还没有,各自卡在哪
+## Not yet, and where each is stuck
 
-**每条都是实测的结论,不是猜的。**
+**Every line is a measured conclusion, not a guess.**
 
-| 平台 | 卡点 |
+| Platform | Blocker |
 |---|---|
-| Towards Data Science | 未探 |
-| The New Stack · InfoQ · DevOps.com · SD Times | 未探 |
-| VentureBeat · TechCrunch · The Register · Ars Technica · ZDNet | 未探;综合科技媒体,作者多为受雇记者 |
-| Unite.AI · The AI Journal | 未探 |
+| Towards Data Science | unexplored |
+| The New Stack · InfoQ · DevOps.com · SD Times | unexplored |
+| VentureBeat · TechCrunch · The Register · Ars Technica · ZDNet | unexplored; general tech media, authors mostly staff journalists |
+| Unite.AI · The AI Journal | unexplored |
 
-**受雇记者不是目标** —— 他的受众是刊物的,不是他自己的,离职就带不走。
-自由撰稿人才是。这一档的卖买判别多一条:**看他有没有自己的主场**。
+**Staff journalists are not targets** — their audience belongs to the publication, not to them, and leaves with the job. Freelancers are. This tier's seller-vs-buyer test gains one extra clause: **do they have a home base of their own**.
 
-## 不归这一档的
+## Not in this tier
 
-- **非营利、不卖版面的**仍归这一档 —— 判据里的「卖广告位」是识别媒体的特征,
-  不是准入条件。freeCodeCamp 就是这样。
-- **无编辑审的写作平台**归 [2-blog-platform/](../2-blog-platform/index.md)。
-- **单作者的自建站**归 [3-personal-site/](../3-personal-site/self-hosted.md)。
+- **Non-profits that sell no page space** still belong here — "sells ad slots" in the criterion is a feature for recognizing media, not an admission requirement. freeCodeCamp is exactly this.
+- **Writing platforms without editorial review** go to [2-blog-platform/](../2-blog-platform/index.md).
+- **Single-author self-hosted sites** go to [3-personal-site/](../3-personal-site/self-hosted.md).
 
-## 边界
+## Boundaries
 
-刊物域名在 `config/` 的共享域名清单里,**只挡建行,不挡引用** ——
-文章链接仍然可以当发现线索用。
+Publication domains sit in the shared-domain list in `config/`; **they block row creation only, not citation** — article links can still serve as discovery leads.
 
-## 待验证
+## To verify
 
-- **受雇记者占比。** 决定这一档整体值不值得,一次都没测。
-- 媒体的作者页当发现源的三跳断链率。
+- **Staff-journalist share.** Decides whether this tier is worth running at all; never measured.
+- The three-hop breakage rate when using media author pages as a discovery source.

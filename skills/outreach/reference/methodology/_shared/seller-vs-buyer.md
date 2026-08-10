@@ -1,63 +1,49 @@
-# 卖方还是买方
+# Seller or buyer
 
-**共享件,不是渠道。** 第二跳走到落点站之后、写进表之前的一道判别,各渠道通用。
+**Shared component, not a channel.** A judgment applied after the second hop reaches the landing site and before anything is written to the sheet; common to all channels.
 
-抓到邮箱不等于这个人会接推广单。落点站是**内容站**(有受众要变现,卖方)还是
-**产品站**(自己在买流量,买方),决定这一行**进不进表**。
+Capturing an email does not mean the person will take a promotion deal. Whether the landing site is a **content site** (has an audience to monetize — seller) or a **product site** (buying traffic themselves — buyer) decides whether the row **enters the sheet**.
 
-**买方比例随渠道从零变到一半以上** —— Reddit 那一轮拿到邮箱的人一多半是产品 founder,
-newsletter 自有站里一个买方都没有。**不能拿一个渠道的先验套到另一个渠道上。**
+**Buyer share ranges from zero to over half depending on channel** — in the Reddit round, most people with captured emails were product founders; among newsletter own-sites there was not a single buyer. **Never carry one channel's prior onto another.**
 
-## 先过自有域名排除,再谈判别
+## Pass the own-domain exclusion first, then judge
 
-实测唯一两次「只有赞助信号、没有别的」的命中,**两次都是打赏域名** ——
-创作者的 PayPal 链接被当成了他的自有站。
+Measured, the only two hits with "sponsorship signal and nothing else" were **both tipping domains** — a creator's PayPal link mistaken for their own site.
 
-**这不是判别层的错,是上游的错。** 支付打赏、课程社群、日程预约、聚合短链、
-以及平台上的自有子域,都不该进入「自有站」名单。清单见
-[landing-page-two-hop.md](landing-page-two-hop.md)。
+**That is not the judgment layer's fault; it is upstream's.** Payment/tipping, course communities, scheduling/booking, aggregator short links, and platform-owned subdomains must never enter the "own site" list. The list lives in [landing-page-two-hop.md](landing-page-two-hop.md).
 
-## 三级证据
+## Three evidence levels
 
-**一级:行为证据。** 站上有赞助/广告/media kit 页,有招商表单,首页已经挂着别人的广告位,
-或者邮箱前缀本身就是招商用途(`advertise@`、`sponsor@`、`partnerships@`)。
+**Level 1: behavioral evidence.** The site has a sponsor/ads/media-kit page, a sponsorship inquiry form, ad slots already showing on the homepage, or the email prefix itself is sponsorship-purposed (`advertise@`, `sponsor@`, `partnerships@`).
 
-**但一级证据不能单条定案** —— 必须先过上面那道排除。过了排除之后它很可靠:
-与其它内容信号同现的十几次全部是真卖方。
+**But level-1 evidence cannot decide alone** — the exclusion above must run first. Past the exclusion it is highly reliable: all dozen-plus co-occurrences with other content signals were true sellers.
 
-**二级:站点形态。这里要分两等,只有一等算数。**
+**Level 2: site form. Two grades here, and only one counts.**
 
-- **结构性信号,计分** —— feed 标签、跑在 newsletter 平台上、页面里嵌着支付服务商脚本、
-  标着每月价格。这些是可数的硬事实,产品站基本不发 feed,内容站基本不嵌收银台。
-- **关键词信号,不计分** —— `subscribe`、`archive`、`pricing`、`sign up`。
-  它们在两类站上都密集出现:`/blog` 几乎每个 SaaS 都有,**定价页也不是买方证据** ——
-  创作者卖课同样有定价页。实测在一个近乎全是卖方的样本里,定价页命中近四成。
+- **Structural signals — scored** — feed tags, running on a newsletter platform, a payment provider's script embedded in the page, monthly prices listed. Countable hard facts: product sites rarely publish feeds, content sites rarely embed checkouts.
+- **Keyword signals — not scored** — `subscribe`, `archive`, `pricing`, `sign up`. They appear densely on both site types: nearly every SaaS has a `/blog`, and **a pricing page is not buyer evidence either** — creators selling courses have pricing pages too. Measured on a nearly all-seller sample, pricing pages hit almost 40%.
 
-**关键词信号只在结构性信号缺席时提示「需要人看」,不参与计分。**
+**Keyword signals only flag "needs a human look" when structural signals are absent; they never enter the score.**
 
-**三级:平台上的行为节奏。** 反复发不同主题的原创内容是创作者;反复推同一个产品是 founder。
-单次爆款几乎总是产品发布。
+**Level 3: behavioral rhythm on the platform.** Repeatedly posting original content on varied topics is a creator; repeatedly pushing the same product is a founder. A one-off viral hit is almost always a product launch.
 
-## 平手怎么落
+## How ties land
 
-平手不是小概率 —— 在形态最杂的那批站上占到三成。**拆成两档,两档都不写卖买标记:**
+Ties are not rare — on the most heterogeneous batch of sites they reach 30%. **Split into two grades, neither of which writes a seller/buyer mark:**
 
-- **两边都没有信号** —— 信息不足。应当再取一次子页(`/about`、`/blog`),而不是判定。
-- **两边都有硬信号** —— 真冲突,通常是「创作者同时在卖自己的 SaaS」。这类本来就两者皆是,
-  标成 both 交给人,不强行二选一。
+- **No signal on either side** — insufficient information. Fetch one more subpage (`/about`, `/blog`) rather than ruling.
+- **Hard signals on both sides** — a true conflict, usually "a creator who also sells their own SaaS". These genuinely are both; mark as both and hand to a human, do not force a binary.
 
-## 一个必须两段做的坑
+## A trap that must be done in two passes
 
-赞助类关键词假阳性很高。**关键词命中只能进候选,必须再取一次上下文才能定案。**
-粗筛和精判是两步,合成一步就会把买方当卖方写进表。
+Sponsorship keywords have a high false-positive rate. **A keyword hit only nominates a candidate; a second fetch for context is required to decide.** Coarse filter and fine judgment are two steps; merging them writes buyers into the sheet as sellers.
 
-## 处置 —— 这是闸门,不是标记
+## Disposition — this is a gate, not a tag
 
-判别结果决定进不进表,三个落法:
+The verdict decides sheet entry; three outcomes:
 
-- **卖方** —— 进表,附证据来源。
-- **买方** —— **不进表,只进 log**。他要的是流量,不会给我们分发,抓到地址也用不上。
-- **平手** —— 上面两档都不进表。真冲突那类(创作者同时卖自己的 SaaS)标 both 进表:
-  他有受众,这才是准入的依据。
+- **Seller** — enters the sheet, with evidence source attached.
+- **Buyer** — **does not enter the sheet; log only**. They want traffic and will not distribute for us; the address is useless even when captured.
+- **Tie** — neither grade above enters the sheet. The true-conflict kind (creator also selling their own SaaS) enters marked both: they have an audience, and that is the admission basis.
 
-买方进 log 不是丢弃 —— 下一轮不会重抓他。**误报的代价是白抓一次,不是永久失去。**
+Logging a buyer is not discarding — the next round will not re-fetch them. **The cost of a false positive is one wasted fetch, not permanent loss.**

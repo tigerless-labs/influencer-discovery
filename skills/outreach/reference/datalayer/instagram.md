@@ -1,13 +1,13 @@
 # Instagram
 
-第三方 API:ScrapeCreators。**唯一能按资料内容检索账号的平台。**
+Third-party API: ScrapeCreators. **The only platform where accounts can be searched by profile content.**
 
-## 发现:`/v1/instagram/search/profiles`
+## Discovery: `/v1/instagram/search/profiles`
 
-`query` 吃的是 **bio 或 caption 的关键词**,不是用户名。这是 175 个端点里唯一能按
-博主属性找人的地方。
+`query` consumes **bio or caption keywords**, not usernames. This is the only place among the 175 endpoints
+where people can be found by creator attributes.
 
-**1 credit → 4 至 7 个博主**,结果带:
+**1 credit → 4 to 7 creators**, results carrying:
 
 ```
 biography · bio_links · external_url · category_name
@@ -15,31 +15,31 @@ is_business_account · is_professional_account · is_verified · is_private
 username · full_name
 ```
 
-**带 `follower_count`,4/4 命中**(2026-08-07 复验;更早那条「没有粉丝数」写错了,
-它测的是 `/v1/instagram/search`——那是另一个端点,只回 username 与 full_name,判人不够用)。
-**粉丝数不必再单买 profile**,一整轮九百人只回落了四次。
+**Carries `follower_count`, 4/4 hits** (re-verified 2026-08-07; the earlier "no follower count" note was wrong —
+it tested `/v1/instagram/search`, a different endpoint that returns only username and full_name, not enough to judge a person).
+**No separate profile purchase needed for follower counts**; a full round of nine hundred people fell back only four times.
 
-**搜索结果已带 bio 与外链**,判人够用;这是它和 TikTok 的结构性差别。
+**Search results already carry the bio and external links** — enough to judge a person; this is the structural difference from TikTok.
 
-**多词 query 会 500。** `ai agent` 正常,`ai tools` 稳定报错。
+**Multi-word queries can 500.** `ai agent` works; `ai tools` errors reliably.
 
-query 吃 bio 文本本身,所以筛选条件可以写进检索词,不必事后过滤。
+The query consumes the bio text itself, so filter conditions can be written into the search term — no after-the-fact filtering needed.
 
-底层是 Google 索引的包装(cursor 是 Google 结果页)。**翻页返回不稳定** —— 同一个 query
-连翻三次拿到 5 / 7 / 3 个,首个结果会变。铺量靠多个 query 变体,不是翻页。
+Underneath it wraps Google's index (the cursor is a Google results page). **Pagination returns are unstable** — the same query
+paged three times returned 5 / 7 / 3 items, with the first result shifting. Volume comes from multiple query variants, not pagination.
 
-## 富化:`/v1/instagram/profile`
+## Enrichment: `/v1/instagram/profile`
 
-1 credit,给 `follower_count`、`biography`、`external_url`、`bio_links`。
+1 credit; gives `follower_count`, `biography`, `external_url`, `bio_links`.
 
-**`business_email` 与 `business_phone_number` 恒为 null。** 74 个样本零命中,含
-`is_business_account` 为真的账号。同一响应里 `business_contact_method` 有真值
-(`CALL` / `UNKNOWN`)、`business_address_json` 有城市,**43 个账号的
-`should_show_public_contacts` 还是 `true`** —— 结构是活的,只有这两个值被抠空。
-匿名抓公开网页同样一个邮箱都没有。**值在登录墙后面,换供应商拿不到。**
+**`business_email` and `business_phone_number` are always null.** Zero hits across 74 samples, including
+accounts with `is_business_account` true. In the same response `business_contact_method` has real values
+(`CALL` / `UNKNOWN`), `business_address_json` has a city, and **43 accounts even have
+`should_show_public_contacts` as `true`** — the structure is live; only these two values are hollowed out.
+Anonymous scraping of the public web page yields not one email either. **The value sits behind the login wall; switching vendors will not get it.**
 
-同一次调用还带 `edge_related_profiles`(32 个同类账号)和近 12 条帖的互动数据。
+The same call also carries `edge_related_profiles` (32 similar accounts) and engagement data for the latest 12 posts.
 
-## 单次消耗
+## Per-call cost
 
-搜索、富化各 1 credit。单价见 [providers.md](providers.md)。
+Search and enrichment are 1 credit each. Unit prices in [providers.md](providers.md).

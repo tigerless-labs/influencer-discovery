@@ -1,116 +1,140 @@
 # Reddit
 
-**Reddit 上没有联系方式。** 用户对象没有邮箱字段,简介里也从没出现过邮箱(实测七十来个作者,
-零命中)。这个渠道的产出是**人 + 他自己的域名**,邮箱在
-[landing-page-two-hop.md](../_shared/landing-page-two-hop.md) 那一跳拿。
+**There is no contact info on Reddit.** The user object has no email field, and emails have never
+shown up in bios (measured across seventy-odd authors, zero hits). This channel's output is a
+**person + their own domain**; the email comes from the
+[landing-page-two-hop.md](../_shared/landing-page-two-hop.md) hop.
 
-## 第一跳有四个来源,优先级差别很大
+## The first hop has four sources with very different priorities
 
-**① 资料页上的社交链接 —— 最干净,增量也最大。**
-它是本人主动声明的「这是我的」,**不需要任何推断**。标为自定义类型的那些就是自有域名,
-其余类型是平台账号,归其它渠道。相对只看正文链接,**增量四成以上** ——
-而且正文里一条外链都没有的作者,仍有一成多能从这里拿到域名。
+**① Social links on the profile page — cleanest, and the biggest increment.**
+They are the person's own declaration of "this is mine"; **no inference needed**. The ones marked
+as custom type are own domains; the other types are platform accounts, which belong to other
+channels. Compared to reading only body links, **the increment is over forty percent** —
+and among authors with zero external links in their post bodies, more than a tenth still yield a
+domain here.
 
-代价是它不在用户资源里,要单独取一次资料页,而且**必须带登录态**(见
-[datalayer/reddit.md](../../datalayer/reddit.md))。**多一次请求换掉一整套统计推断,值得。**
+The cost: it is not in the user resource, so the profile page needs a separate fetch, and it
+**requires a logged-in session** (see [datalayer/reddit.md](../../datalayer/reddit.md)).
+**One extra request replaces an entire pile of statistical inference — worth it.**
 
-**② 帖子正文里的外链** —— 主力来源,但要按下面那条规则筛。
+**② External links in post bodies** — the main source, but filter by the rule below.
 
-**③ 简介里的链接** —— 补漏。有简介文本的只占一半,其中带链接的更少。
+**③ Links in the bio** — gap-filling. Only half have bio text, and fewer of those carry links.
 
-**④ flair —— 只在个别版块有效,但在那里是唯一来源。**
-有的版块强制发帖人把自己的站点 URL 放进 flair,那种版块的 flair 命中率远高于正文链接
-(一个走 flair 近两成,走正文只有百分之一)。其余版块 flair 基本无效。
+**④ flair — only works in specific subreddits, but there it is the only source.**
+Some subreddits force posters to put their site URL into flair; in those, the flair hit rate far
+exceeds body links (one at nearly twenty percent via flair versus one percent via bodies).
+In other subreddits flair is basically useless.
 
-## 怎么认出哪个域名是「他自己的」
+## How to recognize which domain is "theirs"
 
-**只取自帖正文里的链接,丢掉链接帖本身的 URL。** 这是精度的关键一步:
-转发新闻是链接帖,它的 URL 就是新闻站本身。
+**Only take links from self-post bodies; drop the URL of link posts themselves.** This is the key
+precision step: reposting news is a link post, and its URL is the news site itself.
 
-然后:**同一个域名在整批里只被一个作者贴过**,就算他的。
+Then: **if a domain is posted by only one author in the whole batch**, count it as theirs.
 
-**黑名单是必需的,不是兜底。** 这条要改正过来 —— 主要污染源是**新闻站**,而它恰好被
-「只被一人贴过」完美放行:一次性转发的新闻域名当然只有一个人贴。平台域名同理。
+**The blacklist is required, not a fallback.** This must be corrected — the main pollution source
+is **news sites**, and the "posted by only one person" rule happens to wave them through
+perfectly: a one-off reposted news domain is of course posted by only one person. Same for
+platform domains.
 
-**自帖的 URL 指向 `redd.it`,不是他的域名。** 这条不筛掉,拿到的全是 Reddit 自己 ——
-实测一轮里 99/101 是这个。**没有域名的人应当在这里落下去,不该带着一个假域名走第二跳:**
-带着走不但白费请求,还会把他的判重键烧掉,下一轮再也发现不了他。
+**Self-post URLs point to `redd.it`, not their domain.** Skip this filter and everything you get
+is Reddit itself — 99/101 in one measured round. **People without a domain should drop out here,
+not carry a fake domain into the second hop:** carrying it not only wastes the request but also
+burns their dedup key, so the next round can never discover them again.
 
-**支付打赏域名在这里几乎不出现**,和 YouTube 那边相反 —— 因为 Reddit 的自我推广发生在
-正文里,不在「支持我」按钮上。留着不亏,但不是重点。
+**Payment/tip-jar domains barely appear here**, the opposite of YouTube — because on Reddit
+self-promotion happens in post bodies, not on a "support me" button. Keeping the filter costs
+nothing, but it is not the point.
 
-**「同一作者贴过两次以上」只能当置信度排序,不能当硬条件** —— 当硬条件会砍掉九成产出。
+**"Posted twice or more by the same author" can only serve as a confidence ranking, never a hard
+condition** — as a hard condition it cuts ninety percent of the yield.
 
-这套规则的**召回没问题**(拿资料页的自有域名当标准答案量过,九成以上),
-**问题全在精度**,所以上面两步都是为精度服务的。
+This ruleset's **recall is fine** (measured against profile-page own domains as ground truth,
+above ninety percent); **the problems are all in precision**, which is what both steps above
+serve.
 
-## 去哪找
+## Where to look
 
-产出率按版块差出几十倍,分三档:
+Yield varies across subreddits by a factor of tens; three tiers:
 
-- **首选** —— 独立开发、indie hacker、MCP、提示工程、RAG 这类**做东西的人聚集的版块**,
-  产出率两到四成。
-- **次选** —— LLM 开发、自动化工具、newsletter 与建站平台自己的版块、
-  主流 ML 与本地模型版块,一到两成。
-- **放弃** —— 泛 AI 助手、奇点、自出版这类,接近零。
+- **First choice** — subreddits where **people who build things** gather: indie dev, indie
+  hacker, MCP, prompt engineering, RAG; yield twenty to forty percent.
+- **Second choice** — LLM development, automation tools, the subreddits run by newsletter and
+  site-builder platforms, mainstream ML and local-model subreddits; ten to twenty percent.
+- **Abandon** — generic AI assistant, singularity, self-publishing and the like; near zero.
 
-**「大版块出不了博主」这句要收窄:** 综合类 AI 版块的表面产出率并不低,
-**但产出的全是新闻域名而不是人的域名** —— 按上面的修正规则筛过之后它们落到次选档,
-不是零。
+**"Big subreddits produce no bloggers" needs narrowing:** general AI subreddits' surface yield is
+not low, **but everything they produce is news domains, not people's domains** — after the
+corrected rules above they land in the second tier, not zero.
 
-**首选档有个卖买偏差要留神:** 独立开发者版块产出的是**产品站**,
-newsletter / 博客 / 播客版块产出的才是**内容站**。产出率最高的那几个版块,
-在 [seller-vs-buyer.md](../_shared/seller-vs-buyer.md) 口径下大部分会被判成买方。
-**产出率高不等于这一档好用。**
+**The first tier has a seller-vs-buyer skew to watch:** indie-developer subreddits produce
+**product sites**; newsletter / blog / podcast subreddits produce **content sites**. The
+highest-yield subreddits mostly get judged as buyers under
+[seller-vs-buyer.md](../_shared/seller-vs-buyer.md).
+**High yield does not make the tier usable.**
 
-## 三条筛选口径
+## Three filtering rules
 
-**发帖频次比单帖高分准。** 一次爆款多半是产品发布,反复发不同主题原创长贴的才是持续写作的人。
+**Posting frequency beats single-post score.** One viral post is usually a product launch;
+someone repeatedly posting original long-form on different topics is the one writing
+continuously.
 
-**karma 不代表接单意愿。** 它衡量的是在 Reddit 上受欢迎的程度,不是有没有可变现的受众。
-真正的判别式是有没有自己反复推的域名,以及那个域名是内容站还是产品站——见
-[seller-vs-buyer.md](../_shared/seller-vs-buyer.md)。
+**Karma does not signal willingness to take deals.** It measures popularity on Reddit, not
+whether there is a monetizable audience. The real discriminator is whether they have a domain
+they repeatedly push, and whether that domain is a content site or a product site — see
+[seller-vs-buyer.md](../_shared/seller-vs-buyer.md).
 
-**要粉丝数就只能读资料页的可见文本。** 用户资源里那个同名字段对谁都返回零,
-**不能当「没有粉丝」用**(见 [datalayer/reddit.md](../../datalayer/reddit.md))。
-好在它和自有域名同页,取资料页那一次两样一起拿,不多花请求。
+**Follower counts can only be read from the profile page's visible text.** The same-named field
+in the user resource returns zero for everyone and **must not be read as "no followers"** (see
+[datalayer/reddit.md](../../datalayer/reddit.md)). Fortunately it shares a page with the own
+domain; one profile fetch gets both, no extra request.
 
-两条失败安全:**同一页出现两个不同的数字就判未知** —— 帖子正文会引用别人的粉丝数,
-猜一个等于编一个;**读不到就是未知,不是零** —— 零会被任何规模门槛判死,
-那是把取数的缺口算到人头上。
+Two fail-safes: **two different numbers on the same page means unknown** — post bodies quote
+other people's follower counts, and guessing is fabricating; **unreadable means unknown, not
+zero** — zero gets killed by any scale threshold, which charges a data-access gap to the person.
 
-**别按「求合作」筛。** 版块里公开求赞助的人大多不留链接、只收私信;能抓到邮箱的恰恰是
-不吆喝、只是自己有站点的人。意愿与可达性在这个平台上是反相关的。
+**Don't filter on "looking for sponsors".** People openly soliciting sponsorship in subreddits
+mostly leave no links and take DMs only; the ones whose emails you can get are precisely those
+who don't shout and simply have a site of their own. Willingness and reachability are
+anticorrelated on this platform.
 
-## 只走帖子正文这条路,产出是零
+## Post bodies alone yield zero
 
-实测:四个版块按年度热门各取六十帖,**剔掉 `redd.it` 之后一个候选都不剩**。
-热门帖压倒性是自帖,而自帖不带任何域名。
+Measured: sixty top-of-year posts from each of four subreddits; **after removing `redd.it`, not a
+single candidate remained**. Top posts are overwhelmingly self-posts, and self-posts carry no
+domains.
 
-**所以 ① 的登录态不是「多一次请求换精度」,是这个渠道有没有产出的分界。**
-不带登录态时,这个渠道该按不跑处理。
+**So the logged-in session in ① is not "one extra request for precision" — it is the line between
+this channel having output and having none.**
+Without a logged-in session, treat this channel as not-run.
 
-## 补漏:翻这个人的历史帖
+## Gap-filling: walk the person's post history
 
-对已经锁定、但当前没拿到域名的人,拉一遍他的历史帖还能再救回一成多
-(判据是同一域名在他两篇以上帖子里出现过)。**适合第二遍补漏,不适合首轮** ——
-每个人多一次请求。
+For people already locked in but currently without a domain, one pass through their post history
+recovers another tenth or so (criterion: the same domain appears in two or more of their posts).
+**Suited to a second gap-filling pass, not the first round** — one extra request per person.
 
-## 私信不是量产通道
+## DMs are not a volume channel
 
-Reddit 不公布私信限额且按账号信誉动态收紧,重复文案会被 spam 过滤静默吞掉,
-被举报后影子封禁且无任何提示。用户对象上有「是否接受私信」的字段,可以记下来,
-但主路始终是第二跳拿到的邮箱。
+Reddit does not publish DM quotas and tightens them dynamically by account reputation; repeated
+copy gets silently swallowed by the spam filter; reports lead to shadowbans with no notice
+whatsoever. The user object has an "accepts DMs" field worth recording, but the main path is
+always the second-hop email.
 
-## 待验证
+## To verify
 
-- 评论里的自我推广链接 —— 本轮只看了帖子。
-- **按话题关键词全站搜索**当发现入口。机制已跑通(搜索返回结构化帖子,带作者),
-  但它比版块清单多捞到多少人、捞到的人质量如何,**没有数字,别当结论用**。
+- Self-promotion links in comments — this round only looked at posts.
+- **Site-wide search by topic keyword** as a discovery entry. The mechanism works (search returns
+  structured posts with authors), but how many extra people it nets over the subreddit list, and
+  how good those people are, **has no numbers — don't treat it as a conclusion**.
 
-## 开跑前
+## Before running
 
-**优先走 `rdt` 的浏览器 session**,没有第二条路可选 —— 匿名接口已废弃,
-本渠道的两道关(用户资源、资料页)都要登录态才跨得过去。
+**Prefer the `rdt` browser session; there is no second option** — the anonymous endpoints are
+deprecated, and both gates of this channel (user resource, profile page) require a logged-in
+session.
 
-**先问一次 `rdt` 登没登录**,没登录就整轮跳过并说明,不阻断其余渠道。
+**Ask once whether `rdt` is logged in**; if not, skip the whole round with an explanation,
+without blocking the other channels.

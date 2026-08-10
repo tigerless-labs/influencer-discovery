@@ -4,12 +4,12 @@ from .paths import memory_dir
 from .record import Outcome
 
 ZH = {
-    Outcome.QUALIFIED: "合格",
-    Outcome.NO_CONTACT: "无联系方式",
-    Outcome.BUYER: "买方,不进表",
-    Outcome.AUDIENCE_OUT_OF_BAND: "规模不在带内",
-    Outcome.AUDIENCE_UNVERIFIED: "规模未核实",
-    Outcome.OFF_TOPIC: "主题不符",
+    Outcome.QUALIFIED: "qualified",
+    Outcome.NO_CONTACT: "no contact",
+    Outcome.BUYER: "buyer, kept off the sheet",
+    Outcome.AUDIENCE_OUT_OF_BAND: "audience out of band",
+    Outcome.AUDIENCE_UNVERIFIED: "audience unverified",
+    Outcome.OFF_TOPIC: "off topic",
 }
 
 
@@ -37,7 +37,7 @@ class Report:
 
     def _summary_table(self):
         lines = [
-            "| 渠道 | 目标(合格) | 实际判定 | 合格 | 停止原因 | 差在哪 |",
+            "| Channel | Target (qualified) | Judged | Qualified | Stop reason | Shortfall |",
             "|---|---|---|---|---|---|",
         ]
         for name, block in self.channels.items():
@@ -48,7 +48,7 @@ class Report:
         return "\n".join(lines)
 
     def _outcome_table(self):
-        lines = ["| 渠道 | " + " | ".join(ZH[o] for o in Outcome) + " |"]
+        lines = ["| Channel | " + " | ".join(ZH[o] for o in Outcome) + " |"]
         lines.append("|" + "---|" * (len(Outcome) + 1))
         for name, block in self.channels.items():
             counts = [str(block["outcomes"].get(o, 0)) for o in Outcome]
@@ -60,26 +60,26 @@ class Report:
         for name, block in self.channels.items():
             if not block["qualified"]:
                 continue
-            rows = ["| 名字 | 邮箱 | 来源 | 粉丝 | 带内 | 主题证据 | 站点 |",
+            rows = ["| Name | Email | Source | Followers | In band | Topic evidence | Site |",
                     "|---|---|---|---|---|---|---|"]
             for c in block["qualified"]:
                 source = next((x.source for x in c.contacts if x.kind == "email"), "")
-                audience = f"{c.audience.value:,}" if c.audience and c.audience.value else "未知"
-                in_band = {True: "✅", False: "带外", None: "—"}[c.signals.get("in_band")]
+                audience = f"{c.audience.value:,}" if c.audience and c.audience.value else "unknown"
+                in_band = {True: "✅", False: "out of band", None: "—"}[c.signals.get("in_band")]
                 evidence = ", ".join((c.signals.get("topic_hits") or [])[:4])
                 rows.append(
                     f"| {c.display_name} | {c.email} | {source} | {audience} | {in_band} "
                     f"| {evidence} | {c.own_site or c.profile_url or ''} |"
                 )
             blocks.append(f"### {name}\n\n" + "\n".join(rows))
-        return "\n\n".join(blocks) or "本轮没有合格行。"
+        return "\n\n".join(blocks) or "No qualified rows this run."
 
     def _review_queue(self):
         blocks = []
         for name, block in self.channels.items():
             if not block["unverified"]:
                 continue
-            rows = ["| 名字 | 邮箱 | 来源 | 站点 |", "|---|---|---|---|"]
+            rows = ["| Name | Email | Source | Site |", "|---|---|---|---|"]
             for c in block["unverified"]:
                 source = next((x.source for x in c.contacts if x.kind == "email"), "")
                 rows.append(
@@ -91,26 +91,26 @@ class Report:
     def render(self):
         total = sum(len(b["qualified"]) for b in self.channels.values())
         parts = [
-            f"# 运行报告 {self.run_id}",
+            f"# Run report {self.run_id}",
             "",
-            "## 本轮的三件事",
+            "## Three things about this run",
             "",
-            f"- **要多少** —— **合格合计 {self.ask['total']} 条**(跨渠道),每渠道上限 {self.ask['per_channel']}。",
-            f"- **符合要求** —— **{self.ask['subject'].upper()} 相关** 且拿得到联系方式。"
-            "主题是闸门,拿不到粉丝数不算不合格。",
-            f"- **优先什么** —— 粉丝 {self.ask['band'][0]:,}–{self.ask['band'][1]:,} 排前面,其次是有数字的,最后是规模未知的。",
+            f"- **How many** — **{self.ask['total']} qualified rows in total** (across channels), at most {self.ask['per_channel']} per channel.",
+            f"- **What counts** — **{self.ask['subject'].upper()}-relevant** with a reachable contact. "
+            "Topic is the gate; a missing follower count does not disqualify.",
+            f"- **What ranks first** — followers {self.ask['band'][0]:,}–{self.ask['band'][1]:,} come first, then anyone with a number, then unknown sizes.",
             "",
-            "## 计划与实际",
+            "## Planned vs actual",
             "",
             self._summary_table(),
             "",
-            f"合格合计 **{total}** 条。",
+            f"**{total}** qualified rows in total.",
             "",
-            "## 判定分布",
+            "## Verdict distribution",
             "",
             self._outcome_table(),
             "",
-            "## 可联系列表(按渠道)",
+            "## Contactable list (by channel)",
             "",
             self._contactable(),
         ]
@@ -118,15 +118,16 @@ class Report:
         if queue:
             parts += [
                 "",
-                "## 待复核 —— 有邮箱,规模无从核实",
+                "## For review — has an email, size unverifiable",
                 "",
-                "**这些不进目标表。** 平台不给粉丝数,站上也没有招商证据 ——"
-                "规模是不是在带内无法判断,人是真的。",
+                "**These do not go to the target sheet.** The platform exposes no follower count "
+                "and the site shows no sponsorship evidence — whether the size is in band cannot "
+                "be judged, but the person is real.",
                 "",
                 queue,
             ]
         if self.notes:
-            parts += ["", "## 偏离与备注", ""] + [f"- {n}" for n in self.notes]
+            parts += ["", "## Deviations and notes", ""] + [f"- {n}" for n in self.notes]
         return "\n".join(parts) + "\n"
 
     def save(self):

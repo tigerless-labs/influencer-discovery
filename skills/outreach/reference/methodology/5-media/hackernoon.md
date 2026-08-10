@@ -1,27 +1,26 @@
 # HackerNoon
 
-取数见 [datalayer/public.md](../../datalayer/public.md)。
+Data access: see [datalayer/public.md](../../datalayer/public.md).
 
-**发现能做,第二跳断了。** RSS 免 key 给作者名与 handle;顺 handle 去资料页找他的自有站,
-平台对声明身份的爬虫返回质询页。**不绕** —— 这个渠道在这里到此为止。
+**Discovery works; the second hop is severed.** RSS gives author names and handles key-free; following the handle to the profile page to find their own site, the platform returns a challenge page to crawlers that declare themselves. **No bypassing** — this channel ends here.
 
-## 全链路
+## Full chain
 
 ```
-① RSS                0 请求/人   → 一次 20 条,dc:creator 给作者名,链接里含 handle
-② 资料页             ✗          → 质询页,拿不到自有站
+① RSS                0 requests/person   → 20 items per fetch, dc:creator gives the author name, handle in the link
+② Profile page       ✗                   → challenge page, own site unreachable
 ```
 
-## 去重的键
+## Dedup key
 
-`(author handle, HackerNoon)`。handle 从文章链接里取,平台内唯一。
+`(author handle, HackerNoon)`. Handle taken from the article link; unique within the platform.
 
-## 边界
+## Boundaries
 
-- 有编辑审、卖广告位,按[本档判据](index.md)是媒体。
-- **作者本人可能在别处有主场** —— 从那边发现他,不从这边进。
+- Editorial review, sells ad slots — media by [this tier's criterion](index.md).
+- **The author may have a home base elsewhere** — discover them from there, not from here.
 
-## 待验证
+## To verify
 
-- 接入带登录态的取数层之后,资料页那道质询页还挡不挡得住。
-- RSS 的翻页深度,以及它给的是不是全量作者。
+- Whether the profile-page challenge still blocks once a logged-in data layer is wired up.
+- The RSS paging depth, and whether it surfaces the full author set.

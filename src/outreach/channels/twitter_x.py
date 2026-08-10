@@ -149,7 +149,7 @@ class TwitterX(Channel):
                 timeout=ACCOUNTS_TIMEOUT_SECONDS,
             )
         except (OSError, subprocess.SubprocessError) as e:
-            self.unavailable = f"twscrape 跑不起来:{type(e).__name__}"
+            self.unavailable = f"twscrape failed to run: {type(e).__name__}"
             return False
         if self._has_active_account(listed.stdout):
             return True
@@ -178,7 +178,7 @@ class TwitterX(Channel):
         try:
             proc = self._start(query, limit)
         except OSError as e:
-            self.halted = f"twscrape 起不来:{type(e).__name__}"
+            self.halted = f"twscrape failed to start: {type(e).__name__}"
             return []
         cutoff = time.monotonic() + QUERY_TIMEOUT_SECONDS
         if deadline:
@@ -196,10 +196,10 @@ class TwitterX(Channel):
         while True:
             remaining = cutoff - time.monotonic()
             if remaining <= 0:
-                self.halted = self.halted or "取数预算用完"
+                self.halted = self.halted or "fetch budget exhausted"
                 break
             if not self._readable(proc.stdout, min(idle, remaining)):
-                self.halted = "X 让等下一个窗口"
+                self.halted = "X asked us to wait for the next window"
                 break
             line = proc.stdout.readline()
             if not line:
@@ -207,10 +207,10 @@ class TwitterX(Channel):
             if line.startswith("{"):
                 lines.append(line)
             elif any(marker in line for marker in SESSION_GONE):
-                self.halted = "登录态没了"
+                self.halted = "session is gone"
                 break
             elif ASKED_TO_WAIT in line:
-                self.halted = "X 让等下一个窗口"
+                self.halted = "X asked us to wait for the next window"
                 break
         return lines
 

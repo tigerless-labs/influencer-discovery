@@ -1,40 +1,40 @@
 # X / Twitter
 
-**发现要认证,匿名做不到。** 匿名 API 通道 2023 年已封;不带 cookie 取 `x.com/<handle>`
-返回 200,Open Graph 标签里有显示名、handle 与 bio 文本,**没有外链、没有粉丝数、没有推文**。
-`twitter.com` 与 `x.com` 返回同一份。从话题找到人这一步,匿名不存在。
+**Discovery requires auth; anonymous cannot do it.** The anonymous API channel was closed in 2023; fetching `x.com/<handle>` without cookies
+returns 200, and the Open Graph tags hold display name, handle, and bio text — **no external links, no follower count, no tweets**.
+`twitter.com` and `x.com` return the same thing. The topic-to-person step does not exist anonymously.
 
-## 已确定的
+## Confirmed
 
-**认证走浏览器 cookie,不走密码,且取数层自己取。** `auth_token` + `ct0` 用
-`browser-cookie3` 从本机 Chrome 读出、喂给 **twscrape** 的 cookie 入口,不需要用户名密码、
-不需要邮箱验证码,也不需要人手动加账号 —— 账号池为空时取数层自动补一次。
+**Auth runs on browser cookies, not passwords, and the fetch layer fetches them itself.** `auth_token` + `ct0` are read from
+this machine's Chrome with `browser-cookie3` and fed into **twscrape**'s cookie entry point — no username/password,
+no email verification code, no manual account adding — when the account pool is empty the fetch layer refills it once itself.
 
-**twscrape 不自己去浏览器取,只收下喂进去的那份**,存在它自己的账号池里,
-之后的搜索从池子里取会话。**取和持有是两件事,分在两个工具里。****twikit 过不了 X 的反爬握手**,同一份 cookie twscrape
-能返回实时结果。
+**twscrape does not go to the browser itself; it only accepts what is fed in**, storing it in its own account pool;
+later searches take sessions from the pool. **Fetching and holding are two jobs, split across two tools.** **twikit cannot pass X's anti-bot handshake**; with the same cookie, twscrape
+returns live results.
 
-没登录 x.com 的浏览器里没有 `auth_token`,这份 cookie 就配不齐。
+A browser not logged into x.com has no `auth_token`, and this cookie set cannot be completed.
 
-**搜索一次就给全。** `search` 返回的每条推文内联完整作者对象:
+**One search gives everything.** Every tweet `search` returns inlines the full author object:
 
 ```
-username · displayname · rawDescription(bio)· descriptionLinks(bio 里的外链)
+username · displayname · rawDescription (bio) · descriptionLinks (external links in the bio)
 followersCount · friendsCount · statusesCount · location · verified · blue
 ```
 
-**不必再查资料页** —— 这是它和 Instagram / TikTok / Threads 的结构性差别,那三家的搜索
-都不给粉丝数。
+**No profile-page lookup needed** — this is the structural difference from Instagram / TikTok / Threads, whose searches
+all give no follower count.
 
-搜索支持 X 自己的查询语法(`lang:en`、`min_faves:` 之类),筛选条件可以写进查询本身。
+Search supports X's own query syntax (`lang:en`, `min_faves:`, and the like); filter conditions can be written into the query itself.
 
-同一个作者在一次搜索里会重复出现(一人多推),按 `username` 累积去重。
+The same author appears repeatedly within one search (one person, many tweets); dedup cumulatively by `username`.
 
-## 未确定的
+## Unconfirmed
 
-**翻页上限、速率限制、以及被判定为自动化的阈值都没测。** cookie 属于真人账号,
-触发风控的代价是那个账号,不是配额。
+**Pagination caps, rate limits, and the threshold for being judged automation are all untested.** The cookie belongs to a real person's account;
+the cost of tripping detection is that account, not a quota.
 
-## 单次消耗
+## Per-call cost
 
-免费 —— 走的是账号自己的会话,不经过任何供应商。
+Free — it rides the account's own session, through no vendor.

@@ -1,89 +1,78 @@
 # DEV.to
 
-公开 API 免 key、免登录。**发现和作者字段一次拿到,不用逐个查资料页。**
+Public API, no key, no login. **Discovery and author fields arrive in one call — no per-person profile lookups.**
 
-## 全链路
+## Full chain
 
 ```
-① 内容搜索        0 请求/人   → 每 tag 100 篇,内联作者的 website_url 与 handle
-② 客户端筛        0 请求      → 按 reactions;字段已在结果里
-③ 自有站走第二跳   1 请求/人
+① Content search        0 requests/person   → 100 articles per tag, author website_url and handle inlined
+② Client-side filter    0 requests          → by reactions; fields already in the results
+③ Own site → second hop  1 request/person
 ```
 
-### ① 内容搜索
+### ① Content search
 
 ```
 GET https://dev.to/api/articles?tag=<tag>&per_page=100&top=365
 ```
 
-**`top` 参数是这条链的成败所在。** 不带它拿到的是最新流,**七成作者零 reaction**;
-带 `top=365` 之后零 reaction 降到 7%,reactions 中位数 18、九分位 163。
-`state=rising` 和最新流一样差。
+**The `top` parameter makes or breaks this chain.** Without it you get the latest-first feed, where **70% of authors have zero reactions**; with `top=365`, zero-reaction drops to 7%, median reactions 18, 90th percentile 163. `state=rising` is as bad as the latest feed.
 
-从 `user` 对象取:
+From the `user` object take:
 
 ```
 username · name · website_url · github_username · twitter_username
 ```
 
-从文章取 `public_reactions_count`(受众信号)与 `canonical_url`
-(**指向站外 = 他自己养着一个站**,是这一档最硬的门槛信号)。
+From the article take `public_reactions_count` (audience signal) and `canonical_url` (**pointing off-site = they maintain their own site**, the hardest threshold signal in this tier).
 
-铺量靠换 tag,不是翻页。**去重按 `username` 在累积时做** —— 跨 tag 重复出现的约两成,
-那是垂类相关度的信号。
+Scale by switching tags, not by paging. **Dedup by `username` during accumulation** — about 20% of authors recur across tags, which is a vertical-relevance signal.
 
-### ② 客户端筛
+### ② Client-side filter
 
-**先按 `canonical_url` 指向站外分档,再看 `reactions`。**
+**First bucket by `canonical_url` pointing off-site, then look at `reactions`.**
 
-零门槛平台上多数人不是博主。`canonical` 指向站外说明**这篇的原本住在他自己的域名上**,
-DEV.to 只是转载 —— 那道自建站的门槛他已经付过了。**这一档优先。**
+On a zero-barrier platform most people are not bloggers. A `canonical` pointing off-site means **the original of this article lives on their own domain** and DEV.to is just a cross-post — they have already paid the self-hosted-site threshold. **This bucket goes first.**
 
-`reactions` 是这个平台唯一的公开受众指标,没有粉丝数字段。
+`reactions` is the platform's only public audience metric; there is no follower-count field.
 
-### ③ 自有站走第二跳
+### ③ Own site → second hop
 
-顺 `website_url` 出去,见 [landing-page-two-hop.md](../_shared/landing-page-two-hop.md)。
+Follow `website_url` out; see [landing-page-two-hop.md](../_shared/landing-page-two-hop.md).
 
-## 可预期的命中
+## Expected yield
 
-十二个 tag 一轮,558 个去重作者:
+One round of twelve tags, 558 deduplicated authors:
 
 ```
-website_url        约 64%
-canonical 指向站外  约 18%      ← 自有博客
-跨 tag 出现        约 22%
+website_url               ~64%
+canonical pointing off-site  ~18%      ← own blog
+appears across tags       ~22%
 ```
 
-## 两条不走的路
+## Two paths not taken
 
-**不查资料页抠 bio。** `GET /api/users/by_username?url=<username>` 每人多一次请求,
-bio 非空率 98% 但**里面有邮箱的只有 2%**。这条路的成本全部白付。
+**Do not fetch profile pages to mine bios.** `GET /api/users/by_username?url=<username>` costs one extra request per person; bios are non-empty 98% of the time but **only 2% contain an email**. The entire cost of this path is wasted.
 
-**不走 `github_username` 那一跳。** 它确实给得出邮箱,但拿这个字段当联系路径等于用
-「这个人在写代码」筛「这个人会做分发」,选出来的偏 founder 与自建者 ——
-按准入那一档不进表。判别见 [seller-vs-buyer.md](../_shared/seller-vs-buyer.md)。
+**Do not take the `github_username` hop.** It does yield emails, but using that field as a contact path means filtering for "this person distributes" by "this person writes code" — it selects for founders and self-builders, who fail the admission gate. See [seller-vs-buyer.md](../_shared/seller-vs-buyer.md) for the test.
 
-## 停止语义
+## Stop semantics
 
-搜索型 —— **连续无新**。`top=365` 是一个时间窗不是目录,翻完不等于枯了,换 tag 还有人。
+Search-type — **consecutive rounds with no new results**. `top=365` is a time window, not a directory; exhausting it does not mean the well is dry — switching tags yields more people.
 
-## 去重的键
+## Dedup key
 
-`(username, DEV.to)`。
+`(username, DEV.to)`.
 
-handle 唯一且稳定。**显示名不做键** —— `name` 可改可重。
+The handle is unique and stable. **Never key on display name** — `name` is mutable and non-unique.
 
-## 边界
+## Boundaries
 
-- 这个平台的人多是开发者写自己在做的东西,**买方密度可能高于个人博客**,
-  卖买判别不能省。
-- 作者的主场常常不在这里(自有博客、newsletter),`canonical_url` 指向站外的那批尤其。
-  **从主场发现同一个人更便宜。**
+- Most people on this platform are developers writing about what they are building; **buyer density may be higher than on personal blogs** — the seller-vs-buyer test cannot be skipped.
+- An author's home base is often elsewhere (own blog, newsletter), especially the batch whose `canonical_url` points off-site. **Discovering the same person from their home base is cheaper.**
 
-## 待验证
+## To verify
 
-- **卖买比例。** 这一档最关键的缺口,一次都没测。已抓到的标题与 tag 分布够判,还没跑。
-- 剔掉 GitHub 那一跳之后,只走 `website_url` 的最终邮箱命中率。现有的可触达数字含
-  GitHub,不能直接用。
-- `top` 换成 30 / 90 与 365 的产出差别。
+- **Seller/buyer ratio.** The most critical gap in this tier; never measured. The captured titles and tag distribution are enough to judge, but the pass hasn't been run.
+- Final email hit rate over `website_url` alone, with the GitHub hop removed. The existing reachability numbers include GitHub and cannot be reused directly.
+- Yield difference between `top` set to 30 / 90 vs 365.

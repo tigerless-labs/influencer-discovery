@@ -1,51 +1,51 @@
 # Mastodon
 
-**没有认证这道门。** 账号、发现、话题时间线全部匿名可取,不需要 key、不需要 cookie。
-这是目前唯一一个发现与取数都不设门槛的社交平台。
+**There is no auth gate.** Accounts, discovery, and topic timelines are all anonymously fetchable — no key, no cookie.
+Currently the only social platform where both discovery and fetching are gate-free.
 
-## 能力边界
+## Capability boundary
 
-**发现存在,而且有两个独立入口。** 一个是账号目录端点,按活跃度或新加入排序、可翻页,
-本站与联邦皆可;另一个是话题时间线,按标签取最近的帖子再收敛到作者。
-两者都不需要种子。
+**Discovery exists, with two independent entry points.** One is the account directory endpoint — sorted by activity or newest, pageable,
+local and federated both; the other is topic timelines — fetch recent posts by hashtag, then collapse to authors.
+Neither needs a seed.
 
-**两个入口的翻页形状不同。** 目录按 `offset` 跳,一页最多 80 个账号,大实例翻到两万仍是满页,
-没有见到上限;话题时间线按 `max_id` 向后游标翻,一页最多 40 条帖子。
+**The two entry points page in different shapes.** The directory jumps by `offset`, at most 80 accounts per page; a large instance still returns full pages at offset twenty thousand,
+with no cap observed; topic timelines cursor backward by `max_id`, at most 40 posts per page.
 
-**话题时间线的帖子里内嵌完整账号对象**,收敛到作者不需要再发一次请求。
+**Topic-timeline posts embed the full account object** — collapsing to authors needs no extra request.
 
-**账号返回的字段里有三样是别处没有的:**
+**Three of the returned account fields exist nowhere else:**
 
-- **`fields`** —— 用户自填的键值对,四条上限,是他挂自己网站的地方。
-- **`fields[].verified_at`** —— **归属证明**。只有当那个网址的页面用 `rel="me"` 链回这个
-  账号时,实例才会给这条链接盖上验证时间戳。**这是平台自己做的所有权校验,不是自称。**
-- **`followers_count`** —— 公开,不需要额外请求。
+- **`fields`** — user-filled key-value pairs, four at most; where they hang their own website.
+- **`fields[].verified_at`** — **proof of ownership**. Only when that URL's page links back to the account with `rel="me"`
+  does the instance stamp the link with a verification timestamp. **This is the platform's own ownership check, not self-declaration.**
+- **`followers_count`** — public, no extra request needed.
 
-`note` 是 bio,内容是 HTML 片段,不是纯文本。
+`note` is the bio; its content is an HTML fragment, not plain text.
 
-**没有邮箱字段。** 账号对象里不存在任何邮箱位。
+**No email field.** No email slot exists anywhere in the account object.
 
-**账号可以自己关掉曝光。** 有 `discoverable` 与 `indexable` 两个布尔位,
-关掉的账号不出现在目录端点里 —— 目录不是全量。
+**Accounts can switch off their own exposure.** There are `discoverable` and `indexable` booleans;
+switched-off accounts do not appear in the directory endpoint — the directory is not exhaustive.
 
-**`verified_at` 是少数。** 目录返回里带验证戳的账号只有不到两成,`fields` 里挂了链接的接近七成。
+**`verified_at` is a minority.** Under a fifth of directory-returned accounts carry the verification stamp; close to seventy percent have a link hung in `fields`.
 
-## 速率与可用性
+## Rate and availability
 
-**每 IP 每五分钟 300 次请求**,余量在 `X-RateLimit-*` 响应头里,不需要认证也返回。
+**300 requests per IP per five minutes**; the remaining allowance is in the `X-RateLimit-*` response headers, returned even without auth.
 
-**不是每个实例都匿名开放目录。** 同一个端点在部分实例上直接返回 HTTP 错误 ——
-实例清单要按可用性逐个验,不能假定一致。
+**Not every instance opens its directory anonymously.** The same endpoint returns an HTTP error outright on some instances —
+verify the instance list one by one for availability; do not assume uniformity.
 
-## 联邦带来的一条边界
+## One boundary federation brings
 
-**没有全站视图。** 每个实例只能看到它自己认识的那部分网络,
-所以同一个查询在不同实例上返回的结果不同,**去重要跨实例做**。
-账号的完整标识是 `用户名@实例域名`,单看用户名会撞车。
+**There is no whole-network view.** Each instance sees only the part of the network it knows,
+so the same query returns different results on different instances — **dedup must be done across instances**.
+An account's full identifier is `username@instance-domain`; the username alone collides.
 
-**实例之间重合得不多。** 十个实例各取两页,重复出现的账号约占六分之一 ——
-多跑一个实例基本就是多一批人。
+**Instances overlap little.** Two pages each from ten instances: accounts appearing more than once were about one sixth —
+one more instance is essentially one more batch of people.
 
-## 待探索
+## To explore
 
-- 要覆盖多少个实例才算够。
+- How many instances need covering before coverage counts as enough.

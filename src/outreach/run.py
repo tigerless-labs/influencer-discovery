@@ -98,11 +98,11 @@ class Run:
                 self.qualified_so_far += 1
 
         if getattr(adapter, "unavailable", None):
-            self.report.note(f"`{name}` 跳过:{adapter.unavailable}")
+            self.report.note(f"`{name}` skipped: {adapter.unavailable}")
         met = qualified >= self.per_channel
-        stop = "凑够" if met else ("翻到底" if adapter.form == "directory" else "连续无新")
+        stop = "quota met" if met else ("paged to the end" if adapter.form == "directory" else "no new results")
         shortfall = None if met else (
-            "候选不足" if len(fresh) < self.per_channel else "闸门卡住"
+            "too few candidates" if len(fresh) < self.per_channel else "stuck at the gate"
         )
         judged = self.gate.rank(judged)
         self.report.add(name, judged, stop, self.per_channel, shortfall=shortfall)
@@ -134,7 +134,7 @@ def summarise(run_id, per_channel, band, priority, store=None, total=None, subje
         by_channel.setdefault(candidate.channel, []).append(candidate)
     ranker = Gate(band, subject)
     for channel, candidates in sorted(by_channel.items()):
-        report.add(channel, ranker.rank(candidates), "见各轮报告", per_channel)
+        report.add(channel, ranker.rank(candidates), "see per-run reports", per_channel)
     return report
 
 
@@ -198,12 +198,12 @@ def append_to_sheet(store=None):
 
     spreadsheet_id = credential("OUTREACH_SPREADSHEET_ID")
     if not spreadsheet_id:
-        return staged, "OUTREACH_SPREADSHEET_ID 未设置"
+        return staged, "OUTREACH_SPREADSHEET_ID is not set"
     try:
         api = SheetsApi(spreadsheet_id, access_token())
         TargetSheet(api, config["tab"], config["columns"]).append(rows)
     except SheetsUnavailable as e:
-        return staged, f"取不到 token:{e}"
+        return staged, f"token unavailable: {e}"
     except Exception as e:
         return staged, f"{type(e).__name__}: {e}"
     return staged, None
@@ -241,10 +241,10 @@ def main():
 
         store = Store()
         before, after = store.compact_sites()
-        print(f"sites.jsonl  {before} -> {after} 行")
+        print(f"sites.jsonl  {before} -> {after} rows")
         raw = RawStore()
-        print(f"raw          折叠 {raw.migrate()} 个按轮存的文件")
-        print(f"raw          压缩 {raw.pack()} 个 blob")
+        print(f"raw          folded {raw.migrate()} per-run files")
+        print(f"raw          packed {raw.pack()} blobs")
         return
 
     if args.export_xlsx:
@@ -264,7 +264,7 @@ def main():
         return
 
     if args.summarise:
-        report = summarise(args.run_id, args.per_channel, DEFAULT_BAND, "规模只排序,不筛人",
+        report = summarise(args.run_id, args.per_channel, DEFAULT_BAND, "size orders, never rejects",
                            total=args.total, subject=args.subject, floor=args.min_followers)
         print(report.save())
         return
@@ -276,7 +276,7 @@ def main():
         args.run_id,
         args.per_channel,
         DEFAULT_BAND,
-        "规模只排序,不筛人",
+        "size orders, never rejects",
         pool_factor=config.get("pool_factor", DEFAULT_POOL_FACTOR),
         total=args.total,
         subject=args.subject,
@@ -286,7 +286,7 @@ def main():
         try:
             run.channel(name, config[name])
         except Exception as e:  # a channel that dies must not take the run with it
-            run.report.note(f"`{name}` 中断:{type(e).__name__} {e}")
+            run.report.note(f"`{name}` aborted: {type(e).__name__} {e}")
     print(run.report.save())
     print(write_xlsx(run.store, DEFAULT_BAND))
 

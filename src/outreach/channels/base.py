@@ -32,4 +32,4 @@ class Channel:
         raise NotImplementedError
 
     def stop_reason(self):
-        return "凑够" if self.form == "search" else "翻到底"
+        return "quota met" if self.form == "search" else "paged to the end"

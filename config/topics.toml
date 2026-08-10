@@ -1,5 +1,5 @@
-# 主题闸门的词表。命中即算相关,记下命中的词作为证据。
-# 词按整词匹配,不做子串 —— 否则 "ai" 会命中 email / chair / maintain。
+# Word list for the topic gate. A hit counts as relevant; the matched word is kept as evidence.
+# Words match as whole words, never substrings — otherwise "ai" would hit email / chair / maintain.
 
 [ai]
 terms = [
@@ -17,5 +17,6 @@ terms = [
   "cursor", "copilot", "codex", "claude code", "ai writing", "ai art",
 ]
 
-# 这些词单独出现不算 —— 太泛,只有和上面的词同现才有意义
+# These words do not count on their own — too generic; they only mean something
+# alongside a word from the list above
 weak = ["model", "models", "agent", "agents", "training", "dataset", "automation"]

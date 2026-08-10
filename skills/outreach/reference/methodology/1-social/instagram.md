@@ -1,88 +1,98 @@
 # Instagram
 
-取数见 [datalayer/instagram.md](../../datalayer/instagram.md),选不选这条路见
-[cost-ranking.md](../_shared/cost-ranking.md)。
+Data access: [datalayer/instagram.md](../../datalayer/instagram.md); whether to take this path:
+[cost-ranking.md](../_shared/cost-ranking.md).
 
-搜索结果自带 bio、外链**与粉丝数**(2026-08-07 复验)。所以规模门槛在发现阶段就用得上,
-低于门槛的人连站都不用爬 —— profile 端点只在搜索没给粉丝数时才回落。
+Search results carry bio, external link, **and follower count** (re-verified 2026-08-07). So the
+scale threshold is usable at the discovery stage; people below it never even need a site crawl —
+the profile endpoint is only a fallback for when search omits the follower count.
 
-## 全链路
-
-```
-① bio 关键词搜索     1 credit/次  → 一批博主,带 bio + 外链 + 粉丝数
-② 多组 query 变体    0 credit     → 变体间重叠严重,按 username 去重
-③ 粉丝数(兜底)      1 credit/人  → 只在①没给时才打
-④ 从 bio 抠邮箱      0 credit
-⑤ 无邮箱者走第二跳    0 credit
-```
-
-### ① bio 关键词搜索
+## Full chain
 
 ```
-GET /v1/instagram/search/profiles?query=<bio 关键词>
+① bio keyword search          1 credit/call    → a batch of bloggers with bio + external link + follower count
+② multiple query variants     0 credit         → heavy overlap between variants; dedup by username
+③ follower count (fallback)   1 credit/person  → only called when ① omits it
+④ extract email from bio      0 credit
+⑤ no email → second hop       0 credit
 ```
 
-**`query` 吃的是 bio 文本,不是用户名。** 筛选条件写进 query 本身,筛掉的人不产生调用:
+### ① bio keyword search
 
 ```
-"business inquiries" <垂类词>     只出主动挂了商务联系的
-"@gmail.com" <垂类词>             锁定 bio 里写了邮箱的
-"linktr.ee" <垂类词>              锁定有落地页的
-<垂类词> <城市名>                  变相地区筛选
+GET /v1/instagram/search/profiles?query=<bio keywords>
 ```
 
-**多词 query 会 500。** `ai agent` 正常,`ai tools` 稳定报错 —— 换词,不重试。
+**`query` matches bio text, not usernames.** Write the filter conditions into the query itself;
+people filtered out never cost a call:
 
-从 `profiles` 取:
+```
+"business inquiries" <niche term>     only people who deliberately list business contact
+"@gmail.com" <niche term>             locks onto bios containing an email
+"linktr.ee" <niche term>              locks onto people with a landing page
+<niche term> <city name>              de facto region filter
+```
+
+**Multi-word queries can 500.** `ai agent` works; `ai tools` errors consistently — change the
+term, don't retry.
+
+From `profiles` take:
 
 ```
 username · full_name · biography · bio_links[].url · external_url
 category_name · is_business_account · is_professional_account · is_verified · is_private
 ```
 
-### ② 多组 query 变体
+### ② multiple query variants
 
-底层是 Google 索引的包装(cursor 是 Google 结果页),**单个 query 大约几十到一百来个结果**。
-铺量靠变体,不是翻页。**去重必须在累积时做**,否则同一个人被抓多次。
+Underneath it wraps the Google index (the cursor is a Google results page); **a single query
+yields roughly a few dozen to a hundred-odd results**. Volume comes from variants, not
+pagination. **Dedup must happen during accumulation**, otherwise the same person is fetched
+multiple times.
 
-偶发 500,跳过该 query 继续,不重试。
+Sporadic 500s: skip that query and continue; don't retry.
 
-### ③ 客户端筛
+### ③ client-side filter
 
-粉丝 <1,000 直接丢,全是噪声。
+Drop anyone under 1,000 followers; it is all noise.
 
-### ④⑤ 抠邮箱与第二跳
+### ④⑤ email extraction and second hop
 
-正则从 `biography` 抠。抠不到就顺 `bio_links[].url` 或 `external_url` 走
-[landing-page-two-hop.md](../_shared/landing-page-two-hop.md)。
+Regex over `biography`. If nothing, follow `bio_links[].url` or `external_url` into
+[landing-page-two-hop.md](../_shared/landing-page-two-hop.md).
 
-## 可预期的命中
+## Expected hits
 
 ```
-bio 有邮箱          约 22%
-有外链              约 88%
-落地页再挖出         约 36%(占无邮箱且有外链者)
-可触达(邮箱∪外链)   约 94%
+email in bio                 ~22%
+has external link            ~88%
+recovered via landing page   ~36% (of those with no email but a link)
+reachable (email ∪ link)     ~94%
 ```
 
-外链以 `linktr.ee` 为压倒性第一,其次 `youtube.com`、`stan.store`、`bit.ly`。
-**创作者不把邮箱写 bio,他们挂 Linktree** —— 增量全在第二跳,而第二跳不花 credit。
+`linktr.ee` is the overwhelming top external link, followed by `youtube.com`, `stan.store`,
+`bit.ly`. **Creators don't put emails in bios; they hang a Linktree** — all the marginal yield is
+in the second hop, and the second hop costs no credits.
 
-落地页挖出的含噪声(模板占位符、建站平台公共邮箱),去噪后总净命中约 38–40%。
-噪声类型见 [landing-page-two-hop.md](../_shared/landing-page-two-hop.md)。
+Landing-page finds contain noise (template placeholders, site-builder shared emails); after
+denoising, total net hit rate is about 38–40%. Noise types:
+[landing-page-two-hop.md](../_shared/landing-page-two-hop.md).
 
-**邮箱和外链都落空的那部分**,拿同一个 handle 去 Threads 换一份 bio 再试,
-见 [threads.md](threads.md)。
+**For those where both email and link come up empty**, take the same handle to Threads for
+another bio, see [threads.md](threads.md).
 
-## 解析上的坑
+## Parsing pitfalls
 
-- **邮箱正则必须跑在 `biography` 原文串上,不能跑在 `json.dumps` 之后的串上。**
-  dumps 把换行变成字面的 `\n`,`\w` 会匹配到那个 `n`,抠出 `nJoey@example.com` 这种粘连地址。
-- **去尾部标点。** `xxx@gmail.com。` 会连句号一起抠走。
+- **The email regex must run on the raw `biography` string, not on the string after
+  `json.dumps`.** dumps turns newlines into a literal `\n`; `\w` matches that `n`, extracting
+  glued addresses like `nJoey@example.com`.
+- **Strip trailing punctuation.** `xxx@gmail.com。` gets extracted with the full stop attached.
 
-## 不做的
+## Skipped
 
-- **`/v1/instagram/profile` 只当兜底打。** 联系方式、主题判断与粉丝数在搜索结果里就够了,
-  `business_email` 那一跳也换不来(恒 null,见数据层)。整轮九百人只回落了四次。
-- **不做 `edge_related_profiles` 滚雪球。** 一个种子展开 32 个,一层吃掉大量额度,
-  而 bio 关键词搜索直接命中垂类,更省也更准。
+- **`/v1/instagram/profile` is fallback only.** Contact info, topic judgment, and follower count
+  are already in the search results, and the extra hop doesn't buy `business_email` either
+  (always null, see the data layer). Out of nine hundred people in one round, it fell back only
+  four times.
+- **No `edge_related_profiles` snowballing.** One seed expands to 32; a single layer eats a large
+  share of the quota, while bio keyword search hits the niche directly — cheaper and more precise.

@@ -1,82 +1,67 @@
 # Podcast
 
-**产出最高的一条链,而且免费。** 一次 iTunes Search API 调用同时解决发现和找 feed,
-再取一次 feed 就拿到邮箱 —— 全程不解析任何页面、不需要 key、不需要 cookie。
+**The highest-yield chain, and it is free.** One iTunes Search API call handles discovery and feed-finding at once; one more feed fetch yields the email — no page parsing, no key, no cookie anywhere.
 
-## 入口
+## Entry
 
-**iTunes 的公开搜索接口按关键词返回节目,每条结果自带 feed 地址。**
-「从节目主页找 RSS」这一步不存在,不用做。
+**iTunes' public search endpoint returns shows by keyword, each result carrying its feed URL.** The "find the RSS from the show's homepage" step does not exist; skip it.
 
-单个查询词有结果上限,铺量靠换词,和别处一样。
+A single query term has a result cap; scale by switching terms, same as everywhere else.
 
-**要突破那个上限还有第二条腿:** Podcast Index 每周发布不需要凭据的全库 dump,
-可离线按标题与描述筛出百万级 feed。**但库里没有邮箱** —— 它换掉的是查询上限,
-换不掉取 feed 这一步。它的 API 要注册账号换 key,不走。
+**To break past that cap there is a second leg:** Podcast Index publishes a weekly full-database dump requiring no credentials, filterable offline by title and description across millions of feeds. **But the database has no emails** — it replaces the query cap, not the feed-fetch step. Its API requires registering an account for a key; not taken.
 
-## 拿联系方式
+## Getting contact info
 
 ```
-1. 搜关键词 → 节目列表(自带 feed 地址)
-2. 取 feed,读 <itunes:owner><itunes:email>;顺手读 <podcast:locked> 的 owner 属性
-3. 判断这个地址算不算某个人的(见下)
-4. 没有的退回第二跳:feed 里带节目主页地址
+1. Search keyword → show list (feed URLs included)
+2. Fetch feed, read <itunes:owner><itunes:email>; also read the owner attribute of <podcast:locked>
+3. Judge whether the address belongs to a person (see below)
+4. If absent, fall back to the second hop: the feed carries the show's homepage URL
 ```
 
-`<podcast:locked>` 是给托管商做归属验证的,**少数节目只填了它、没填 owner** ——
-同一份 XML 里多扫一个属性即可。
+`<podcast:locked>` exists for hosting-provider ownership verification; **a minority of shows filled only it and not owner** — one extra attribute scan in the same XML.
 
-**第二跳只抓两页:首页和招商页。** 实测产出邮箱的页面只有这两类,顺其它链接爬到的
-一律零产出。约四成能挖出来,另有约一成主页根本取不回。
+**The second hop fetches exactly two pages: homepage and sponsorship page.** Measured: only these two page types produce emails; crawling any other links yields zero. About 40% can be dug out; another ~10% of homepages are unfetchable.
 
-Apple 的收录规范要求 feed 带 owner 邮箱用于验证归属,所以**七成以上的节目填了**,
-去掉不算数的之后,**每两档节目就有一档给出可用的个人地址**。
+Apple's directory spec requires the feed to carry an owner email for ownership verification, so **over 70% of shows fill it**; after discarding the ones that don't count, **one show in two yields a usable personal address**.
 
-## 哪些 owner 邮箱不算数
+## Which owner emails do not count
 
-三类,按可靠度从高到低判:
+Three classes, judged in descending reliability:
 
-- **同一个地址挂多档节目** —— 厂牌、代理、播客公司。**这是最可靠的判据**:
-  邮箱前缀伪装得了,重复次数伪装不了。整批里少数几个地址就能覆盖几十档节目。
-- **托管平台的转发地址** —— 域名是 anchor / acast / substack 之类。属于平台不属于人。
-- **职能前缀** —— 通则见 [landing-page-two-hop.md](../_shared/landing-page-two-hop.md)。
+- **Same address across multiple shows** — labels, agencies, podcast companies. **The most reliable criterion**: an email prefix can be disguised, repetition count cannot. A handful of addresses in a batch can cover dozens of shows.
+- **Hosting-platform forwarding addresses** — domains like anchor / acast / substack. Belongs to the platform, not the person.
+- **Role prefixes** — general rule in [landing-page-two-hop.md](../_shared/landing-page-two-hop.md).
 
-邮箱域名与节目主页域名对得上的只有四分之一,**所以域名对不上不是排除理由** ——
-个人用免费邮箱是常态。
+Only a quarter of email domains match the show's homepage domain, **so a domain mismatch is not grounds for exclusion** — individuals on free email providers are the norm.
 
-## 多主持人
+## Multiple hosts
 
-一档播客常有两位以上主持人,但只有**一个** owner 邮箱。
-把它同时安给两位主持人就是按联系方式去重的那个错误。**一个 feed 只产生一行**,
-除非从别的渠道单独发现了另一位主持人。
+A podcast often has two or more hosts but only **one** owner email. Assigning it to both hosts is exactly the dedup-by-contact-info mistake. **One feed produces one row**, unless the other host was independently discovered through another channel.
 
-## 停止语义
+## Stop semantics
 
-搜索型 —— **连续无新**。搜索接口给的是查询结果,不是可枚举的目录。
+Search-type — **consecutive rounds with no new results**. The search endpoint returns query results, not an enumerable directory.
 
-## 去重的键
+## Dedup key
 
-`(节目名, Podcast)`。不用主持人名 —— 同一个人主持多档节目是常态,那应当是多行。
+`(show name, Podcast)`. Not the host's name — one person hosting multiple shows is the norm, and those should be multiple rows.
 
-## 边界
+## Boundaries
 
-- Spotify 独占节目**没有公开 RSS**,这条捷径失效,退回节目页与第二跳。
-- 少数 feed 取不回(几个百分点),记 log,不重试。
-- 不订阅、不下载音频、不转录。
+- Spotify-exclusive shows **have no public RSS**; the shortcut fails there — fall back to the show page and the second hop.
+- A few percent of feeds are unfetchable; log them, do not retry.
+- No subscribing, no audio downloads, no transcription.
 
-## 试过不通的,别再试
+## Tried and dead — do not retry
 
-- **feed 里其它带邮箱的字段**(`managingEditor`、`webMaster`、`googleplay:email`、
-  `copyright`、`podcast:txt`)**增量为零** —— 填它们的节目无一例外也填了 owner。
-- **Apple 与 Spotify 的节目页**能取回,但里面没有邮箱。podchaser 拒诚实 UA。
-- **show notes** 里的邮箱九成就是 owner 本人;**混淆写法**(`name (at) domain`)的正则
-  假阳率高到不可用 —— 放宽就全是英文单词,收紧就只剩一个网络的公共地址。
-- 这三条加起来,能救回的不到缺口的一成。**剩下大约一半的节目没有公开路径**,到此为止。
+- **Other email-bearing feed fields** (`managingEditor`, `webMaster`, `googleplay:email`, `copyright`, `podcast:txt`) **add zero** — every show that fills them also fills owner, without exception.
+- **Apple and Spotify show pages** are fetchable but contain no email. podchaser rejects an honest UA.
+- **Show-notes emails** are 90% just the owner again; **obfuscated forms** (`name (at) domain`) have a regex false-positive rate too high to use — loosen it and everything is English words, tighten it and only one network's shared address remains.
+- These three combined recover under 10% of the gap. **Roughly half of shows have no public path** — it ends there.
 
-## 待验证
+## To verify
 
-- 中文/非英语节目在这个接口里的覆盖度。本轮只跑了英文词。
-- Apple 的 `lookup` 接口能不能免 key 直接拿集信息,**绕开取 feed 这一跳** ——
-  对那几个 feed 取不回的节目尤其相关。
-- 第三跳:show notes 出链里的主持人个人站。**得先剔掉托管商与平台域名**,
-  否则出链里排前面的全是它们。
+- Coverage of Chinese/non-English shows in this endpoint. This round ran English terms only.
+- Whether Apple's `lookup` endpoint can return episode info key-free, **bypassing the feed fetch** — especially relevant for the feeds that won't fetch.
+- A third hop: hosts' personal sites among show-notes outlinks. **Hosting-provider and platform domains must be stripped first**, or they dominate the top of every outlink list.

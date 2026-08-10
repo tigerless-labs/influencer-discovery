@@ -1,113 +1,129 @@
 # Threads
 
-取数见 [datalayer/threads.md](../../datalayer/threads.md),选不选这条路见
-[cost-ranking.md](../_shared/cost-ranking.md)。
+Data access: [datalayer/threads.md](../../datalayer/threads.md); whether to take this path:
+[cost-ranking.md](../_shared/cost-ranking.md).
 
-搜索端点不返回粉丝数也不返回 bio —— 必须两步:先拿 handle,再逐个查资料页。
+The search endpoint returns neither follower count nor bio — two steps are mandatory: get handles
+first, then fetch profile pages one by one.
 
-## 全链路
-
-```
-① 内容搜索         1 credit    → 约 20 条帖,去重十几个作者(无粉丝数、无 bio)
-② 逐个查资料页     1 credit/人 → follower_count + biography + bio_links + 垂类标签
-③ 客户端筛         0 credit    → 粉丝区间、垂类标签
-④ 从 bio 抠邮箱    0 credit
-⑤ 无邮箱者走第二跳  0 credit
-```
-
-**筛选发生在 ② 之后。** 粉丝数、bio、垂类标签全部只在资料页里,
-所以 ② 之前能用的只有搜索结果里的 `username`、`full_name`、`is_verified` 和帖子正文。
-**先用正文相关度粗筛,再决定给谁调资料页。**
-
-### ① 内容搜索
-
-按关键词搜帖子,从每条帖取 `user.username`。**同一作者重复出现是垂类相关度的信号**,
-按 username 去重并计次。
-
-不用用户搜索:它匹配用户名而非内容,字段还更少,同样不给粉丝数。
-
-**铺量靠日期窗口,不靠换词。** 同一个关键词按一周一窗往回翻,每窗都是一批新作者。
-**先给每个词铺一层,再整体加深** —— 预算中断在哪都不会只翻完前几个词。
-
-### ①.5 决定给谁付资料页的钱
-
-资料页是按人收费的,所以排序发生在 ① 和 ② 之间,依据只有搜索结果里那几样:
-**出现次数 → 帖子 `like_count` → 帖文正文的主题命中**。私密账号直接不付钱。
-
-### ② 逐个查资料页
-
-一次拿到粉丝数、bio 全文、外链、以及平台给的垂类标签。
-**垂类标签是这个平台独有的东西**,别处没有,可以直接当筛选条件用。
-
-### ③ 客户端筛
-
-按粉丝数与垂类标签筛。**关键词搜出来的账号大多很小**,中位数只有几百粉 ——
-这一步会丢掉大部分人。
-
-### ④⑤ 抠邮箱与第二跳
-
-正则从 `biography` 抠。抠不到就顺 `bio_links[].url` 走
-[landing-page-two-hop.md](../_shared/landing-page-two-hop.md)。
-
-**外链取 `url` 那个字段,不要取平台包装过的跳转版本。**
-
-**外链常有多条,只走一条:自有域名优先,其次聚合页,平台页不算自有站。**
-按数组顺序取第一条会挑到指回社交平台的那条,那一跳注定空手。
-
-## 可预期的命中
+## Full chain
 
 ```
-粉丝数、bio 有值   100%
-bio 有邮箱         接近 0     ← 和 TikTok 的 53% 差得极远
-有外链             约 50%
-可触达             约 50%
+① content search           1 credit         → ~20 posts, deduped to a dozen-plus authors (no follower count, no bio)
+② per-person profile       1 credit/person  → follower_count + biography + bio_links + niche tag
+③ client-side filter       0 credit         → follower range, niche tag
+④ extract email from bio   0 credit
+⑤ no email → second hop    0 credit
 ```
 
-**这个渠道几乎不靠 bio 直接给邮箱,产量全在第二跳。** 外链落点里既有个人域名,
-也有社群与视频平台 —— 后者不是自有站,要先过排除名单,清单见
-[landing-page-two-hop.md](../_shared/landing-page-two-hop.md)。
+**Filtering happens after ②.** Follower count, bio, and niche tags all live only on the profile
+page, so before ② the only usable things are `username`, `full_name`, `is_verified`, and the post
+body from the search results.
+**Rough-filter on body relevance first, then decide whose profile to fetch.**
 
-样本只有十个人,**比例还很粗**,但「bio 里没有邮箱」和「小号占压倒多数」两条足够明确。
+### ① content search
 
-## 已知 handle 时有一条免费路
+Search posts by keyword; take `user.username` from each post. **The same author recurring is a
+signal of niche relevance**; dedup by username and count occurrences.
 
-**不烧 credit,但拿不到外链** —— 所以它替代不了上面那条链,只用在两个场景:
-**给已经在表里的人补粉丝数与 bio**,以及**Instagram 那边邮箱和外链都落空时再试一份 bio**。
+Don't use user search: it matches usernames rather than content, has fewer fields, and equally
+omits follower count.
 
-两步依次试:
+**Scale via date windows, not new terms.** The same keyword paged backward one week per window;
+each window is a fresh batch of authors. **Give every term one layer first, then deepen across
+the board** — wherever the budget cuts off, you won't have covered only the first few terms.
 
-**① 先走联邦。** 按 `<handle>@threads.net` 向任意一个 Mastodon 实例查账号,
-拿到**结构化 JSON**:粉丝数、bio。不需要凭据。
-**查无此人是常态** —— 那说明这人没开通联邦分享,不是出错,落到第二步。
+### ①.5 deciding whose profile to pay for
 
-**② 落空了再取资料页。** 普通 HTTP,要的东西全在 Open Graph 标签里。
-**粉丝数和 bio 是拼在一句描述文本里的**,要自己切开;切之前先解 HTML 实体,
-通则见 [landing-page-two-hop.md](../_shared/landing-page-two-hop.md)。
+Profiles are billed per person, so the ranking happens between ① and ②, based only on what the
+search results carry: **occurrence count → post `like_count` → topical hit in the post body**.
+Private accounts: don't pay.
 
-## 与 Instagram 的重叠
+### ② per-person profile
 
-**handle 与 Instagram 同源**,两边会搜到同一批人里的相当一部分。
-判重的键是 `(人, 平台)`,所以他会落成两行,这是设计接受的。
+One call returns follower count, full bio, external links, and the platform's own niche tag.
+**The niche tag is unique to this platform** — nowhere else has it, and it can be used directly
+as a filter condition.
 
-**跑法:先跑 Instagram,再跑 Threads,② 之前先查 log,已见过的 handle 直接跳过。**
+### ③ client-side filter
 
-## 停止语义
+Filter by follower count and niche tag. **Accounts surfaced by keyword search are mostly tiny**;
+the median is a few hundred followers — this step drops most people.
 
-搜索型 —— **连续无新**。
+### ④⑤ email extraction and second hop
 
-## 去重的键
+Regex over `biography`. If nothing, follow `bio_links[].url` into
+[landing-page-two-hop.md](../_shared/landing-page-two-hop.md).
 
-`(handle, Threads)`。handle 唯一且稳定。
+**Take the `url` field for external links, not the platform-wrapped redirect version.**
 
-## 边界
+**There are often multiple external links; walk only one: own domain first, then aggregator page;
+platform pages don't count as own sites.** Taking the first by array order picks the one pointing
+back to a social platform, and that hop is guaranteed to come back empty-handed.
 
-- 不发帖、不回复、不关注。
-- **免费那条路拿不到外链**,而外链是这一档的主要产出。
-- 一个窗口约二十条帖,一个关键词的深度由能往回翻多少个窗口决定。
+## Expected hits
 
-## 待验证
+```
+follower count, bio present   100%
+email in bio                  near 0     ← vastly below TikTok's 53%
+has external link             ~50%
+reachable                     ~50%
+```
 
-- **样本量。** 十个人的比例太粗,尤其「bio 有邮箱接近零」这一条要扩到上百人再确认。
-- `like_count` 当规模代理有多准 —— 十几个人的样本上只看得出是个弱信号。
-- 与 Instagram 的实际重叠比例。
-- 垂类标签的取值范围,它可能比粉丝数更适合当第一道筛。
+**This channel gets almost no emails directly from bios; all the yield is in the second hop.**
+External-link landings include personal domains as well as community and video platforms — the
+latter are not own sites and must pass the exclusion list first, list in
+[landing-page-two-hop.md](../_shared/landing-page-two-hop.md).
+
+The sample is only ten people; **the ratios are still rough**, but "no emails in bios" and "small
+accounts overwhelmingly dominate" are both clear enough.
+
+## A free path when the handle is already known
+
+**Burns no credits but gets no external links** — so it cannot replace the chain above; only two
+use cases: **backfilling follower count and bio for people already on the sheet**, and **trying
+another bio when Instagram's email and link both came up empty**.
+
+Two steps, tried in order:
+
+**① Federation first.** Query any Mastodon instance for the account as `<handle>@threads.net`,
+getting **structured JSON**: follower count, bio. No credentials needed.
+**"Not found" is the norm** — it means the person hasn't enabled fediverse sharing, not an error;
+fall to step two.
+
+**② If empty, fetch the profile page.** Plain HTTP; everything needed is in the Open Graph tags.
+**Follower count and bio are concatenated into one description string** — split it yourself;
+decode HTML entities before splitting, general rule in
+[landing-page-two-hop.md](../_shared/landing-page-two-hop.md).
+
+## Overlap with Instagram
+
+**Handles are shared with Instagram**; the two searches surface a large fraction of the same
+people. The dedup key is `(person, platform)`, so one person lands as two rows — accepted by
+design.
+
+**Run order: Instagram first, then Threads; before ②, check the log and skip handles already
+seen.**
+
+## Stop semantics
+
+Search-type — **consecutive no-new**.
+
+## Dedup key
+
+`(handle, Threads)`. Handles are unique and stable.
+
+## Boundaries
+
+- No posting, no replying, no following.
+- **The free path gets no external links**, and external links are this tier's main yield.
+- A window is about twenty posts; a keyword's depth is however many windows you can page back.
+
+## To verify
+
+- **Sample size.** Ten-person ratios are too rough; "email in bio near zero" in particular needs
+  confirming at a hundred-plus people.
+- How accurate `like_count` is as a scale proxy — on a sample of a dozen-plus it only shows as a
+  weak signal.
+- The actual overlap ratio with Instagram.
+- The niche tag's value range; it may be better suited than follower count as the first filter.

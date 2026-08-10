@@ -1,123 +1,123 @@
-# 免认证
+# No auth
 
-纯 HTTP 或官方免费接口就能取到,不需要登录态、不烧 credit。
+Obtainable with plain HTTP or official free APIs — no login state needed, no credits burned.
 
-覆盖 YouTube、Newsletter(Substack / Ghost)、Blog、Website、Podcast、DEV.to、WordPress.com、
-Micro.blog、Gravatar、Hashnode、freeCodeCamp News、HackerNoon、Paragraph、GitHub、Medium、
-Passionfroot、Paved、Hacker News、Product Hunt,以及任意站外页面。
+Covers YouTube, Newsletter (Substack / Ghost), Blog, Website, Podcast, DEV.to, WordPress.com,
+Micro.blog, Gravatar, Hashnode, freeCodeCamp News, HackerNoon, Paragraph, GitHub, Medium,
+Passionfroot, Paved, Hacker News, Product Hunt, and arbitrary off-platform pages.
 
-**这里列的平台与调用方做不做无关。** 边界是平台的属性;某个平台在调用方那边被裁决
-不跑,它的边界仍然住在这里。
+**Whether the caller runs a platform is irrelevant to its listing here.** The boundary is a property of the platform; a platform ruled out
+on the caller's side still keeps its boundary here.
 
-## 已确定的
+## Confirmed
 
-**YouTube** —— 频道的 `/about` 页,简介正文与链接区**都在初始 HTML 里**,
-不需要执行 JS、不需要 key。About 页那个联系方式按钮由登录与 reCAPTCHA 保护,
-匿名响应里只有它的占位标记、没有地址;官方 Data API 的频道资源里也没有对应字段。
-链接区的地址是站内跳转形式,真实地址在查询参数里。
+**YouTube** — a channel's `/about` page has the description body and the links section **both in the initial HTML**;
+no JS execution, no key. The contact-info button on the About page is guarded by login and reCAPTCHA;
+the anonymous response contains only its placeholder marker, no address; the official Data API's channel resource has no corresponding field either.
+Links-section addresses are in on-site redirect form; the real address is in the query parameter.
 
-**Podcast** —— Apple 的公开搜索接口按关键词返回节目,**每条结果自带 feed 地址**,
-免 key、免 cookie。feed 是标准 RSS,`<itunes:owner>` 里带邮箱是 Apple 收录规范的要求。
+**Podcast** — Apple's public search API returns shows by keyword, **each result carrying its feed address**,
+no key, no cookie. Feeds are standard RSS; an email in `<itunes:owner>` is required by Apple's submission spec.
 
-**GitHub** —— 走官方 API,不用 cookie 也不爬页面。用户资源里有 `email` 字段,
-本人设为公开时才有值。带 token 与不带的速率差约两个数量级(核心接口 5000/h 对 60/h,
-搜索 30/min 对 10/min)。
+**GitHub** — use the official API; no cookies, no page scraping. The user resource has an `email` field,
+populated only when the person sets it public. With a token vs. without, rates differ by about two orders of magnitude (core API 5000/h vs 60/h,
+search 30/min vs 10/min).
 
-**公布的配额不是唯一的墙。** 列仓库那类接口有一道**次级限流**:核心配额还剩大半时就会
-被拒,而**配额查询接口显示一切正常**。触发后同一批接口一起被拒,恢复要等核心配额重置。
-并发是触发条件。
+**The published quota is not the only wall.** Endpoints like repo listing have a **secondary rate limit**: you get rejected
+with most of the core quota remaining, while **the quota endpoint reports everything normal**. Once triggered, the same batch of endpoints is rejected together; recovery waits for the core quota reset.
+Concurrency is the trigger.
 
-**DEV.to** —— 公开 API 免 key、免登录。文章列表端点**内联作者对象**,
-一次请求拿到作者 handle、`website_url` 与互动数,不必逐个查资料页。
-按 tag 取,单页上限 100 篇。**排序参数决定样本质量**:默认是最新流,
-带时间窗的热门排序才拿得到有互动的作者。
+**DEV.to** — public API, no key, no login. The article-list endpoint **inlines the author object**:
+one request gets the author handle, `website_url`, and engagement counts, no per-person profile lookups.
+Fetch by tag, 100 articles per page max. **The sort parameter decides sample quality**: the default is the latest-first stream;
+only the time-windowed top sort surfaces authors with engagement.
 
-**Substack** —— 刊物域名下与主站都有公开只读端点,无鉴权:
-类目端点返回全部类目与 id,类目下的刊物列表**每页固定条数、带翻页标志**,
-记录里含刊物名、子域、自定义域、作者真名与 handle。
-另有按刊物 id 取推荐刊物的端点,返回被推荐刊物的**完整对象**。
-**这些 JSON 端点一个邮箱字段都没有**,**它的 RSS 里也没有 `<webMaster>`** —— 整个平台不给邮箱。
-**并发一高就限流**,失败返回长得不像 404。
+**Substack** — public read-only endpoints exist under both publication domains and the main site, unauthenticated:
+the category endpoint returns all categories with ids; a category's publication list is **fixed-size pages with a pagination flag**,
+records carrying publication name, subdomain, custom domain, author real name, and handle.
+There is also an endpoint fetching recommended publications by publication id, returning **full objects** for each.
+**These JSON endpoints have not a single email field**, **and its RSS has no `<webMaster>` either** — the platform gives no emails at all.
+**Rate-limits as soon as concurrency rises**; failures do not look like 404s.
 
-**WordPress.com** —— `public-api.wordpress.com` 的阅读器接口免 key、免登录。
-按标签取文章,**每篇内联作者对象**(名字、稳定的用户名、他自填的网址、Gravatar 资料页地址)
-与篇级的站点地址、站名。**作者对象里的 `email` 字段恒为 `false`。**
-默认按时间倒序,**没找到按互动或时间窗排序的参数**。
+**WordPress.com** — the `public-api.wordpress.com` reader API, no key, no login.
+Fetch posts by tag; **each post inlines the author object** (name, stable username, self-reported website, Gravatar profile address)
+plus post-level site address and site name. **The author object's `email` field is always `false`.**
+Default order is reverse-chronological; **no parameter found for engagement or time-window sorting**.
 
-**Gravatar** —— 用户名后缀 `.json` 即公开资料,免 key。给显示名、简介、位置、
-社交账号列表(twitter / linkedin / youtube 之类),**以及本人主动设为公开时的 `emails`**
-(`[{primary, value}]`)。**没有可依赖的 `urls` 字段**;不存在的用户名返回 404。
+**Gravatar** — username plus a `.json` suffix is the public profile, no key. Gives display name, bio, location,
+a social-account list (twitter / linkedin / youtube and the like), **and `emails` when the person has set them public**
+(`[{primary, value}]`). **No dependable `urls` field**; unknown usernames return 404.
 
-**Micro.blog** —— 发现页是 JS 模板,同路径下的 `posts/discover` 是标准 JSON Feed,
-免 key。一次 50 条,每条的 `author` 给显示名、**他自己的站点地址**与平台用户名。
-**没有邮箱字段。** 翻页参数未探。
+**Micro.blog** — the discover page is a JS template, but `posts/discover` under the same path is a standard JSON Feed,
+no key. 50 items per fetch; each item's `author` gives display name, **their own site address**, and platform username.
+**No email field.** Pagination parameter unprobed.
 
-**Bear Blog** —— 发现页对声明身份的爬虫返回质询页(403),没有免浏览器的路。
+**Bear Blog** — the discovery page returns a challenge page (403) to crawlers that declare themselves; no browser-free route.
 
-**Tumblr** —— 官方标签接口要 API key,匿名 401。免认证面:标签页 HTML 一次 7 个博客,
-**时间游标参数无效**,返回逐字节相同;每个博客的旧版 JSON 端点仍免 key,
-只有七个字段,其中自定义域名与 feed 两项在 10 个抽样上**全空**;每博客 RSS 无任何作者或邮箱标签。
-页面里嵌着一个匿名 bearer token,拿它可以翻页 —— **那是绕开 key 闸,不是免认证面。**
+**Tumblr** — the official tag API requires an API key; anonymous gets 401. The no-auth surface: tag-page HTML gives 7 blogs at a time,
+**the time-cursor parameter has no effect** — responses are byte-identical; each blog's legacy JSON endpoint is still key-free,
+with only seven fields, of which custom domain and feed were **empty across all 10 samples**; per-blog RSS has no author or email tag whatsoever.
+The page embeds an anonymous bearer token that enables pagination — **that is bypassing the key gate, not a no-auth surface.**
 
-**Paragraph** —— 公开 REST API **读端点全部免鉴权**,另有 OpenAPI 规格可查。
-刊物搜索(硬上限 20 条、无翻页参数)、按游标翻页的全站流(单页上限 60)、
-按 tag / slug / 域名 / 钱包地址取,以及**按刊物 id 取订阅数**。
-sitemap 索引下十个分片,单片 25000 个刊物地址。
-**整份规格里没有任何邮箱、社交或个人网址字段**;社交只在资料页 HTML 的 JSON-LD `sameAs` 里,
-资料页服务端渲染、无 hydration 壳。RSS 路径 `/@<slug>/rss` 通用,
-`<author>` 是平台合成的转发地址、不是本人。用户对象带钱包地址与 Farcaster 用户名。
-**两个宿主的限流天差地别**:API 宿主 3 秒间隔约二十次未被限;
-网页宿主 3 秒间隔六次即 429,惩罚持续数分钟。
+**Paragraph** — the public REST API's **read endpoints are all unauthenticated**, with an OpenAPI spec available.
+Publication search (hard cap 20 items, no pagination parameter), a cursor-paginated site-wide stream (60 per page max),
+fetch by tag / slug / domain / wallet address, and **subscriber counts by publication id**.
+The sitemap index has ten shards, 25,000 publication addresses per shard.
+**The entire spec contains no email, social, or personal-website field**; socials live only in the profile page HTML's JSON-LD `sameAs`;
+profile pages are server-rendered, no hydration shell. The RSS path `/@<slug>/rss` is universal;
+`<author>` is a platform-synthesized relay address, not the person. User objects carry wallet addresses and Farcaster usernames.
+**The two hosts rate-limit worlds apart**: the API host took about twenty requests at 3-second intervals unthrottled;
+the web host 429s after six at 3-second intervals, with the penalty lasting several minutes.
 
-**Mirror** —— 已并入 Paragraph。`mirror.xyz` 除 `robots.txt` 301 外,全路径对诚实 UA 返回质询页。
+**Mirror** — merged into Paragraph. On `mirror.xyz`, apart from a `robots.txt` 301, every path returns a challenge page to an honest UA.
 
-**write.as** —— 阅读站的 feed 免 key,一次 88 条 / 49 个博客,`author` 恒为博客标题而非人。
-翻页在阅读站自己的路径下,**整个公开面约 150 篇的滚动窗口**,标签页几乎是空的,没有公开目录。
-每个博客有免 key 的 JSON(含终身浏览量)与 ActivityPub actor(**无 attachment,故无联系字段**)。
-**限流很紧**:2 秒间隔下三次之后即 429。
+**write.as** — the read site's feed is key-free, 88 posts / 49 blogs at a time; `author` is always the blog title, not a person.
+Pagination lives under the read site's own paths; **the whole public surface is a rolling window of about 150 posts**; tag pages are nearly empty; no public directory.
+Each blog has key-free JSON (including lifetime view count) and an ActivityPub actor (**no attachment, hence no contact fields**).
+**Rate limiting is tight**: 429 after three requests at 2-second intervals.
 
-**Hashnode** —— **GraphQL 端点已撤**:任何请求都 301 到一份公告页,
-**带不带 token 都一样**;旧的 `api.hashnode.com` 主机 404。平台自述读写都要刊物开 Pro。
-剩下的免认证面是 HTML:标签页服务端渲染,一页约 20 个作者 handle;
-资料页也服务端渲染,给社交外链与自有域名,**没有本人邮箱**。
+**Hashnode** — **the GraphQL endpoint has been withdrawn**: any request 301s to an announcement page,
+**with or without a token**; the old `api.hashnode.com` host 404s. The platform states both reads and writes require the publication to have Pro.
+The remaining no-auth surface is HTML: tag pages are server-rendered, about 20 author handles per page;
+profile pages are also server-rendered, giving social links and own domains, **no personal email**.
 
-**freeCodeCamp News** —— 站点跑在 Ghost 上但**不暴露 Content API 的只读 key**。
-免认证面是标准 sitemap:作者子图**一次返回全部作者页地址、不翻页**(当前 559 条)。
-作者页服务端渲染,给自有域名与社交外链,**没有邮箱字段**。
-RSS 一次只有 10 条且 `dc:creator` 为空。
+**freeCodeCamp News** — the site runs on Ghost but **does not expose the Content API's read-only key**.
+The no-auth surface is the standard sitemap: the author sub-sitemap **returns every author page address at once, no pagination** (currently 559).
+Author pages are server-rendered, giving own domains and social links, **no email field**.
+RSS carries only 10 items and `dc:creator` is empty.
 
-**HackerNoon** —— RSS 免 key,一次 20 条,`dc:creator` 带作者名,文章链接里含作者 handle。
-**资料页与任何 `/api/` 路径对声明身份的爬虫返回质询页(403)**;sitemap 可读。
+**HackerNoon** — RSS is key-free, 20 items at a time; `dc:creator` carries the author name; article links contain the author handle.
+**Profile pages and any `/api/` path return a challenge page (403) to crawlers that declare themselves**; the sitemap is readable.
 
-**Ghost** —— Content API 公开可读,**只读 key 以 `data-key` 明文写在站点首页源码里**。
-`settings` 端点给站点的几个对外地址,`authors` 端点给作者的名字、简介与网址,
-**其中的邮箱字段恒为空**。
+**Ghost** — the Content API is publicly readable; **the read-only key sits in plaintext as `data-key` in the site homepage source**.
+The `settings` endpoint gives the site's few outward addresses; the `authors` endpoint gives author names, bios, and websites,
+**with the email field in it always empty**.
 
-**域名注册信息(RDAP)** —— 免 key 的标准 JSON 查询。**只覆盖 `.com/.net/.org`**,
-`.io` `.me` `.co` 与各国后缀一律查不到。**必须串行**,并发即被限流。
-返回里注册商的隐私转发地址与真实注册人地址混在一起。
+**Domain registration data (RDAP)** — key-free standard JSON queries. **Covers only `.com/.net/.org`**;
+`.io` `.me` `.co` and country suffixes all come up empty. **Must be serial**; concurrency gets rate-limited.
+Responses mix registrar privacy-forwarding addresses with real registrant addresses.
 
-**Medium** —— 资料页、about 页、标签页对无浏览器的客户端一律 403;
-`medium.com/feed/@<user>` 开着,是文章 RSS,不含资料页的 bio 与外链。
+**Medium** — profile pages, about pages, and tag pages all 403 for browserless clients;
+`medium.com/feed/@<user>` is open — an article RSS without the profile's bio and external links.
 
-**Passionfroot** —— 创作者页 `passionfroot.me/<handle>` 公开且服务端渲染;
-发现入口 `/discover` 要账号,sitemap 里没有创作者页。**没有公开目录。**
+**Passionfroot** — creator pages `passionfroot.me/<handle>` are public and server-rendered;
+the discovery entry `/discover` requires an account; the sitemap has no creator pages. **No public directory.**
 
-**Paved** —— 刊物页对爬虫直接 429,浏览器可读但关键数字被遮、无联系方式;
-目录页要登录。
+**Paved** — publication pages give crawlers a flat 429; readable in a browser but the key numbers are masked and there is no contact info;
+the directory page requires login.
 
-**聚合页** —— linktr.ee 的外链在初始 HTML 里,不需要浏览器;beacons.ai 拒爬虫。
+**Link-in-bio pages** — linktr.ee's external links are in the initial HTML, no browser needed; beacons.ai refuses crawlers.
 
-**站外页面零成本** —— 不需要认证、不烧 credit,只是普通 HTTP。
-约二十分之一的站会拒绝声明身份的爬虫(403/429)。
+**Off-platform pages are zero-cost** — no auth, no credits, just plain HTTP.
+About one site in twenty refuses crawlers that declare themselves (403/429).
 
-## 待探索
+## To explore
 
-- **YouTube 官方 Data API 的免费配额**能不能承担「已知频道 → 简介与链接」的富化,
-  从而只在发现阶段抓页面。
-- **播客 feed 之外的目录**(Podcast Index 之类)能否直接查到 feed 地址。
-- **赞助位市场之外的同类站点**有没有公开可翻的目录。
-- **Hacker News 与 Product Hunt** 的公开接口形态,尚未探。
-- **WordPress.com 有没有非时间序的排序**,以及 **Micro.blog 的翻页与话题取法**。
-- **Substack 类目端点的翻页上限**与各类目总量。
-- **Ghost 那条路的站点覆盖面** —— 只在极少数站上验过。
+- Whether the **YouTube official Data API's free quota** can carry the "known channel → description and links" enrichment,
+  so pages are scraped only in the discovery stage.
+- Whether **directories beyond podcast feeds** (Podcast Index and the like) can resolve feed addresses directly.
+- Whether **sites of the same kind beyond the sponsorship marketplaces** have publicly browsable directories.
+- The public API shapes of **Hacker News and Product Hunt**, unprobed.
+- **Whether WordPress.com has any non-chronological sort**, and **Micro.blog's pagination and topic access**.
+- **The Substack category endpoint's pagination cap** and per-category totals.
+- **The Ghost route's site coverage** — verified on only a handful of sites.
