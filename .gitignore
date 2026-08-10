@@ -15,3 +15,4 @@ accounts.db
 
 docs/
 CLAUDE.md
+*.egg-info/
