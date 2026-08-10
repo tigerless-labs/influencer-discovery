@@ -66,7 +66,7 @@ terms = [
 ]
 # Profile outlinks already fetched by an earlier experiment. What was fetched once is not
 # fetched again; see docs/design/records.md.
-profile_dumps = ["data/experiments/2026-08-06/reddit-raw/profiles.jsonl"]
+profile_dumps = ["../../data/experiments/2026-08-06/reddit-raw/profiles.jsonl"]
 
 [instagram]
 methodology = "1-social/instagram.md"

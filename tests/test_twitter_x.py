@@ -3,7 +3,7 @@ from datetime import date
 
 from influencer_discovery.channels import twitter_x
 from influencer_discovery.channels.twitter_x import TwitterX
-from influencer_discovery.paths import repo_dir, state_dir
+from influencer_discovery.paths import skill_dir, state_dir
 
 USER = {
     "username": "fixture_dev",
@@ -147,7 +147,7 @@ def test_the_db_flag_is_read_before_the_subcommand():
 def test_the_account_db_lives_with_the_state_not_in_the_repo():
     db = twitter_x.account_db()
     assert db.parent == state_dir()
-    assert repo_dir() not in db.parents
+    assert skill_dir() not in db.parents
 
 
 # --- paging goes deeper than one page ----------------------------------------

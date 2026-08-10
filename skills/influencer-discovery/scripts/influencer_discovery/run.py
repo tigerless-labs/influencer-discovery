@@ -6,7 +6,7 @@ from datetime import date
 from . import channels as channel_registry
 from .fetch import Fetcher
 from .gate import Gate
-from .paths import repo_config_dir
+from .paths import skill_config_dir
 from .record import Outcome
 from .report import Report
 from .store import Store
@@ -19,7 +19,7 @@ DEFAULT_POOL_FACTOR = 25
 
 
 def load_config(name):
-    path = repo_config_dir() / name
+    path = skill_config_dir() / name
     return tomllib.loads(path.read_text(encoding="utf-8"))
 
 

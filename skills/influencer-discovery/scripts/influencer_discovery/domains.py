@@ -4,7 +4,7 @@ from functools import lru_cache
 from urllib.parse import urlparse
 
 from .page import visible_text
-from .paths import repo_config_dir
+from .paths import skill_config_dir
 
 TWO_PART_SUFFIX = {
     "co.uk", "org.uk", "ac.uk", "gov.uk", "co.jp", "co.nz", "co.za", "com.au",
@@ -44,7 +44,7 @@ MASTHEAD = re.compile(r"\b(masthead|editorial (staff|team)|our (writers|contribu
 
 @lru_cache(maxsize=1)
 def _config():
-    path = repo_config_dir() / "shared_domains.toml"
+    path = skill_config_dir() / "shared_domains.toml"
     return tomllib.loads(path.read_text(encoding="utf-8"))
 
 

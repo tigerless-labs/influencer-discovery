@@ -3,14 +3,14 @@ import tomllib
 from functools import lru_cache
 
 from .page import visible_text
-from .paths import repo_config_dir
+from .paths import skill_config_dir
 
 MAX_EVIDENCE = 8
 
 
 @lru_cache(maxsize=1)
 def _config():
-    return tomllib.loads((repo_config_dir() / "topics.toml").read_text(encoding="utf-8"))
+    return tomllib.loads((skill_config_dir() / "topics.toml").read_text(encoding="utf-8"))
 
 
 @lru_cache(maxsize=8)

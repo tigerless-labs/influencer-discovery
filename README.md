@@ -33,24 +33,25 @@ per-channel requirements are in
 
 ## Install
 
-No third-party packages — the pipeline is pure standard library.
+No third-party packages, no build step — the pipeline is pure standard library
+(Python ≥ 3.11). The skill is fully self-contained under
+`skills/influencer-discovery/`; clone and run, or copy that one directory into
+your agent's skills folder:
 
 ```bash
 git clone https://github.com/tigerless-labs/influencer-discovery && cd influencer-discovery
-uv venv && uv pip install -e .
+python3 skills/influencer-discovery/scripts/run.py --help
 ```
-
-(Any Python ≥ 3.11 works: `python3 -m venv .venv && .venv/bin/pip install -e .` is equivalent.)
 
 Credentials go in `~/.config/influencer-discovery/.env`, never in the repo. Pipeline state lives in
 `~/.local/share/influencer-discovery/`; both paths are overridable via `INFLUENCER_DISCOVERY_CONFIG_DIR` /
 `INFLUENCER_DISCOVERY_STATE_DIR`. Knobs that travel with the code (channel list, throttle parameters,
-header mapping) stay in `config/`.
+header mapping) stay in `skills/influencer-discovery/config/`.
 
 ## Run
 
 ```bash
-.venv/bin/python -m influencer_discovery.run --tiers 1 --per-channel 10
+python3 skills/influencer-discovery/scripts/run.py --tiers 1 --per-channel 10
 ```
 
 `--channels` / `--tiers` select channels, `--subject` sets the topic gate,

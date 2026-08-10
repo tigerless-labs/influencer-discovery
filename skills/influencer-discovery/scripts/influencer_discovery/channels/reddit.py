@@ -6,7 +6,7 @@ from html import unescape
 
 from ..domains import is_a_persons_own_site
 from ..domains import registrable_domain
-from ..paths import repo_dir
+from ..paths import skill_dir
 from ..record import Audience, Candidate
 from ..session import NoSession, rdt_cookie_header, rdt_session_ready
 from .base import Channel, register
@@ -85,7 +85,7 @@ class Reddit(Channel):
         """Profile pages already harvested elsewhere. No session, no request, no second charge."""
         with_site, without = [], []
         for path in self.config.get("profile_dumps", []):
-            for row in self._rows(repo_dir() / path):
+            for row in self._rows(skill_dir() / path):
                 user = row.get("user")
                 if not user or str(row.get("status")) != "200" or self.already_have(user):
                     continue

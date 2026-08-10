@@ -3,6 +3,12 @@ name = "influencer-discovery"
 version = "0.1.0"
 requires-python = ">=3.11"
 
+[tool.setuptools]
+package-dir = {"" = "skills/influencer-discovery/scripts"}
+
+[tool.setuptools.packages.find]
+where = ["skills/influencer-discovery/scripts"]
+
 [tool.pytest.ini_options]
-pythonpath = ["src"]
+pythonpath = ["skills/influencer-discovery/scripts"]
 testpaths = ["tests"]

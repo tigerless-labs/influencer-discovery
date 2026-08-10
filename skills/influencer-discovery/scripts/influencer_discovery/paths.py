@@ -20,12 +20,12 @@ def memory_dir():
     return _dir("INFLUENCER_DISCOVERY_MEMORY_DIR", Path.home() / "Documents" / SKILL)
 
 
-def repo_dir():
+def skill_dir():
     return Path(__file__).resolve().parents[2]
 
 
-def repo_config_dir():
-    return repo_dir() / "config"
+def skill_config_dir():
+    return skill_dir() / "config"
 
 
 def load_env():

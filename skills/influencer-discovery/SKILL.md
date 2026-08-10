@@ -145,10 +145,10 @@ All three paths can be overridden with `INFLUENCER_DISCOVERY_CONFIG_DIR` / `INFL
 `--tiers` selects scope by tier; tiers come from the methodology-pointing path in `config/channels.toml`.
 
 ```bash
-python3 -m influencer_discovery.run --tiers 1,2 --per-channel 10     # run only the first two tiers
-python3 -m influencer_discovery.run --channels devto,mastodon --per-channel 10
-python3 -m influencer_discovery.run --summarise          # summary view: contactable list by channel
-python3 -m influencer_discovery.run --append-sheet       # append qualified rows only; abort on header mismatch
+python3 scripts/run.py --tiers 1,2 --per-channel 10     # run only the first two tiers
+python3 scripts/run.py --channels devto,mastodon --per-channel 10
+python3 scripts/run.py --summarise          # summary view: contactable list by channel
+python3 scripts/run.py --append-sheet       # append qualified rows only; abort on header mismatch
 ```
 
 ## Current status

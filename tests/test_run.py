@@ -5,7 +5,7 @@ import pytest
 from influencer_discovery import channels as channel_registry
 from influencer_discovery import run as run_module
 from influencer_discovery.channels.base import Channel
-from influencer_discovery.paths import repo_config_dir
+from influencer_discovery.paths import skill_config_dir
 from influencer_discovery.record import Audience, Candidate, Contact, Outcome
 from influencer_discovery.run import Run, load_config, select, tier_of
 from influencer_discovery.store import Store
@@ -123,7 +123,7 @@ CONFIG = load_config("channels.toml")
 
 
 def test_every_channel_points_at_a_methodology_document():
-    root = repo_config_dir().parent / "skills/influencer-discovery/reference/methodology"
+    root = skill_config_dir().parent / "reference/methodology"
     for name, entry in CONFIG.items():
         if not isinstance(entry, dict):
             continue
@@ -156,7 +156,7 @@ def test_the_first_two_tiers_leave_the_personal_site_channels_out():
 
 
 def test_the_config_parses_as_toml():
-    tomllib.loads((repo_config_dir() / "channels.toml").read_text(encoding="utf-8"))
+    tomllib.loads((skill_config_dir() / "channels.toml").read_text(encoding="utf-8"))
 
 
 def rejudged(tmp_path, candidate):
