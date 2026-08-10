@@ -12,3 +12,6 @@ __pycache__/
 
 .claude/
 accounts.db
+
+docs/
+CLAUDE.md
