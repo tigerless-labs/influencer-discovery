@@ -1,7 +1,7 @@
 import pytest
 
-from outreach import session as session_module
-from outreach.session import NoSession, browser_cookies, rdt_session_ready, x_session_ready
+from influencer_discovery import session as session_module
+from influencer_discovery.session import NoSession, browser_cookies, rdt_session_ready, x_session_ready
 
 
 class Ran:
@@ -85,7 +85,7 @@ def test_a_missing_rdt_names_the_fix(monkeypatch):
 def test_the_rdt_cookie_is_read_from_where_rdt_keeps_it(tmp_path, monkeypatch):
     import json as _json
 
-    from outreach import session as module
+    from influencer_discovery import session as module
 
     store = tmp_path / "credential.json"
     store.write_text(_json.dumps({"cookies": {"reddit_session": "abc", "token_v2": "def"}}))
@@ -97,7 +97,7 @@ def test_the_rdt_cookie_is_read_from_where_rdt_keeps_it(tmp_path, monkeypatch):
 def test_a_cookie_list_is_read_the_same_as_a_cookie_map(tmp_path, monkeypatch):
     import json as _json
 
-    from outreach import session as module
+    from influencer_discovery import session as module
 
     store = tmp_path / "credential.json"
     store.write_text(_json.dumps({"cookies": [{"name": "reddit_session", "value": "abc"}]}))
@@ -107,7 +107,7 @@ def test_a_cookie_list_is_read_the_same_as_a_cookie_map(tmp_path, monkeypatch):
 
 def test_no_stored_cookie_is_a_missing_session_not_an_empty_header(tmp_path, monkeypatch):
     """An empty Cookie header would silently fetch the anonymous page and look like real data."""
-    from outreach import session as module
+    from influencer_discovery import session as module
 
     monkeypatch.setattr(module, "rdt_credential_file", lambda: tmp_path / "gone.json")
     with pytest.raises(module.NoSession):
@@ -117,7 +117,7 @@ def test_no_stored_cookie_is_a_missing_session_not_an_empty_header(tmp_path, mon
 def test_a_credential_file_without_cookies_is_also_a_missing_session(tmp_path, monkeypatch):
     import json as _json
 
-    from outreach import session as module
+    from influencer_discovery import session as module
 
     store = tmp_path / "credential.json"
     store.write_text(_json.dumps({"cookies": {}}))

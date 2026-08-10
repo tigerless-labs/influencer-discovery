@@ -1,9 +1,9 @@
 import json
 from datetime import date
 
-from outreach.channels import twitter_x
-from outreach.channels.twitter_x import TwitterX
-from outreach.paths import repo_dir, state_dir
+from influencer_discovery.channels import twitter_x
+from influencer_discovery.channels.twitter_x import TwitterX
+from influencer_discovery.paths import repo_dir, state_dir
 
 USER = {
     "username": "fixture_dev",

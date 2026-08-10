@@ -1,7 +1,7 @@
 ---
-name: outreach
+name: influencer-discovery
 description: >
-  Find the bloggers/creators who can help promote Tigerless Labs' work, capture
+  Find the bloggers/creators who can help promote your work, capture
   their contact info, and append them to the target sheet in Google Sheets.
   Targets must bring their own audience — followers, readers, subscribers;
   people building their own product are not targets. Use for requests like
@@ -15,7 +15,7 @@ description: >
   settlement are all out of scope — do not use this skill for those requests.
 ---
 
-# outreach
+# influencer-discovery
 
 One sentence: **hit the qualified-row count the user asked for, every row with contact info, not one row a duplicate.**
 
@@ -87,7 +87,7 @@ Writing rules in [CLAUDE.md](CLAUDE.md).
 The data layer states the **boundary**; methodology **rules on whether to run based on it** and writes the how. Channels ruled out but still needing a guard against accidental runs are demoted to reference (`_not-run/`); channels with zero yield for the goal are deleted outright, the reason kept in methodology's index.
 Writing conventions in [CLAUDE.md](CLAUDE.md); the data layer has its own.
 
-**Credentials live in `~/.config/outreach/.env` (`chmod 600`); variable names in
+**Credentials live in `~/.config/influencer-discovery/.env` (`chmod 600`); variable names in
 [reference/datalayer/index.md](reference/datalayer/index.md#credentials).** Not in the repo, and do not borrow from
 `~/.config/last30days/.env`. On a missing key, report the missing variable name — do not guess, do not fall back to another project's credentials.
 
@@ -129,14 +129,14 @@ The skill must read the same dedup store no matter which directory it is trigger
 [storage.md](../../docs/design/storage.md).
 
 ```
-~/.config/outreach/.env              credentials + OUTREACH_SPREADSHEET_ID (chmod 600)
-~/.local/share/outreach/seen/*.jsonl  dedup store, one file per channel
-~/.local/share/outreach/sites.jsonl   addresses the second hop has visited
-~/.local/share/outreach/raw/<run>/    raw scrapes; only the parser reads them
-~/Documents/outreach/<run>.md         run reports
+~/.config/influencer-discovery/.env              credentials + INFLUENCER_DISCOVERY_SPREADSHEET_ID (chmod 600)
+~/.local/share/influencer-discovery/seen/*.jsonl  dedup store, one file per channel
+~/.local/share/influencer-discovery/sites.jsonl   addresses the second hop has visited
+~/.local/share/influencer-discovery/raw/<run>/    raw scrapes; only the parser reads them
+~/Documents/influencer-discovery/<run>.md         run reports
 ```
 
-All three paths can be overridden with `OUTREACH_CONFIG_DIR` / `OUTREACH_STATE_DIR` / `OUTREACH_MEMORY_DIR`.
+All three paths can be overridden with `INFLUENCER_DISCOVERY_CONFIG_DIR` / `INFLUENCER_DISCOVERY_STATE_DIR` / `INFLUENCER_DISCOVERY_MEMORY_DIR`.
 **Cron jobs or calls that bypass the wrapper must set them explicitly**, or writes silently land in the default locations.
 
 ## How to run
@@ -145,16 +145,16 @@ All three paths can be overridden with `OUTREACH_CONFIG_DIR` / `OUTREACH_STATE_D
 `--tiers` selects scope by tier; tiers come from the methodology-pointing path in `config/channels.toml`.
 
 ```bash
-python3 -m outreach.run --tiers 1,2 --per-channel 10     # run only the first two tiers
-python3 -m outreach.run --channels devto,mastodon --per-channel 10
-python3 -m outreach.run --summarise          # summary view: contactable list by channel
-python3 -m outreach.run --append-sheet       # append qualified rows only; abort on header mismatch
+python3 -m influencer_discovery.run --tiers 1,2 --per-channel 10     # run only the first two tiers
+python3 -m influencer_discovery.run --channels devto,mastodon --per-channel 10
+python3 -m influencer_discovery.run --summarise          # summary view: contactable list by channel
+python3 -m influencer_discovery.run --append-sheet       # append qualified rows only; abort on header mismatch
 ```
 
 ## Current status
 
 Five stages, channel adapters, dedup store, second hop, gates, and reports are all implemented and running;
 **Sheet writes are blocked on token scope** (needs one interactive `gcloud auth login`); qualified rows are staged in
-`~/.local/share/outreach/pending-sheet-rows.jsonl`. Item by item in [docs/TODO.md](../../docs/TODO.md).
+`~/.local/share/influencer-discovery/pending-sheet-rows.jsonl`.
 
 The "To verify" section at the end of each reference holds **untested empirical claims** — verify before use; do not cite as fact.

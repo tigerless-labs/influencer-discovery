@@ -1,7 +1,7 @@
 import pytest
 
-from outreach.gate import Gate, Verdict
-from outreach.record import Audience, Candidate, Contact, Outcome
+from influencer_discovery.gate import Gate, Verdict
+from influencer_discovery.record import Audience, Candidate, Contact, Outcome
 
 BAND = (5000, 200000)
 

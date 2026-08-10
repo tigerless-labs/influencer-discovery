@@ -2,7 +2,7 @@ import json
 
 import pytest
 
-from outreach.fetch import RawStore
+from influencer_discovery.fetch import RawStore
 
 
 @pytest.fixture
@@ -88,7 +88,7 @@ def test_migration_is_safe_to_run_twice(tmp_path):
 
 
 def test_a_replay_can_be_pinned_to_one_run(tmp_path, monkeypatch):
-    from outreach import fetch as fetch_module
+    from influencer_discovery import fetch as fetch_module
 
     monkeypatch.setattr(fetch_module, "state_dir", lambda: tmp_path)
     store = fetch_module.RawStore()
@@ -139,7 +139,7 @@ def test_a_plain_blob_is_still_readable_before_packing(raw):
 
 
 def test_a_second_visit_is_served_from_disk_without_a_request(tmp_path, monkeypatch):
-    from outreach import fetch as fetch_module
+    from influencer_discovery import fetch as fetch_module
 
     monkeypatch.setattr(fetch_module, "state_dir", lambda: tmp_path)
     fetcher = fetch_module.Fetcher("run1")
@@ -154,7 +154,7 @@ def test_a_second_visit_is_served_from_disk_without_a_request(tmp_path, monkeypa
 
 
 def test_reuse_still_credits_the_current_run(tmp_path, monkeypatch):
-    from outreach import fetch as fetch_module
+    from influencer_discovery import fetch as fetch_module
 
     monkeypatch.setattr(fetch_module, "state_dir", lambda: tmp_path)
     fetcher = fetch_module.Fetcher("run2")
@@ -164,7 +164,7 @@ def test_reuse_still_credits_the_current_run(tmp_path, monkeypatch):
 
 
 def test_without_reuse_a_known_page_is_still_fetched(tmp_path, monkeypatch):
-    from outreach import fetch as fetch_module
+    from influencer_discovery import fetch as fetch_module
 
     monkeypatch.setattr(fetch_module, "state_dir", lambda: tmp_path)
     fetcher = fetch_module.Fetcher("run3")
@@ -182,7 +182,7 @@ def test_the_replay_fetcher_accepts_the_same_call_as_the_real_one(tmp_path):
     """The walk calls it with reuse/persist; a narrower signature makes replay die on the first site."""
     import inspect
 
-    from outreach.fetch import Fetcher, ReplayFetcher
+    from influencer_discovery.fetch import Fetcher, ReplayFetcher
 
     for name in ("try_get", "try_json"):
         real = set(inspect.signature(getattr(Fetcher, name)).parameters)

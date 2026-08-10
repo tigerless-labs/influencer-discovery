@@ -1,8 +1,8 @@
 import pytest
 
-from outreach.export import HEADERS, SUMMARY_TAB, contactable, row_for, to_workbook
-from outreach.record import Audience, Candidate, Contact, Outcome
-from outreach.store import Store
+from influencer_discovery.export import HEADERS, SUMMARY_TAB, contactable, row_for, to_workbook
+from influencer_discovery.record import Audience, Candidate, Contact, Outcome
+from influencer_discovery.store import Store
 
 BAND = (5000, 200000)
 

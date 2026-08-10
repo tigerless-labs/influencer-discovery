@@ -1,20 +1,20 @@
-<h1 align="center">Outreach</h1>
+<h1 align="center">Influencer Discovery</h1>
 <p align="center"><strong>Find creators who bring their own audience — and get their contact info</strong></p>
 
 <p align="center">
   <img src="https://img.shields.io/badge/python-3.11%2B-blue.svg" alt="python" /> <img src="https://img.shields.io/badge/dependencies-stdlib%20only-brightgreen.svg" alt="zero dependencies" /> <img src="https://img.shields.io/badge/platform-Linux%20%7C%20macOS-lightgrey.svg" alt="platform" /> <img src="https://img.shields.io/badge/channels-15-orange.svg" alt="channels" />
 </p>
 
-**outreach is a creator-discovery pipeline that runs as a Claude Code skill.** It searches 15
+**influencer-discovery is a creator-discovery pipeline that runs as a Claude Code skill.** It searches 15
 channels for people **who bring their own audience** — followers, readers, subscribers — pulls
 their public contact info, and appends them to a Google Sheet. People building their own product
 are filtered out: they want reach, they don't provide it.
 
-The operating manual is [skills/outreach/SKILL.md](skills/outreach/SKILL.md). Per-platform
+The operating manual is [skills/influencer-discovery/SKILL.md](skills/influencer-discovery/SKILL.md). Per-platform
 capability boundaries (what each API exposes, which credentials it needs, what it costs) live in
-[reference/datalayer/](skills/outreach/reference/datalayer/index.md); how contact info is
+[reference/datalayer/](skills/influencer-discovery/reference/datalayer/index.md); how contact info is
 obtained per channel lives in
-[reference/methodology/](skills/outreach/reference/methodology/index.md), where the
+[reference/methodology/](skills/influencer-discovery/reference/methodology/index.md), where the
 directory-name prefix is the cooperation priority.
 
 ## Channels
@@ -29,28 +29,28 @@ directory-name prefix is the cooperation priority.
 Fetching is polite and read-only: explicit User-Agent, throttled, no anti-bot circumvention.
 Some channels work with zero credentials; others need an API key or a logged-in session — the
 per-channel requirements are in
-[datalayer](skills/outreach/reference/datalayer/index.md#credentials).
+[datalayer](skills/influencer-discovery/reference/datalayer/index.md#credentials).
 
 ## Install
 
 No third-party packages — the pipeline is pure standard library.
 
 ```bash
-git clone https://github.com/tigerless-labs/outreach && cd outreach
+git clone https://github.com/tigerless-labs/influencer-discovery && cd influencer-discovery
 uv venv && uv pip install -e .
 ```
 
 (Any Python ≥ 3.11 works: `python3 -m venv .venv && .venv/bin/pip install -e .` is equivalent.)
 
-Credentials go in `~/.config/outreach/.env`, never in the repo. Pipeline state lives in
-`~/.local/share/outreach/`; both paths are overridable via `OUTREACH_CONFIG_DIR` /
-`OUTREACH_STATE_DIR`. Knobs that travel with the code (channel list, throttle parameters,
+Credentials go in `~/.config/influencer-discovery/.env`, never in the repo. Pipeline state lives in
+`~/.local/share/influencer-discovery/`; both paths are overridable via `INFLUENCER_DISCOVERY_CONFIG_DIR` /
+`INFLUENCER_DISCOVERY_STATE_DIR`. Knobs that travel with the code (channel list, throttle parameters,
 header mapping) stay in `config/`.
 
 ## Run
 
 ```bash
-.venv/bin/python -m outreach.run --tiers 1 --per-channel 10
+.venv/bin/python -m influencer_discovery.run --tiers 1 --per-channel 10
 ```
 
 `--channels` / `--tiers` select channels, `--subject` sets the topic gate,
@@ -59,7 +59,7 @@ actual, verdict distribution, and the contactable list.
 
 ### Sheets access
 
-Set `OUTREACH_SPREADSHEET_ID` and authenticate with a short-lived token minted by impersonating
+Set `INFLUENCER_DISCOVERY_SPREADSHEET_ID` and authenticate with a short-lived token minted by impersonating
 a service account — no long-lived key file on disk. Google blocks adding the `spreadsheets`
 scope to plain gcloud ADC ("This app is blocked"), so mint via the `iamcredentials` API:
 

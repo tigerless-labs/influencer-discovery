@@ -1,6 +1,6 @@
-from outreach.channels.instagram import Instagram
-from outreach.channels.threads import Threads
-from outreach.channels.tiktok import TikTok
+from influencer_discovery.channels.instagram import Instagram
+from influencer_discovery.channels.threads import Threads
+from influencer_discovery.channels.tiktok import TikTok
 
 IG_SEARCH_PROFILE = {
     "username": "fixture_person",
@@ -82,10 +82,10 @@ def test_a_dead_provider_response_yields_no_candidate():
 
 
 def test_only_scrapecreators_is_wired_in():
-    import outreach.channels as registry
+    import influencer_discovery.channels as registry
 
     sources = [
-        __import__(f"outreach.channels.{m}", fromlist=["x"]).__file__
+        __import__(f"influencer_discovery.channels.{m}", fromlist=["x"]).__file__
         for m in ("instagram", "tiktok", "threads")
     ]
     for path in sources:
@@ -116,7 +116,7 @@ def by_key(candidates):
 
 
 def test_a_declared_own_domain_becomes_the_second_hop_target(tmp_path):
-    from outreach.channels.reddit import Reddit
+    from influencer_discovery.channels.reddit import Reddit
 
     found = by_key(Reddit(None, dump(tmp_path))._from_dumps(50))
     assert found["blogger"].own_site == "https://blogger.dev"
@@ -124,7 +124,7 @@ def test_a_declared_own_domain_becomes_the_second_hop_target(tmp_path):
 
 
 def test_a_platform_address_typed_into_the_custom_field_is_not_an_own_site(tmp_path):
-    from outreach.channels.reddit import Reddit
+    from influencer_discovery.channels.reddit import Reddit
 
     found = by_key(Reddit(None, dump(tmp_path))._from_dumps(50))
     assert found["linked"].own_site is None
@@ -133,26 +133,26 @@ def test_a_platform_address_typed_into_the_custom_field_is_not_an_own_site(tmp_p
 
 def test_someone_with_no_links_still_enters_the_log(tmp_path):
     """Crawled is crawled: leaving them out means paying for them again next round."""
-    from outreach.channels.reddit import Reddit
+    from influencer_discovery.channels.reddit import Reddit
 
     assert "bare" in by_key(Reddit(None, dump(tmp_path))._from_dumps(50))
 
 
 def test_a_malformed_line_is_skipped_not_fatal(tmp_path):
-    from outreach.channels.reddit import Reddit
+    from influencer_discovery.channels.reddit import Reddit
 
     assert len(Reddit(None, dump(tmp_path))._from_dumps(50)) == 4
 
 
 def test_people_with_a_site_are_offered_before_people_without(tmp_path):
-    from outreach.channels.reddit import Reddit
+    from influencer_discovery.channels.reddit import Reddit
 
     sites = [bool(c.own_site) for c in Reddit(None, dump(tmp_path))._from_dumps(50)]
     assert sites == sorted(sites, reverse=True)
 
 
 def test_the_dump_survives_a_missing_reddit_session(tmp_path, monkeypatch):
-    from outreach.channels import reddit as module
+    from influencer_discovery.channels import reddit as module
 
     def no_session():
         raise module.NoSession("no cookie")
@@ -164,7 +164,7 @@ def test_the_dump_survives_a_missing_reddit_session(tmp_path, monkeypatch):
 
 
 def test_a_dump_that_is_not_there_is_not_an_error(tmp_path):
-    from outreach.channels.reddit import Reddit
+    from influencer_discovery.channels.reddit import Reddit
 
     assert Reddit(None, {"profile_dumps": [str(tmp_path / "gone.jsonl")]})._from_dumps(50) == []
 
@@ -185,7 +185,7 @@ PROFILE_HTML = (
 
 
 def test_a_profile_page_gives_both_the_domain_and_the_size():
-    from outreach.channels.reddit import Reddit
+    from influencer_discovery.channels.reddit import Reddit
 
     channel = Reddit(None, {})
     assert channel._own_domain(channel._social_links(PROFILE_HTML)) == "https://blogger.dev"
@@ -193,7 +193,7 @@ def test_a_profile_page_gives_both_the_domain_and_the_size():
 
 
 def test_a_shortened_follower_count_is_read_at_its_real_scale():
-    from outreach.channels.reddit import Reddit
+    from influencer_discovery.channels.reddit import Reddit
 
     channel = Reddit(None, {})
     assert channel._followers("<span>12.4k followers</span>") == 12400
@@ -202,13 +202,13 @@ def test_a_shortened_follower_count_is_read_at_its_real_scale():
 
 
 def test_the_same_figure_repeated_is_still_a_size():
-    from outreach.channels.reddit import Reddit
+    from influencer_discovery.channels.reddit import Reddit
 
     assert Reddit(None, {})._followers("<b>4210 followers</b><i>4,210 followers</i>") == 4210
 
 
 def test_a_tracking_blob_that_is_not_json_does_not_kill_the_page():
-    from outreach.channels.reddit import Reddit
+    from influencer_discovery.channels.reddit import Reddit
 
     html = '<faceplate-tracker data-faceplate-tracking-context="{oops social_link"></faceplate-tracker>' + PROFILE_HTML
     assert Reddit(None, {})._social_links(html)
@@ -216,7 +216,7 @@ def test_a_tracking_blob_that_is_not_json_does_not_kill_the_page():
 
 def test_a_dump_does_not_re_offer_people_the_log_already_holds(tmp_path):
     """Otherwise the already-imported crowd eats the whole budget and the live path never runs."""
-    from outreach.channels.reddit import Reddit
+    from influencer_discovery.channels.reddit import Reddit
 
     channel = Reddit(None, dump(tmp_path))
     channel.already_have = lambda key: key == "blogger"
@@ -225,21 +225,21 @@ def test_a_dump_does_not_re_offer_people_the_log_already_holds(tmp_path):
 
 def test_a_page_with_no_follower_widget_means_zero_not_unknown():
     """Reddit only renders the count above zero, so absence is the number, not a gap."""
-    from outreach.channels.reddit import Reddit
+    from influencer_discovery.channels.reddit import Reddit
 
     assert Reddit(None, {})._followers("<html><body>a profile with no widget</body></html>") == 0
     assert Reddit(None, {})._followers(PROFILE_HTML) == 33882
 
 
 def test_two_different_figures_still_leave_it_unknown():
-    from outreach.channels.reddit import Reddit
+    from influencer_discovery.channels.reddit import Reddit
 
     html = "<p>my friend has 900000 followers</p><span>4210 followers</span>"
     assert Reddit(None, {})._followers(html) is None
 
 
 def test_karma_is_read_from_the_user_record():
-    from outreach.channels.reddit import Reddit
+    from influencer_discovery.channels.reddit import Reddit
 
     payload = {"data": {"total_karma": 4321, "link_karma": 1, "comment_karma": 2}}
     assert Reddit(None, {})._karma(payload) == 4321
@@ -249,8 +249,8 @@ def test_karma_is_read_from_the_user_record():
 
 def test_karma_stands_in_only_when_nobody_follows_him():
     """A real follower count is the audience; karma is only a proxy for platforms without one."""
-    from outreach.channels.reddit import Reddit
-    from outreach.record import Audience
+    from influencer_discovery.channels.reddit import Reddit
+    from influencer_discovery.record import Audience
 
     channel = Reddit(None, {})
     assert channel._audience(followers=5400, karma=90).unit == "followers"

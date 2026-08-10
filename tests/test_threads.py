@@ -1,5 +1,5 @@
-from outreach.channels.scrapecreators import OutOfCredits
-from outreach.channels.threads import Threads
+from influencer_discovery.channels.scrapecreators import OutOfCredits
+from influencer_discovery.channels.threads import Threads
 
 TERMS = ["ai agents", "llm"]
 

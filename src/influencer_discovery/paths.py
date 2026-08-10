@@ -1,7 +1,7 @@
 import os
 from pathlib import Path
 
-SKILL = "outreach"
+SKILL = "influencer-discovery"
 
 
 def _dir(env_var, default):
@@ -9,15 +9,15 @@ def _dir(env_var, default):
 
 
 def config_dir():
-    return _dir("OUTREACH_CONFIG_DIR", Path.home() / ".config" / SKILL)
+    return _dir("INFLUENCER_DISCOVERY_CONFIG_DIR", Path.home() / ".config" / SKILL)
 
 
 def state_dir():
-    return _dir("OUTREACH_STATE_DIR", Path.home() / ".local" / "share" / SKILL)
+    return _dir("INFLUENCER_DISCOVERY_STATE_DIR", Path.home() / ".local" / "share" / SKILL)
 
 
 def memory_dir():
-    return _dir("OUTREACH_MEMORY_DIR", Path.home() / "Documents" / SKILL)
+    return _dir("INFLUENCER_DISCOVERY_MEMORY_DIR", Path.home() / "Documents" / SKILL)
 
 
 def repo_dir():

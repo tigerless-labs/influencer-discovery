@@ -1,9 +1,9 @@
 import pytest
 
-from outreach.gate import Gate
-from outreach.record import Candidate, Contact, Outcome
-from outreach.topic import is_on_topic, note_hits
-from outreach.topic import hits_in, is_on_topic, note_hits
+from influencer_discovery.gate import Gate
+from influencer_discovery.record import Candidate, Contact, Outcome
+from influencer_discovery.topic import is_on_topic, note_hits
+from influencer_discovery.topic import hits_in, is_on_topic, note_hits
 
 
 def cand(**over):
@@ -68,7 +68,7 @@ def test_a_buyer_is_rejected_even_when_on_topic(gate):
 
 
 def test_an_out_of_band_size_no_longer_rejects(gate):
-    from outreach.record import Audience
+    from influencer_discovery.record import Audience
 
     c = cand(bio="AI tools", audience=Audience(4_000_000, "followers", "2026-08-07"))
     verdict = gate.judge(c)
@@ -77,7 +77,7 @@ def test_an_out_of_band_size_no_longer_rejects(gate):
 
 
 def test_ranking_puts_in_band_first_then_unknown_then_off_band(gate):
-    from outreach.record import Audience
+    from influencer_discovery.record import Audience
 
     in_band = cand(bio="ai", audience=Audience(50_000, "followers", "d"))
     unknown = cand(bio="ai")

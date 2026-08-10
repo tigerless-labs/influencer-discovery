@@ -17,7 +17,7 @@ One file for the publicly accessible surface, one per platform for the rest; ven
 
 ## Credentials
 
-**All live in `~/.config/outreach/.env`, `chmod 600`.** Not in the repo, not in logs, not in reference.
+**All live in `~/.config/influencer-discovery/.env`, `chmod 600`.** Not in the repo, not in logs, not in reference.
 Code reads by variable name only; paths appear only in config.
 
 | Variable | Vendor | Status |

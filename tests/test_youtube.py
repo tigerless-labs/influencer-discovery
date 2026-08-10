@@ -1,4 +1,4 @@
-from outreach.channels.youtube import YouTube, subscribers_from
+from influencer_discovery.channels.youtube import YouTube, subscribers_from
 
 
 def test_subscriber_suffixes_scale():

@@ -1,7 +1,7 @@
 import pytest
 
-from outreach.record import Candidate, Contact
-from outreach.sheet import HeaderMismatch, TargetSheet
+from influencer_discovery.record import Candidate, Contact
+from influencer_discovery.sheet import HeaderMismatch, TargetSheet
 
 HEADERS = ["Name", "Platform", "Link", "Contact", "Contact Type", "Status"]
 

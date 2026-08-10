@@ -1,6 +1,6 @@
 import json
 
-from outreach.channels.mastodon import Mastodon
+from influencer_discovery.channels.mastodon import Mastodon
 
 
 class FakeFetcher:

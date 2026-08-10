@@ -196,9 +196,9 @@ def append_to_sheet(store=None):
         "\n".join(json.dumps(c.to_row(), ensure_ascii=False) for c in rows), encoding="utf-8"
     )
 
-    spreadsheet_id = credential("OUTREACH_SPREADSHEET_ID")
+    spreadsheet_id = credential("INFLUENCER_DISCOVERY_SPREADSHEET_ID")
     if not spreadsheet_id:
-        return staged, "OUTREACH_SPREADSHEET_ID is not set"
+        return staged, "INFLUENCER_DISCOVERY_SPREADSHEET_ID is not set"
     try:
         api = SheetsApi(spreadsheet_id, access_token())
         TargetSheet(api, config["tab"], config["columns"]).append(rows)

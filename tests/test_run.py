@@ -2,13 +2,13 @@ import tomllib
 
 import pytest
 
-from outreach import channels as channel_registry
-from outreach import run as run_module
-from outreach.channels.base import Channel
-from outreach.paths import repo_config_dir
-from outreach.record import Audience, Candidate, Contact, Outcome
-from outreach.run import Run, load_config, select, tier_of
-from outreach.store import Store
+from influencer_discovery import channels as channel_registry
+from influencer_discovery import run as run_module
+from influencer_discovery.channels.base import Channel
+from influencer_discovery.paths import repo_config_dir
+from influencer_discovery.record import Audience, Candidate, Contact, Outcome
+from influencer_discovery.run import Run, load_config, select, tier_of
+from influencer_discovery.store import Store
 
 BAND = (5000, 200000)
 
@@ -123,7 +123,7 @@ CONFIG = load_config("channels.toml")
 
 
 def test_every_channel_points_at_a_methodology_document():
-    root = repo_config_dir().parent / "skills/outreach/reference/methodology"
+    root = repo_config_dir().parent / "skills/influencer-discovery/reference/methodology"
     for name, entry in CONFIG.items():
         if not isinstance(entry, dict):
             continue
@@ -191,7 +191,7 @@ def test_rejudging_reports_only_what_it_changed(tmp_path):
 
 
 def test_the_replay_fetcher_serves_disk_and_never_the_network(tmp_path, monkeypatch):
-    from outreach import fetch as fetch_module
+    from influencer_discovery import fetch as fetch_module
 
     monkeypatch.setattr(fetch_module, "state_dir", lambda: tmp_path)
     url = "https://janesblog.dev"
@@ -220,7 +220,7 @@ def test_a_stale_buyer_call_is_cleared_before_the_page_is_read_again(tmp_path, m
 
 
 def test_rejudging_persists_refreshed_evidence_behind_an_unchanged_verdict(tmp_path):
-    from outreach.run import rejudge
+    from influencer_discovery.run import rejudge
 
     store = Store(tmp_path)
     stale = person("keeper", followers=9000)
@@ -238,7 +238,7 @@ def test_rejudging_persists_refreshed_evidence_behind_an_unchanged_verdict(tmp_p
 
 
 def test_rejudging_leaves_an_already_current_row_alone(tmp_path):
-    from outreach.run import rejudge
+    from influencer_discovery.run import rejudge
 
     store = Store(tmp_path)
     current = person("settled", followers=9000)

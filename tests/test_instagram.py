@@ -3,7 +3,7 @@ import urllib.parse
 
 import pytest
 
-from outreach.channels.instagram import LAST_PAGE, MISSES_ALLOWED, Instagram
+from influencer_discovery.channels.instagram import LAST_PAGE, MISSES_ALLOWED, Instagram
 
 ROW = {
     "username": "fixture_person",

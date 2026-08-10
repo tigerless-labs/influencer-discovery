@@ -12,7 +12,7 @@ from concurrent.futures import ThreadPoolExecutor
 from .domains import registrable_domain
 from .paths import state_dir
 
-USER_AGENT = "outreach-research/0.1 (+https://tigerless.com; polite crawler)"
+USER_AGENT = "influencer-discovery/0.1 (+https://tigerless.com; polite crawler)"
 HOST_GAP_SECONDS = 1.5
 STOP_CODES = {403, 429}
 ALLOWED_SCHEMES = {"http", "https"}

@@ -1,6 +1,6 @@
 import pytest
 
-from outreach.record import Audience, Candidate, Contact, Outcome
+from influencer_discovery.record import Audience, Candidate, Contact, Outcome
 
 
 def make(**over):

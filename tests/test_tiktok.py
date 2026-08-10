@@ -1,7 +1,7 @@
 import pytest
 
-from outreach.channels.scrapecreators import OutOfCredits
-from outreach.channels.tiktok import TikTok, site_in
+from influencer_discovery.channels.scrapecreators import OutOfCredits
+from influencer_discovery.channels.tiktok import TikTok, site_in
 
 
 def video(handle, followers=5000, plays=100, caption="ai agents at work", nickname=None):

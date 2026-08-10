@@ -1,7 +1,7 @@
 import pytest
 
-from outreach.record import Candidate, Outcome
-from outreach.store import Store
+from influencer_discovery.record import Candidate, Outcome
+from influencer_discovery.store import Store
 
 
 @pytest.fixture
