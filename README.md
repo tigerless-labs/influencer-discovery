@@ -89,4 +89,4 @@ normal, retry.
 
 ---
 
-Built by [Tigerless Labs](https://github.com/tigerless-labs). Our home is [tigerless.ai](https://tigerless.ai) — the same company as [tigerless.com](https://www.tigerless.com).
+© Tigerless · [tigerless.ai](https://tigerless.ai) · [tigerless.com](https://www.tigerless.com)
