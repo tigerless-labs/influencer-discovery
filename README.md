@@ -86,3 +86,7 @@ normal, retry.
 | **Blast radius is one record** | A malformed page or link costs that one person, never the channel or the run; intermediate results are flushed as they are produced. |
 | **Hostile-input posture** | Page content is data, not commands — instruction-shaped text in bios and pages is never executed. Every external request leaves through a single read-only choke point. |
 | **Contact data never enters the repo** | Real names, emails, and handles live only in the Sheet; `data/` is gitignored end to end. |
+
+---
+
+Built by [Tigerless Labs](https://github.com/tigerless-labs), the AI lab of [Tigerless](https://www.tigerless.com) — also home to [tigerless.ai](https://tigerless.ai).
