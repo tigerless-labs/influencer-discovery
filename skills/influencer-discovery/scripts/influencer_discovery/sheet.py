@@ -49,6 +49,12 @@ class SheetsApi:
         values = self._call(f"/values/{rng}").get("values") or [[]]
         return values[0]
 
+    def read_rows(self, tab):
+        rng = urllib.parse.quote(f"{tab}!A:Z")
+        values = self._call(f"/values/{rng}").get("values") or [[]]
+        headers = values[0]
+        return headers, [row + [""] * (len(headers) - len(row)) for row in values[1:]]
+
     def append(self, tab, values):
         rng = urllib.parse.quote(f"{tab}!A:A")
         self._call(

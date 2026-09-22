@@ -51,8 +51,9 @@ not a stop condition here.
 
 ## Dedup key
 
-`(channel display name, YouTube)`. The display name is machine-scraped from the channel page, not
-hand-typed — that is the condition under which the dedup premise holds.
+`(channel handle, YouTube)`, lowercased, without the `@`. YouTube guarantees the handle is unique
+and case-insensitive, so it is steadier than the display name. Seeding from the target sheet takes
+the handle out of the profile link, not the name column.
 
 Note that `youtube.com/@handle` and `youtube.com/channel/UC…` are two addresses for the same
 person; dedup doesn't look at links, so this is not a problem, but **the second hop will walk the
@@ -73,4 +74,3 @@ address entry twice**.
 - How big the video-search vs channel-search quality gap is on YouTube (the judgment comes from
   runs on other platforms). The video-search path works via CLI, and the same-person recurrence
   phenomenon does appear, but the two paths haven't been compared head-to-head.
-- Stability of channel display names — the dedup premise depends on it.

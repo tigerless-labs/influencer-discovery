@@ -50,3 +50,31 @@ def test_og_title_is_the_fallback():
 
 def test_no_name_anywhere_yields_none():
     assert YouTube._channel_name("<html></html>") is None
+
+
+class SeenOnlyFetcher:
+    def __init__(self, search_html):
+        self.search_html = search_html
+        self.about_calls = []
+
+    def try_get(self, url, **_):
+        if "results?" in url:
+            return self.search_html
+        self.about_calls.append(url)
+        return '<meta property="og:title" content="X">'
+
+
+def test_a_seen_handle_is_skipped_whatever_its_case():
+    html = '"canonicalBaseUrl":"/@NicholasPuru" "canonicalBaseUrl":"/@fresh"'
+    fetcher = SeenOnlyFetcher(html)
+    channel = YouTube(fetcher, {"terms": ["ai"]})
+    channel.already_have = lambda key: key == "nicholaspuru"
+    channel.discover(10)
+    assert fetcher.about_calls == ["https://www.youtube.com/%40fresh/about"]
+
+
+def test_the_person_key_is_the_lowercased_handle_without_the_at():
+    channel = YouTube(SeenOnlyFetcher(""), {})
+    candidate = channel._about("@JohnKimLife")
+    assert candidate.person_key == "johnkimlife"
+    assert candidate.profile_url == "https://www.youtube.com/@JohnKimLife"

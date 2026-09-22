@@ -64,7 +64,7 @@ class YouTube(Channel):
             if not html:
                 continue
             for handle in self._handles(html):
-                if handle not in handles and not self.already_have(handle):
+                if handle not in handles and not self.already_have(self._key(handle)):
                     handles.append(handle)
 
         found = []
@@ -75,6 +75,11 @@ class YouTube(Channel):
             if candidate and note_hits(candidate):
                 found.append(candidate)
         return found
+
+    @staticmethod
+    def _key(handle):
+        """YouTube handles are unique and case-insensitive, so the key is the handle, not the name."""
+        return handle.lstrip("@").lower()
 
     @staticmethod
     def _handles(html):
@@ -113,7 +118,7 @@ class YouTube(Channel):
 
         candidate = Candidate(
             channel=self.name,
-            person_key=handle.lstrip("@"),
+            person_key=self._key(handle),
             display_name=title,
             profile_url=f"https://www.youtube.com/{handle}",
             own_site=links[0] if links else None,

@@ -85,3 +85,15 @@ def test_the_sheet_client_has_no_update_capability():
     assert not hasattr(TargetSheet, "update")
     assert not hasattr(TargetSheet, "clear")
     assert not hasattr(TargetSheet, "delete")
+
+
+def test_read_rows_splits_headers_from_the_body():
+    from influencer_discovery.sheet import SheetsApi
+
+    class Api(SheetsApi):
+        def _call(self, path, **_):
+            return {"values": [["Name", "Platform"], ["Ada", "YouTube"], ["Bob"]]}
+
+    headers, body = Api("sid", "tok").read_rows("Target List")
+    assert headers == ["Name", "Platform"]
+    assert body == [["Ada", "YouTube"], ["Bob", ""]]

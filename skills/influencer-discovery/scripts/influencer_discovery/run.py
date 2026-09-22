@@ -210,6 +210,24 @@ def append_to_sheet(store=None):
     return staged, None
 
 
+def seed_from_sheet(channel, store=None):
+    from .paths import credential
+    from .seed import seed_channel
+    from .sheet import SheetsApi, access_token
+
+    config = load_config("sheet.toml")
+    api = SheetsApi(credential("INFLUENCER_DISCOVERY_SPREADSHEET_ID"), access_token())
+    headers, rows = api.read_rows(config["tab"])
+    return seed_channel(store or Store(), headers, rows, config["columns"], channel)
+
+
+def seed_from_export(path, channel, store=None):
+    from .seed import read_export, seed_channel
+
+    headers, rows = read_export(path)
+    return seed_channel(store or Store(), headers, rows, load_config("sheet.toml")["columns"], channel)
+
+
 def _floors(args):
     """A line per unit: what counts as too small differs by what the platform can even measure."""
     return {
@@ -235,7 +253,18 @@ def main():
     parser.add_argument("--append-sheet", action="store_true")
     parser.add_argument("--export-xlsx", default="")
     parser.add_argument("--compact", action="store_true")
+    parser.add_argument("--seed-from-sheet", default="", metavar="CHANNEL")
+    parser.add_argument("--seed-from-export", nargs=2, default=None, metavar=("PATH", "CHANNEL"))
     args = parser.parse_args()
+
+    if args.seed_from_sheet:
+        print(f"seeded {seed_from_sheet(args.seed_from_sheet)} new {args.seed_from_sheet} keys from the sheet")
+        return
+
+    if args.seed_from_export:
+        path, channel = args.seed_from_export
+        print(f"seeded {seed_from_export(path, channel)} new {channel} keys from {path}")
+        return
 
     if args.compact:
         from .fetch import RawStore
