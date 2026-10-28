@@ -2,6 +2,8 @@ import json
 import subprocess
 from pathlib import Path
 
+from .paths import state_dir
+
 MISSING_READER = (
     "browser-cookie3 is missing, so the session cannot be read. Install: pip install browser-cookie3"
 )
@@ -24,8 +26,17 @@ def browser_cookies(domain):
     return {c.name: c.value for c in jar}
 
 
+def account_db():
+    """A session belongs with the state, never in the repo — the path is the guarantee."""
+    return state_dir() / "accounts.db"
+
+
+def twscrape_command(*args):
+    return ["twscrape", "--db", str(account_db()), *args]
+
+
 def _twscrape(*args, timeout=90):
-    return subprocess.run(["twscrape", *args], capture_output=True, text=True, timeout=timeout)
+    return subprocess.run(twscrape_command(*args), capture_output=True, text=True, timeout=timeout)
 
 
 def x_session_ready(label="browser"):

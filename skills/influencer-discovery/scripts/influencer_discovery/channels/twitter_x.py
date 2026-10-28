@@ -9,7 +9,7 @@ from ..domains import registrable_domain
 from ..hop import emails_in
 from ..paths import state_dir
 from ..record import Audience, Candidate, Contact
-from ..session import NoSession, x_session_ready
+from ..session import NoSession, account_db, twscrape_command, x_session_ready
 from ..topic import MAX_EVIDENCE, hits_in
 from .base import Channel, register
 
@@ -24,15 +24,6 @@ PLATFORM_HOSTS = {"x.com", "twitter.com", "t.co"}
 ASKED_TO_WAIT = "No account available for queue"
 SESSION_GONE = ("No accounts available", "no active accounts")
 NESTED_TWEETS = ("quotedTweet", "retweetedTweet")
-
-
-def account_db():
-    """A session belongs with the state, never in the repo — the path is the guarantee."""
-    return state_dir() / "accounts.db"
-
-
-def twscrape_command(*args):
-    return ["twscrape", "--db", str(account_db()), *args]
 
 
 def _host(url):
@@ -161,9 +152,13 @@ class TwitterX(Channel):
         return True
 
     def _has_active_account(self, listing):
-        for line in (listing or "").splitlines()[1:]:
+        lines = (listing or "").splitlines()
+        if not lines or "active" not in lines[0].split():
+            return False
+        active = lines[0].split().index("active")
+        for line in lines[1:]:
             fields = line.split()
-            if len(fields) >= 3 and fields[2] in {"1", "true", "True"}:
+            if len(fields) > active and fields[active] in {"1", "true", "True"}:
                 return True
         return False
 
@@ -178,7 +173,7 @@ class TwitterX(Channel):
         try:
             proc = self._start(query, limit)
         except OSError as e:
-            self.halted = f"twscrape failed to start: {type(e).__name__}. Install: pip install twscrape"
+            self.halted = f"twscrape failed to start: {type(e).__name__}. Install: uv tool install twscrape"
             return []
         cutoff = time.monotonic() + QUERY_TIMEOUT_SECONDS
         if deadline:

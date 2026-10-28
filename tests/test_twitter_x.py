@@ -325,6 +325,27 @@ def test_one_active_row_is_enough():
     assert TwitterX(None, {})._has_active_account(table) is True
 
 
+def test_the_active_column_is_found_by_name_not_position():
+    table = (
+        "username  logged_in  login_method  active  last_used   total_req\n"
+        "someone   1          cookies       1       2026-10-28  16:21:29\n"
+    )
+    assert TwitterX(None, {})._has_active_account(table) is True
+
+
+def test_a_login_method_column_does_not_pass_for_active():
+    table = (
+        "username  logged_in  login_method  active  last_used   total_req\n"
+        "someone   1          1             0       2026-10-28  16:21:29\n"
+    )
+    assert TwitterX(None, {})._has_active_account(table) is False
+
+
+def test_a_table_without_an_active_column_is_not_a_session():
+    table = "username  logged_in\nsomeone   1\n"
+    assert TwitterX(None, {})._has_active_account(table) is False
+
+
 class Pipe:
     """A pipe delivers one line at a time; buffering the whole stream would hide the wait notice."""
 

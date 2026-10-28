@@ -16,6 +16,9 @@ returns live results.
 
 A browser not logged into x.com has no `auth_token`, and this cookie set cannot be completed.
 
+**X's web scripts change under twscrape.** 0.19.2 failed every search with `XClIdParseError` (2026-10-23); 0.20.1 works.
+It also moved `active` to a later column in `accounts` output — read columns by header name, never by position.
+
 **One search gives everything.** Every tweet `search` returns inlines the full author object:
 
 ```

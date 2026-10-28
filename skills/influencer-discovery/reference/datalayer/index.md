@@ -36,7 +36,7 @@ Never pre-installed: on a missing tool the run reports the name and this install
 
 | Tool | Serves | Install | Session it holds |
 |---|---|---|---|
-| `twscrape` | X search | `pip install twscrape` | account pool in its own store, pointed at the user-level dir |
+| `twscrape` | X search | `uv tool install twscrape` (system pip refuses: externally managed) | account pool in its own store, pointed at the user-level dir on every call |
 | `rdt` | Reddit fetch | `pip install rdt-cli`, then `rdt login` | `~/.config/rdt-cli/credential.json`, reused from the browser |
 | `browser-cookie3` | reads the browser cookie DB to top up twscrape | `pip install browser-cookie3` | none — cookie value stays in process memory |
 

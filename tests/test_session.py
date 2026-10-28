@@ -124,3 +124,20 @@ def test_a_credential_file_without_cookies_is_also_a_missing_session(tmp_path, m
     monkeypatch.setattr(module, "rdt_credential_file", lambda: store)
     with pytest.raises(module.NoSession):
         module.rdt_cookie_header()
+
+
+def test_topping_up_names_the_user_level_account_db(monkeypatch):
+    seen = []
+
+    class Proc:
+        returncode = 0
+        stdout = ""
+        stderr = ""
+
+    monkeypatch.setattr(session_module.subprocess, "run", lambda cmd, **k: seen.append(cmd) or Proc())
+    monkeypatch.setattr(session_module, "browser_cookies", lambda d: {"auth_token": "a", "ct0": "c"})
+    x_session_ready("browser")
+    assert seen
+    for cmd in seen:
+        assert cmd[:3] == session_module.twscrape_command()[:3]
+        assert cmd[1] == "--db"
